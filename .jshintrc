@@ -1,0 +1,7 @@
+{
+	//support
+	"node": true,
+
+	"indent": 4,
+	"maxlen": 120
+}
