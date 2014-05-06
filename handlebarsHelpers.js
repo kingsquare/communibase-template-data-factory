@@ -27,6 +27,21 @@ operators['<='] = operators.lte;
 operators['>='] = operators.gte;
 operators['%'] = operators.mod;
 
+/**
+ *
+ * @param {Object} container
+ * @param {array} nibbles
+ */
+var traverseNibbles = function(container, nibbles) {
+	var nextNibble = nibbles.shift();
+	var nextValue = container[nextNibble];
+
+	if (nextValue && nibbles.length) {
+		return traverseNibbles(nextValue, nibbles);
+	}
+
+	return nextValue;
+};
 
 
 module.exports = {
@@ -72,9 +87,13 @@ module.exports = {
 	},
 
 	'fromContainer': function (container, key) {
-		console.log(arguments);
 		if (container[key]) {
 			return container[key];
+		}
+
+		var nibbles = (key.split('.'));
+		if (nibbles.length > 1) {
+			return traverseNibbles(container, nibbles);
 		}
 		return '';
 	}
