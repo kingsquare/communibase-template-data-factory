@@ -29,7 +29,6 @@ Handlebars.registerHelper(tools.handlebarsHelpers);
 // and / or
 
 tools.renderFile('myTemplate.hbs', {}).then(...)
-tools.renderString('<h1>{{hi}}</h1>', { hi: 'hello' }).then(...)
 
 
 ```

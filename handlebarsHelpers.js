@@ -1,4 +1,5 @@
 var Handlebars = require('handlebars');
+moment = require('moment');
 
 /*jshint eqeqeq: false */
 operators = {
