@@ -94,12 +94,48 @@ module.exports = function (options) {
 				}
 
 				if (entitiesHash[attribute.type]) {
-					subPromises.push(self.getTemplateData(attribute.type, value, (nestLevel + 1)).then(
-						function (templateData) {
-							result[attribute.title] = templateData;
-						}
-					));
-					return;
+					if (attribute.title.substr(-9) !==  'Reference') {
+						subPromises.push(self.getTemplateData(attribute.type, value, (nestLevel + 1)).then(
+							function (templateData) {
+								result[attribute.title] = templateData;
+							}
+						));
+						return;
+					}
+
+					var referredDocumentProperty = attribute.title.substr(0, (attribute.title.length - 9));
+
+					if (attribute.type ===  'DocumentReference') {
+						subPromises.push(
+							cbc.getByRef(value, document).then(
+								function (referredDocument) {
+									result[referredDocumentProperty] = referredDocument;
+								}, function () {
+									result[referredDocumentProperty] = null;
+									return when();
+								}
+							)
+						);
+						return;
+					}
+
+					//something like membership.emailAddressReference
+					if (value.documentReference) {
+						subPromises.push(
+							cbc.getByRef(value.documentReference, value).then(
+								function (referredDocument) {
+									result[referredDocumentProperty] = referredDocument;
+								}, function () {
+									result[referredDocumentProperty] = null;
+									return when();
+								}
+							)
+						);
+						return;
+					}
+
+					// a custom defined address / phoneNumber / emailAddress within a reference
+					result[referredDocumentProperty] = value[referredDocumentProperty];
 				}
 
 				// Default key-value store
@@ -132,4 +168,4 @@ module.exports = function (options) {
 			});
 		});
 	};
-}
+};

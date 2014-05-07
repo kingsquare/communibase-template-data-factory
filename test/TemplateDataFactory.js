@@ -1,4 +1,4 @@
-var assert = require("assert")
+var assert = require("assert");
 var tools = require('./../index.js');
 var cbc = require('communibase-connector-js');
 
@@ -14,9 +14,10 @@ describe('Tool', function(){
 			var person = cbc.search('Membership', {}, { limit: 1 }).then(function (memberships) {
 				factory.getTemplateData('Membership', memberships[0]).then(function (result) {
 					assert.equal(typeof result, 'object');
+					assert.equal(typeof result.address, 'object');
 					done();
 				});
 			});
-		})
-	})
-})
+		});
+	});
+});
