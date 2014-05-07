@@ -40,7 +40,7 @@ var traverseNibbles = function(container, nibbles) {
 		return traverseNibbles(nextValue, nibbles);
 	}
 
-	return nextValue;
+	return nextValue || "";
 };
 
 
