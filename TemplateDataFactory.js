@@ -23,7 +23,7 @@ module.exports = function (options) {
 	 * @returns {Object}
 	 */
 	this.getTemplateData = function (entityTypeTitle, document, nestLevel) {
-		var result = {}, subPromises = [], self = this;
+		var result = { _id: document._id }, subPromises = [], self = this;
 
 		if (nestLevel === undefined) {
 			nestLevel = 0;

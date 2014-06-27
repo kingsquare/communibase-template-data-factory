@@ -1,28 +1,28 @@
 {
-	"name": "communibase-render-tools",
-	"version": "0.0.4",
-	"description": "Helper methods for working with Templates and the Communibase service.",
-	"main": "index.js",
-	"scripts": {
-		"test": "mocha test.js"
-	},
-	"repository": {
-		"type": "git",
-		"url": "git://github.com/kingsquare/communibase-render-tools.git"
-	},
-	"author": "Kingsquare BV",
-	"license": "BSD-2-Clause",
-	"bugs": {
-		"url": "https://github.com/kingsquare/communibase-render-tools/issues"
-	},
-	"dependencies": {
-		"communibase-connector-js": "~0.1.6",
-		"when": "~3.1.0",
-		"lodash": "~2.4.1",
-		"handlebars": "~2.0.0-alpha.2",
-		"moment": "~2.6.0"
-	},
-	"devDependencies": {
-		"mocha": "*"
-	}
+  "name": "communibase-render-tools",
+  "version": "0.0.5",
+  "description": "Helper methods for working with Templates and the Communibase service.",
+  "main": "index.js",
+  "scripts": {
+    "test": "mocha test.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/kingsquare/communibase-render-tools.git"
+  },
+  "author": "Kingsquare BV",
+  "license": "BSD-2-Clause",
+  "bugs": {
+    "url": "https://github.com/kingsquare/communibase-render-tools/issues"
+  },
+  "dependencies": {
+    "communibase-connector-js": "~0.1.9",
+    "when": "~3.2.3",
+    "lodash": "~2.4.1",
+    "handlebars": "~2.0.0-alpha.4",
+    "moment": "~2.7.0"
+  },
+  "devDependencies": {
+    "mocha": "~1.20.1"
+  }
 }
