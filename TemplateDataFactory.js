@@ -55,7 +55,7 @@ module.exports = function (options) {
 
 						//applicableForGroupIds => applicableForGroups
 						result[attribute.title.substr(-3) + 's'] = [];
-						subPromises.push(cbc.getByIds(entitiesHash[attribute.ref], value).then(function (subDocuments) {
+						subPromises.push(cbc.getByIds(attribute.ref, value).then(function (subDocuments) {
 							var subSubPromises = [];
 							_.each(subDocuments, function (subDocument) {
 								subSubPromises.push(
