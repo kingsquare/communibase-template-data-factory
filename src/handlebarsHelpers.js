@@ -1,10 +1,10 @@
+'use strict';
 var Handlebars = require('handlebars'),
 	moment = require('moment-timezone');
-
 moment.locale('nl');
 
 /*jshint eqeqeq: false */
-operators = {
+var operators = {
 	'eq': function (l, r) { return l == r; },
 	'eqeq': function (l, r) { return l === r; },
 	'neq': function (l, r) { return l != r; },

@@ -1,6 +1,6 @@
 {
   "name": "communibase-render-tools",
-  "version": "0.0.6",
+  "version": "0.0.8",
   "description": "Helper methods for working with Templates and the Communibase service.",
   "main": "index.js",
   "scripts": {
