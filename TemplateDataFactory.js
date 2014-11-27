@@ -1,5 +1,5 @@
-_ = require('lodash');
-when = require('when');
+var _ = require('lodash'),
+	when = require('when');
 
 module.exports = function (options) {
 	var cbc = (options.cbc ? options.cbc : require('communibase-connector-js'));
@@ -157,7 +157,7 @@ module.exports = function (options) {
 								result[attribute.title.substr(0, (attribute.title.length - 2))] = templateData;
 							}
 						);
-					}, function (err) {
+					}, function (/*err*/) {
 						return when.resolve({});
 					}));
 				}

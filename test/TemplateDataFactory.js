@@ -1,5 +1,5 @@
-var assert = require("assert");
-var tools = require('./../index.js');
+var assert = require('assert');
+var tools = require('../index.js');
 var cbc = require('communibase-connector-js');
 
 require('when/monitor/console');

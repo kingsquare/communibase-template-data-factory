@@ -1,6 +1,6 @@
 var helpers = require('./handlebarsHelpers.js');
 var fs = require('fs');
-var handlebars = require('handlebars');
+var Handlebars = require('handlebars');
 
 /**
  *

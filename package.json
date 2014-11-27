@@ -4,7 +4,7 @@
   "description": "Helper methods for working with Templates and the Communibase service.",
   "main": "index.js",
   "scripts": {
-    "test": "mocha test.js"
+    "test": "mocha test/"
   },
   "repository": {
     "type": "git",
@@ -16,13 +16,13 @@
     "url": "https://github.com/kingsquare/communibase-render-tools/issues"
   },
   "dependencies": {
-    "communibase-connector-js": "~0.1.9",
-    "when": "~3.2.3",
+    "communibase-connector-js": "~0.1.13",
+    "when": "~3.6.3",
     "lodash": "~2.4.1",
-    "handlebars": "~2.0.0-alpha.4",
-    "moment": "~2.7.0"
+    "handlebars": "~2.0.0",
+    "moment-timezone": "0.2.5"
   },
   "devDependencies": {
-    "mocha": "~1.20.1"
+    "mocha": "~2.0.1"
   }
 }
