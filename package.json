@@ -1,5 +1,5 @@
 {
-  "name": "communibase-render-tools",
+  "name": "communibase-template-data-factory",
   "version": "0.0.8",
   "description": "Helper methods for working with Templates and the Communibase service.",
   "main": "index.js",
@@ -8,19 +8,17 @@
   },
   "repository": {
     "type": "git",
-    "url": "git://github.com/kingsquare/communibase-render-tools.git"
+    "url": "git://github.com/kingsquare/communibase-template-data-factory"
   },
   "author": "Kingsquare BV",
   "license": "BSD-2-Clause",
   "bugs": {
-    "url": "https://github.com/kingsquare/communibase-render-tools/issues"
+    "url": "https://github.com/kingsquare/communibase-template-data-factory/issues"
   },
   "dependencies": {
     "communibase-connector-js": "~0.1.13",
     "when": "~3.6.3",
-    "lodash": "~2.4.1",
-    "handlebars": "~2.0.0",
-    "moment-timezone": "0.2.5"
+    "lodash": "~2.4.1"
   },
   "devDependencies": {
     "mocha": "~2.0.1"
