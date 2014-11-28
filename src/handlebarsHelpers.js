@@ -1,7 +1,6 @@
 'use strict';
 var Handlebars = require('handlebars'),
 	moment = require('moment-timezone');
-moment.locale('nl');
 
 /*jshint eqeqeq: false */
 var operators = {
@@ -44,59 +43,64 @@ var traverseNibbles = function(container, nibbles) {
 
 	return nextValue || "";
 };
+var helpers =  {
+    '_tz': 'Europe/Amsterdam',
+    'compare': function (lvalue, operator, rvalue, options) {
+        if (arguments.length < 3) {
+            throw new Error("Handlerbars Helper 'compare' needs 2 parameters");
+        }
 
+        if (options === undefined) {
+            options = rvalue;
+            rvalue = operator;
+            operator = "eq";
+        }
 
-module.exports = {
-	'compare': function (lvalue, operator, rvalue, options) {
-		if (arguments.length < 3) {
-			throw new Error("Handlerbars Helper 'compare' needs 2 parameters");
-		}
+        if (!operators[operator]) {
+            throw new Error("Handlerbars Helper 'compare' doesn't know the operator " + operator);
+        }
 
-		if (options === undefined) {
-			options = rvalue;
-			rvalue = operator;
-			operator = "eq";
-		}
+        if (operators[operator](lvalue, rvalue)) {
+            return options.fn(this);
+        }
+        return options.inverse(this);
+    },
 
-		if (!operators[operator]) {
-			throw new Error("Handlerbars Helper 'compare' doesn't know the operator " + operator);
-		}
+    'dateFormat': function (date, block) {
+        if (!date) {
+            return '';
+        }
+        return moment(date).tz(this._tz).format(block.hash.format || "DD-MM-YYYY");
+    },
 
-		if (operators[operator](lvalue, rvalue)) {
-			return options.fn(this);
-		}
-		return options.inverse(this);
-	},
+    'nl2b': function (text) {
+        text = Handlebars.Utils.escapeExpression(text);
+        var nl2br = (text + '').replace(/([^>\r\n]?)(\r\n|\n\r|\r|\n)/g, '$1' + '<br>' + '$2');
+        return new Handlebars.SafeString(nl2br);
+    },
 
-	'dateFormat': function (date, block) {
-		if (!date) {
-			return '';
-		}
-		return moment(date).tz(process.env.TIMEZONE || 'Amsterdam/Europe').format(block.hash.format || "DD-MM-YYYY");
-	},
+    'price': function (number) {
+        if (!number) {
+            number = 0;
+        }
+        return '€ ' + number.toFixed(2).replace(/\./g, ',');
+    },
 
-	'nl2b': function (text) {
-		text = Handlebars.Utils.escapeExpression(text);
-		var nl2br = (text + '').replace(/([^>\r\n]?)(\r\n|\n\r|\r|\n)/g, '$1' + '<br>' + '$2');
-		return new Handlebars.SafeString(nl2br);
-	},
+    'fromContainer': function (container, key) {
+        if (container[key]) {
+            return container[key];
+        }
 
-	'price': function (number) {
-		if (!number) {
-			number = 0;
-		}
-		return '€ ' + number.toFixed(2).replace(/\./g, ',');
-	},
+        var nibbles = (key.split('.'));
+        if (nibbles.length > 1) {
+            return traverseNibbles(container, nibbles);
+        }
+        return '';
+    }
+};
 
-	'fromContainer': function (container, key) {
-		if (container[key]) {
-			return container[key];
-		}
-
-		var nibbles = (key.split('.'));
-		if (nibbles.length > 1) {
-			return traverseNibbles(container, nibbles);
-		}
-		return '';
-	}
+module.exports = function(config) {
+    moment.locale(config.locale || 'nl');
+    helpers._tz = config.tz || 'Europe/Amsterdam';
+    return helpers;
 };

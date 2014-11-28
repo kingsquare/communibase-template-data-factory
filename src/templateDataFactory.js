@@ -1,10 +1,10 @@
 'use strict';
 var _ = require('lodash'),
-	when = require('when');
+	when = require('when'),
+    _cbc = require('communibase-connector-js');
 
-module.exports = function (options) {
-	var cbc = (options.cbc ? options.cbc : require('communibase-connector-js'));
-	var maxNestLevel = (options.maxNestLevel ? options.maxNestLevel : 5);
+module.exports = function (config) {
+	var cbc = config.cbc || _cbc;
 
 	var entitiesHashPromise = cbc.getAll('EntityType').then(function (entities) {
 		var entitiesHash = {};

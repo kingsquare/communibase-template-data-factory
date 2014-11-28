@@ -19,7 +19,8 @@ Example usage:
 
 ```
 var tools = require('communibase-render-tools');
-var factory = new tools.TemplateDataFacory({ ... your options ...});
+// optional config can be passed to the tools via i.e. var tools = require('communibase-render-tools')({tz: 'Europe/London', 'locale': 'gb'});
+var factory = new tools.templateDataFacory({ ... your options ...});
 factory.getTemplateDataPromise("Person", person).then(function () { ... })
 
 // and / or

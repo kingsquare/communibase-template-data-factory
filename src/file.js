@@ -10,21 +10,25 @@ var Handlebars = require('handlebars');
  * @param {object} data
  * @returns {Promise} for rendered html string
  */
-module.exports = function (templatePath, data) {
-	var deferred = when.defer();
+module.exports = function(config) {
+    return {
+        renderFile: function (templatePath, data) {
+            var deferred = when.defer();
 
-	fs.readFile(templatePath, function (err, source) {
-		if (err) {
-			deferred.reject(err);
-			return;
-		}
+            fs.readFile(templatePath, function (err, source) {
+                if (err) {
+                    deferred.reject(err);
+                    return;
+                }
 
-		try {
-			var template = Handlebars.compile(source);
-			deferred.resolve(template(data, {helpers: helpers}));
-		} catch (e) {
-			deferred.reject(e);
-		}
-	});
-	return deferred.promise;
+                try {
+                    var template = Handlebars.compile(source);
+                    deferred.resolve(template(data, {helpers: helpers}));
+                } catch (e) {
+                    deferred.reject(e);
+                }
+            });
+            return deferred.promise;
+        }
+    };
 };
