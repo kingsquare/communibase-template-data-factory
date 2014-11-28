@@ -1,8 +1,10 @@
-var Handlebars = require('handlebars');
-moment = require('moment');
+'use strict';
+var Handlebars = require('handlebars'),
+	moment = require('moment-timezone');
+moment.locale('nl');
 
 /*jshint eqeqeq: false */
-operators = {
+var operators = {
 	'eq': function (l, r) { return l == r; },
 	'eqeq': function (l, r) { return l === r; },
 	'neq': function (l, r) { return l != r; },
@@ -29,8 +31,8 @@ operators['%'] = operators.mod;
 
 /**
  *
- * @param {Object} container
- * @param {array} nibbles
+ * @param container
+ * @param nibbles
  */
 var traverseNibbles = function(container, nibbles) {
 	var nextNibble = nibbles.shift();
@@ -70,7 +72,7 @@ module.exports = {
 		if (!date) {
 			return '';
 		}
-		return moment(date).format(block.hash.format || "DD-MM-YYYY");
+		return moment(date).tz(process.env.TIMEZONE || 'Amsterdam/Europe').format(block.hash.format || "DD-MM-YYYY");
 	},
 
 	'nl2b': function (text) {
