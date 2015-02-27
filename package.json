@@ -17,8 +17,9 @@
   },
   "dependencies": {
     "communibase-connector-js": "~0.1.13",
-    "when": "~3.6.3",
-    "lodash": "~2.4.1"
+    "lodash": "~2.4.1",
+    "long-stack-traces": "^0.1.2",
+    "when": "~3.6.3"
   },
   "devDependencies": {
     "mocha": "~2.0.1"

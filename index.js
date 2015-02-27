@@ -1,19 +1,21 @@
 'use strict';
-var _ = require('lodash'),
-	when = require('when');
+var fs = require('fs');
+
+var entitiySerializers = {};
+fs.readdirSync('./entityType').forEach(function (enityTypeFile) {
+	entitiySerializers[enityTypeFile.substr(0, enityTypeFile.length - 3)] = require('./entityType/' + enityTypeFile);
+});
 
 module.exports = function (config) {
-	var cbc = config.cbc || require('communibase-connector-js');
-	var maxNestLevel = config.maxNestLevel || 5;
-
-	var entitiesHashPromise = cbc.getAll('EntityType').then(function (entities) {
+	this.cbc = config.cbc || require('communibase-connector-js');
+	this.maxNestLevel = config.maxNestLevel || 5;
+	this.entitiesHashPromise = this.cbc.getAll('EntityType').then(function (entities) {
 		var entitiesHash = {};
-		_.each(entities, function (entity) {
+		entities.forEach(function (entity) {
 			entitiesHash[entity.title] = entity;
 		});
 		return entitiesHash;
 	});
-
 
 	/**
 	 * Returns all data to be assign to template, based on the wizard-source object
@@ -24,149 +26,9 @@ module.exports = function (config) {
 	 * @returns {Object}
 	 */
 	this.getPromise = function (entityTypeTitle, document, nestLevel) {
-		var result = { _id: document._id }, subPromises = [], self = this;
-
-		if (nestLevel === undefined) {
-			nestLevel = 0;
-		}
-
-		if (nestLevel > maxNestLevel) {
-			return when({});
-		}
-
-		return entitiesHashPromise.then(function (entitiesHash) {
-			var entityType = entitiesHash[entityTypeTitle];
-
-			//Expose _ALL_ attributes (not just commmunibase fields): https://trello.com/c/9yKbd7Zg/460-wat-klopt-er-nie
-			_.each(entityType.attributes, function (attribute) {
-				var value = document[attribute.title], arrayItemPromises;
-
-				if (_.contains([undefined, null, true, false], value) || _.isDate(value) || _.isNumber(value)) {
-					result[attribute.title] = value;
-					return;
-				}
-
-				if (_.isArray(value)) {
-					if (attribute.ref) {
-						result[attribute.title] = attribute.ref;
-
-						if (!entitiesHash[attribute.ref] || (attribute.title.substr(-3) !== 'Ids')) {
-							return;
-						}
-
-						//applicableForGroupIds => applicableForGroups
-						result[attribute.title.substr(-3) + 's'] = [];
-						subPromises.push(cbc.getByIds(attribute.ref, value).then(function (subDocuments) {
-							var subSubPromises = [];
-							_.each(subDocuments, function (subDocument) {
-								subSubPromises.push(
-									self.getPromise(attribute.ref, subDocument, (nestLevel + 1)).then(
-											function (templateData) {
-												result[attribute.title.substr(-3) + 's'].push(templateData);
-											}
-									)
-								);
-							});
-							return when.all(subSubPromises);
-						}));
-						return;
-					}
-
-					result[attribute.title] = [];
-					//We need to maintain the array order --> process and add them in order of the original array!
-					arrayItemPromises = [];
-					_.each(value, function (subDocument) {
-						//check for strings, e.g. Vasmo Company.classifications
-
-						if (subDocument && entitiesHash[attribute.items]) {
-							arrayItemPromises.push(self.getPromise(attribute.items, subDocument,
-									(nestLevel + 1)));
-							return;
-						}
-						//Not a document? push the raw value (string)
-						arrayItemPromises.push(value);
-					});
-
-					//We need to maintain the array order --> process and add them in order of the original array!
-					subPromises.push(when.all(arrayItemPromises).then(function (templateDatas) {
-						result[attribute.title] = templateDatas;
-					}));
-					return;
-				}
-
-				if (entitiesHash[attribute.type]) {
-					if (attribute.title.substr(-9) !==  'Reference') {
-						subPromises.push(self.getPromise(attribute.type, value, (nestLevel + 1)).then(
-							function (templateData) {
-								result[attribute.title] = templateData;
-							}
-						));
-						return;
-					}
-
-					var referredDocumentProperty = attribute.title.substr(0, (attribute.title.length - 9));
-
-					if (attribute.type ===  'DocumentReference') {
-						subPromises.push(
-							cbc.getByRef(value, document).then(
-								function (referredDocument) {
-									result[referredDocumentProperty] = referredDocument;
-								}, function () {
-									result[referredDocumentProperty] = null;
-									return when();
-								}
-							)
-						);
-						return;
-					}
-
-					//something like membership.emailAddressReference
-					if (value.documentReference) {
-						subPromises.push(
-							cbc.getByRef(value.documentReference, value).then(
-								function (referredDocument) {
-									result[referredDocumentProperty] = referredDocument;
-								}, function () {
-									result[referredDocumentProperty] = null;
-									return when();
-								}
-							)
-						);
-						return;
-					}
-
-					// a custom defined address / phoneNumber / emailAddress within a reference
-					result[referredDocumentProperty] = value[referredDocumentProperty];
-				}
-
-				// Default key-value store
-				result[attribute.title] = value;
-				if (value === '') {
-					return;
-				}
-
-				// A special ObjectId-string? --- enrich the template data!
-				if (attribute.type === 'ObjectId' &&
-						attribute.ref &&
-						entitiesHash[attribute.ref] &&
-						entitiesHash[attribute.ref].isResource &&
-						attribute.title.substr(-2) === 'Id') {
-
-					subPromises.push(cbc.getById(attribute.ref, value).then(function (referredObject) {
-						return self.getPromise(attribute.ref, referredObject, nestLevel + 1).then(
-							function (templateData) {
-								result[attribute.title.substr(0, (attribute.title.length - 2))] = templateData;
-							}
-						);
-					}, function (/*err*/) {
-						return when.resolve({});
-					}));
-				}
-			});
-
-			return when.all(subPromises).then(function () {
-				return result;
-			});
-		});
+		var serializer = (entitiySerializers[entityTypeTitle] ?
+				entitiySerializers[entityTypeTitle] :
+				entitiySerializers.Base);
+		return serializer.apply(this, arguments);
 	};
 };

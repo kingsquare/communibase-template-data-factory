@@ -1,11 +1,12 @@
 /* global describe: false, it: false */
 'use strict';
 
+require('long-stack-traces');
+
 var assert = require('assert');
 var Factory = require('../index.js');
 var cbc = require('communibase-connector-js');
 
-require('when/monitor/console');
 
 var factory = new Factory({
 	cbc: cbc
@@ -14,13 +15,11 @@ var factory = new Factory({
 describe('Tool', function(){
 	describe('#getTemplateData()', function(){
 		it('should work', function(done) {
-			cbc.search('Membership', {}, { limit: 1 }).then(function (memberships) {
-				factory.getTemplateData('Membership', memberships[0]).then(function (result) {
-					assert.equal(typeof result, 'object');
-					assert.equal(typeof result.address, 'object');
+			cbc.getById('Invoice', '54ec76b2bac4011f005a3b84').then(function (invoice) {
+				return factory.getPromise('Invoice', invoice).then(function (result) {
 					done();
 				});
-			});
+			}).otherwise(done);
 		});
 	});
 });
