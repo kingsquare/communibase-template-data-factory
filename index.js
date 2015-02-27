@@ -4,7 +4,7 @@ var fs = require('fs');
 var entitiySerializers = {};
 fs.readdirSync(__dirname + '/entityType').forEach(function (enityTypeFile) {
 	entitiySerializers[enityTypeFile.substr(0, enityTypeFile.length - 3)] =
-			require(__dirname + 'entityType/' + enityTypeFile);
+			require(__dirname + '/entityType/' + enityTypeFile);
 });
 
 module.exports = function (config) {
