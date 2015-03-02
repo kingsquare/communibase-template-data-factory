@@ -1,6 +1,7 @@
 'use strict';
 
 var BaseSerializer = require('./Base.js');
+var helpers = require('../inc/helpers.js');
 
 module.exports = function (entityTypeTitle, document, nestLevel) {
 	return BaseSerializer.apply(this, arguments).then(function (templateData) {
@@ -28,7 +29,18 @@ module.exports = function (entityTypeTitle, document, nestLevel) {
 			}
 		});
 
-		Object.keys(taxes, function (taxPercentage) {
+		templateData.totals = {
+			"ex": totalEx,
+			"tax": totalTax,
+			"in": totalIn
+		};
+
+		//support for legacy syntax -- deprecated!
+		Object.keys(templateData.totals).forEach(function (key) {
+			templateData['total' + helpers.ucfirst(key)] = '€' + helpers.number_format(templateData.totals[key]);
+		});
+
+		Object.keys(taxes).forEach(function (taxPercentage) {
 			templateData.taxes.push({
 				percentage: taxPercentage,
 				total: taxes[taxPercentage]
@@ -36,9 +48,6 @@ module.exports = function (entityTypeTitle, document, nestLevel) {
 		});
 
 		templateData.isCredit = (totalEx < -0.1);
-		templateData.totalEx = totalEx;
-		templateData.totalTax = totalTax;
-		templateData.totalIn = totalIn;
 		if (!templateData.invoiceNumber) {
 			templateData.invoiceNumber = 'Pro forma';
 		}
