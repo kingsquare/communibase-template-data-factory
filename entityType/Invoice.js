@@ -43,7 +43,9 @@ module.exports = function (entityTypeTitle, document, nestLevel) {
 		Object.keys(taxes).forEach(function (taxPercentage) {
 			templateData.taxes.push({
 				percentage: taxPercentage,
-				total: taxes[taxPercentage]
+				value: taxes[taxPercentage],
+				// deprecated!
+				total: ('€' + helpers.number_format(taxes[taxPercentage]))
 			});
 		});
 
