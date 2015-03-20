@@ -1,6 +1,6 @@
 {
   "name": "communibase-template-data-factory",
-  "version": "0.1.5",
+  "version": "0.2.0",
   "description": "Helper methods for working with Templates and the Communibase service.",
   "main": "index.js",
   "scripts": {
@@ -16,9 +16,9 @@
     "url": "https://github.com/kingsquare/communibase-template-data-factory/issues"
   },
   "dependencies": {
-    "communibase-connector-js": "~0.1.13",
+    "communibase-connector-js": "~0.3.0",
     "lodash": "~2.4.1",
-    "when": "~3.6.3"
+    "bluebird": "^2.9.14"
   },
   "devDependencies": {
     "mocha": "~2.0.1",

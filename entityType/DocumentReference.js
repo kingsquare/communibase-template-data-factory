@@ -1,15 +1,15 @@
 'use strict';
 
 var BaseSerializer = require('./Base.js');
-var when = require('when');
+var Promise = require('bluebird');
 
 module.exports = function (entityTypeTitle, document, nestLevel) {
 	var self = this;
 
 	return BaseSerializer.apply(this, arguments).then(function (templateData) {
-		return when.all([
-			self.cbc.getByRef(document).otherwise(function () {}),
-			self.cbc.getById(templateData.rootDocumentEntityType, templateData.rootDocumentId).otherwise(function () {})
+		return Promise.all([
+			self.cbc.getByRef(document),
+			self.cbc.getById(templateData.rootDocumentEntityType, templateData.rootDocumentId)
 		]).spread(function (referredDocument, rootDocument) {
 			templateData.document = referredDocument;
 			if (!rootDocument) {
@@ -23,5 +23,5 @@ module.exports = function (entityTypeTitle, document, nestLevel) {
 				return templateData;
 			});
 		});
-	});
+	}).catch(function () {});
 };
