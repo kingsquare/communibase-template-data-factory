@@ -9,7 +9,7 @@ module.exports = function (entityTypeTitle, document, nestLevel) {
 	}
 
 	if (!document || (nestLevel > this.maxNestLevel)) {
-		return Promise({});
+		return Promise().resolve({});
 	}
 
 	var result = { _id: document._id };
