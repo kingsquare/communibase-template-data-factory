@@ -1,6 +1,6 @@
 'use strict';
 
-var when = require('when');
+var Promise = require('bluebird');
 var _ = require('lodash');
 
 module.exports = function (entityTypeTitle, document, nestLevel) {
@@ -9,7 +9,7 @@ module.exports = function (entityTypeTitle, document, nestLevel) {
 	}
 
 	if (!document || (nestLevel > this.maxNestLevel)) {
-		return when({});
+		return Promise({});
 	}
 
 	var result = { _id: document._id };
@@ -50,7 +50,7 @@ module.exports = function (entityTypeTitle, document, nestLevel) {
 								)
 							);
 						});
-						return when.all(subSubPromises);
+						return Promise.all(subSubPromises);
 					}, function() { result[attribute.title.substr(-3) + 's'] = null; }));
 					return;
 				}
@@ -71,7 +71,7 @@ module.exports = function (entityTypeTitle, document, nestLevel) {
 				});
 
 				//We need to maintain the array order --> process and add them in order of the original array!
-				subPromises.push(when.all(arrayItemPromises).then(function (templateDatas) {
+				subPromises.push(Promise.all(arrayItemPromises).then(function (templateDatas) {
 					result[attribute.title] = templateDatas;
 				}));
 				return;
@@ -129,7 +129,7 @@ module.exports = function (entityTypeTitle, document, nestLevel) {
 			}
 		});
 
-		return when.all(subPromises).then(function () {
+		return Promise.all(subPromises).then(function () {
 			return result;
 		});
 	});

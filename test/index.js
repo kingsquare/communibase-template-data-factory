@@ -19,7 +19,7 @@ describe('Tool', function(){
 				return factory.getPromise('Invoice', invoice).then(function (result) {
 					done();
 				});
-			}).otherwise(done);
+			}).catch(done);
 		});
 	});
 });
