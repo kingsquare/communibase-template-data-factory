@@ -42,7 +42,7 @@ setupDatabase().then(bootServer).then(function (serverProcess) {
 }).then(function (serverProcess) {
 	var command, mochaProcess;
 
-	command = "mocha mocha/tests/";
+	command = "mocha test/tests/";
 	mochaProcess = require('child_process').exec(command, [], { env: process.env });
 	mochaProcess.stdout.pipe(process.stdout);
 	mochaProcess.stderr.pipe(process.stderr);

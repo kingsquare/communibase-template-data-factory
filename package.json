@@ -1,10 +1,10 @@
 {
   "name": "communibase-template-data-factory",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Helper methods for working with Templates and the Communibase service.",
   "main": "index.js",
   "scripts": {
-    "test": "node mocha/runTests.js"
+    "test": "node test/runTests.js"
   },
   "repository": {
     "type": "git",
@@ -25,6 +25,8 @@
   },
   "devDependencies": {
     "bson-stream": "0.0.5",
+    "grunt": "^0.4.5",
+    "grunt-shell": "^1.1.2",
     "mocha": "~2.0.1",
     "mongodb": "^1.4.34"
   }

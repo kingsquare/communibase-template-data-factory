@@ -72,6 +72,7 @@ fs.readdirSync(__dirname + '/entityType').forEach(function (enityTypeFile) {
 
 module.exports = function (config) {
 	this.cbc = config.cbc || require('communibase-connector-js');
+	this.language = config.language || 'NL';
 	this.entitiesHashPromise = this.cbc.getAll('EntityType').then(function (entities) {
 		var entitiesHash = {};
 		entities.forEach(function (entity) {
@@ -84,7 +85,7 @@ module.exports = function (config) {
 	 * Returns all data to be assign to template, based on the wizard-source object
 	 * @param {String} entityTypeTitle - The entity type (i.e. Person, Shift, etc)
 	 * @param {Object} document - The actual document (entity) instance which should be templatified
-	 * @param {Handlebars.ProgramNode} template - The template this is based on
+	 * @param {Handlebars} template - The template this is based on
 	 * @returns {Promise}
 	 */
 	this.getPromise = function (entityTypeTitle, document, template) {
