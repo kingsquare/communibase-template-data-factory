@@ -121,8 +121,8 @@ module.exports = function (entityTypeTitle, document, requestedPaths) {
 
 				if (value.documentReference) {
 					subPromises.push(Promise.all([
-						self.cbc.getByRef(value.documentReference).otherwise(function () {}),
-						self.cbc.getById(document.rootDocumentEntityType, document.rootDocumentId).otherwise(function () {})
+						self.cbc.getByRef(value.documentReference).catch(function () {}),
+						self.cbc.getById(document.rootDocumentEntityType, document.rootDocumentId).catch(function () {})
 					]).spread(function (referredDocument, rootDocument) {
 						if (!rootDocument) {
 							return self.getPromiseByPaths(referenceType, referredDocument, requestedSubVariables)
