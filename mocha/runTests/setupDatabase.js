@@ -10,6 +10,7 @@ var Db = mongodb.Db;
 var Server = mongodb.Server;
 var url = require('url');
 var fs = require('fs');
+var cbc = require('communibase-connector-js');
 
 function getDropDbPromise(uri) {
 	var parsedUrl, db;
@@ -111,9 +112,5 @@ module.exports = function() {
 		return importBsonEntityTypes(__dirname +
 			'/../../node_modules/Communibase/test/resources/dump/blueprint/EntityType.bson',
 			process.env.TEST_ADMINISTRATION_DB_URI);
-	}).then(function () {
-		return createEntity('Invoice', process.env.TEST_ADMINISTRATION_DB_URI).then(function (invoice) {
-			process.env.TEST_INVOICE_ID = invoice._id;
-		});
 	});
 };

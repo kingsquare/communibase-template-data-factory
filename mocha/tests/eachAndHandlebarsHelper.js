@@ -3,8 +3,6 @@
 
 var cbc, expectedResult, factory, template, Factory, Handlebars;
 
-require('long-stack-traces');
-
 cbc = require('communibase-connector-js');
 Factory = require('../../index.js');
 Handlebars = require('handlebars');

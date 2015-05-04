@@ -36,6 +36,10 @@ process.env.TEST_ADMINISTRATION_DB_URI = 'mongodb://' + dbHost + ':' + dbPort + 
 process.env.COMMUNIBASE_KEY = 'test123456789012345678901234567890';
 
 setupDatabase().then(bootServer).then(function (serverProcess) {
+	return require('./runTests/loadFixtures.js')().then(function () {
+		return serverProcess;
+	});
+}).then(function (serverProcess) {
 	var command, mochaProcess;
 
 	command = "mocha mocha/tests/";
@@ -48,5 +52,6 @@ setupDatabase().then(bootServer).then(function (serverProcess) {
 	});
 }, function (err) {
 	console.log(err);
+	console.log(err.stack);
 	process.exit(1);
 });
