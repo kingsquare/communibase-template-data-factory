@@ -103,5 +103,5 @@ module.exports = function (config) {
 				entitiySerializers[entityTypeTitle] :
 				entitiySerializers.Base);
 		return serializer.apply(this, arguments);
-	}
+	};
 };
