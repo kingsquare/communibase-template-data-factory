@@ -19,9 +19,8 @@ expectedResult = {
 };
 
 template = Handlebars.parse('{{#each invoiceItems}}{{price totalEx}}{{/each}}');
-
 describe('Tool', function(){
-	describe('#getTemplateData() - each loop / handlebars helper', function(){
+	describe('#getTemplateData() - Each loop / Handlebars helper', function(){
 		it('should work', function(done) {
 			cbc.getById('Invoice', process.env.TEST_INVOICE_ID).then(function (invoice) {
 				return factory.getPromise('Invoice', invoice, template);

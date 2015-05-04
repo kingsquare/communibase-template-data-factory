@@ -22,10 +22,10 @@ expectedResult  = {
 };
 
 
-template = Handlebars.parse(fs.readFileSync(__dirname + '/../fixtures/documentReference.hbs').toString());
+template = Handlebars.parse(fs.readFileSync(__dirname + '/../templates/documentReference.hbs', 'utf-8'));
 
 describe('Tool', function(){
-	describe('#getTemplateData() - Single item from array', function(){
+	describe('#getTemplateData() - Document references', function(){
 		it('should work', function(done) {
 			cbc.getById('Membership', process.env.TEST_MEMBERSHIP_ID).then(function (membership) {
 				return factory.getPromise('Membership', membership, template);

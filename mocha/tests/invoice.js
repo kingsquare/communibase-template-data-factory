@@ -23,7 +23,7 @@ expectedResult = {
 			"totals": {
 				"ex": 240
 			}
-		}
+		}, null
 	],
 	'address': {
 		'street': 'Straatje'

@@ -14,7 +14,7 @@ factory = new Factory({
 
 expectedResult = {
 	"invoicedPeriods": [
-		undefined, undefined, {
+		null, null, null, {
 			"startDate": "2015-03-22T23:00:00.000Z"
 		}
 	],
@@ -37,7 +37,7 @@ expectedResult = {
 	}
 };
 
-template = Handlebars.parse(fs.readFileSync(__dirname + '/../fixtures/singleItemFromArray.hbs').toString());
+template = Handlebars.parse(fs.readFileSync(__dirname + '/../templates/singleItemFromArray.hbs', 'utf-8'));
 
 describe('Tool', function(){
 	describe('#getTemplateData() - Single item from array', function(){

@@ -1,3 +1,5 @@
+/*global Promise: true */
+
 'use strict';
 
 var Promise = require('bluebird');
@@ -56,7 +58,7 @@ module.exports = function (entityTypeTitle, document, requestedPaths) {
 							subSubPromises.push(self.getPromiseByPaths(attribute.ref, referredObject,
 									requestedSubVariables).then(function (templateData) {
 								result[attribute.title.substr(-3) + 's'].push(templateData);
-							}))
+							}));
 						});
 						return Promise.all(subSubPromises);
 					}, function () { }));
@@ -77,6 +79,7 @@ module.exports = function (entityTypeTitle, document, requestedPaths) {
 						index).concat(requestedSubValuesForAll);
 
 					if (specificSubValues.length === 0) {
+						arrayItemPromises.push(Promise.resolve(undefined));
 						return;
 					}
 
@@ -110,23 +113,39 @@ module.exports = function (entityTypeTitle, document, requestedPaths) {
 				}
 				//something like membership.emailAddressReference
 				var referredDocumentProperty = attribute.title.substr(0, (attribute.title.length - 9));
+				var referenceType = attribute.type.substr(0, (attribute.type.length - 9));
 				requestedSubVariables = helpers.getRequestedSubVariables(requestedPaths, referredDocumentProperty);
 				if (requestedSubVariables.length === 0) {
 					return;
 				}
 
 				if (value.documentReference) {
-					subPromises.push(self.cbc.getByRef(value.documentReference, value).then(
-						function (referredDocument) {
-							result[referredDocumentProperty] = referredDocument;
-						}, function () {
-							result[referredDocumentProperty] = null;
-						})
-					);
+					subPromises.push(Promise.all([
+						self.cbc.getByRef(value.documentReference).otherwise(function () {}),
+						self.cbc.getById(document.rootDocumentEntityType, document.rootDocumentId).otherwise(function () {})
+					]).spread(function (referredDocument, rootDocument) {
+						if (!rootDocument) {
+							return self.getPromiseByPaths(referenceType, referredDocument, requestedSubVariables)
+								.then(function (templateData) {
+									result[referredDocumentProperty] = templateData;
+								}
+							);
+						}
+
+						return self.getPromiseByPaths(document.rootDocumentEntityType, rootDocument,
+							requestedSubVariables).then(function (rootDocumentTemplateData) {
+								result[referredDocumentProperty] = rootDocumentTemplateData;
+							}
+						);
+					}));
 					return;
 				}
 				// a custom defined address / phoneNumber / emailAddress within a reference
-				result[referredDocumentProperty] = value[referredDocumentProperty];
+				subPromises.push(self.getPromiseByPaths(referenceType, value[referredDocumentProperty],
+					requestedSubVariables).then(function (templateData) {
+						result[referredDocumentProperty] = templateData;
+					})
+				);
 				return;
 			}
 
