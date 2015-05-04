@@ -1,135 +1,161 @@
 'use strict';
 
-var when = require('when');
-var _ = require('lodash');
+var Promise = require('bluebird');
+var helpers = require('../inc/helpers.js');
 
-module.exports = function (entityTypeTitle, document, nestLevel) {
-	if (nestLevel === undefined) {
-		nestLevel = 0;
-	}
-
-	if (!document || (nestLevel > this.maxNestLevel)) {
-		return when({});
-	}
-
-	var result = { _id: document._id };
-	var subPromises = [];
-	var self = this;
+module.exports = function (entityTypeTitle, document, requestedPaths) {
+	var result = {}, subPromises = [], self = this;
 
 	return this.entitiesHashPromise.then(function (entitiesHash) {
 		var entityType = entitiesHash[entityTypeTitle];
 
 		//Expose _ALL_ attributes (not just commmunibase fields): https://trello.com/c/9yKbd7Zg/460-wat-klopt-er-nie
-		_.each(entityType.attributes, function (attribute) {
-			var value = document[attribute.title], arrayItemPromises;
+		entityType.attributes.forEach(function (attribute) {
+			var value = document[attribute.title], type = attribute.type, arrayItemPromises,
+				requestedSubVariables, fieldNameIsRequested;
 
-			if (_.contains([undefined, null, true, false], value) || _.isDate(value) || _.isNumber(value)) {
+			fieldNameIsRequested = requestedPaths.some(function (requestedPath) {
+				return ((requestedPath.indexOf(attribute.title) === 0) || (requestedPath.substr(0, 1) === '#'));
+			});
+
+			if (fieldNameIsRequested && ([undefined, null, true, false].indexOf(value) !== -1 ||
+				type === 'Date' || type === 'int' || type === 'float')) {
 				result[attribute.title] = value;
 				return;
 			}
 
-			if (_.isArray(value)) {
+			if (!value) {
+				return;
+			}
+
+			if (!type) {
+				type = ((attribute.type && attribute.type.type) ? attribute.type.type : attribute.type);
+			}
+
+			if (Array.isArray(value)) {
 				if (attribute.ref) {
-					result[attribute.title] = attribute.ref;
+					if (fieldNameIsRequested) {
+						result[attribute.title] = attribute.ref;
+					}
 
 					if (!entitiesHash[attribute.ref] || (attribute.title.substr(-3) !== 'Ids')) {
 						return;
 					}
-
 					//applicableForGroupIds => applicableForGroups
+					requestedSubVariables = helpers.getRequestedSubVariables(requestedPaths, attribute.title.substr(-3) + 's');
+					if (requestedSubVariables.length === 0) {
+						return;
+					}
+
 					result[attribute.title.substr(-3) + 's'] = [];
-					subPromises.push(self.cbc.getByIds(attribute.ref, value).then(function (subDocuments) {
+
+					subPromises.push(self.cbc.getByIds(attribute.ref, value).then(function (referredObjects) {
 						var subSubPromises = [];
-						_.each(subDocuments, function (subDocument) {
-							subSubPromises.push(
-								self.getPromise(attribute.ref, subDocument, (nestLevel + 1)).then(
-									function (templateData) {
-										result[attribute.title.substr(-3) + 's'].push(templateData);
-									},
-									function () { }
-								)
-							);
+
+						referredObjects.forEach(function (referredObject) {
+							subSubPromises.push(self.getPromiseByPaths(attribute.ref, referredObject,
+									requestedSubVariables).then(function (templateData) {
+								result[attribute.title.substr(-3) + 's'].push(templateData);
+							}))
 						});
-						return when.all(subSubPromises);
-					}, function() { result[attribute.title.substr(-3) + 's'] = null; }));
+						return Promise.all(subSubPromises);
+					}, function () { }));
+					return;
+				}
+
+				requestedSubVariables = helpers.getRequestedSubVariables(requestedPaths, attribute.title);
+				if (requestedSubVariables.length === 0) {
 					return;
 				}
 
 				result[attribute.title] = [];
 				//We need to maintain the array order --> process and add them in order of the original array!
 				arrayItemPromises = [];
-				_.each(value, function (subDocument) {
-					//check for strings, e.g. Vasmo Company.classifications
+				var requestedSubValuesForAll = helpers.getRequestedSubVariables(requestedPaths, attribute.title + '.#');
+				value.forEach(function (subDocument, index) {
+					var specificSubValues = helpers.getRequestedSubVariables(requestedPaths, attribute.title + '.' +
+						index).concat(requestedSubValuesForAll);
 
+					if (specificSubValues.length === 0) {
+						return;
+					}
+
+					//check for strings, e.g. Vasmo Company.classifications
 					if (subDocument && entitiesHash[attribute.items]) {
-						arrayItemPromises.push(self.getPromise(attribute.items, subDocument,
-								(nestLevel + 1)));
+						arrayItemPromises.push(self.getPromiseByPaths(attribute.items, subDocument,
+							specificSubValues));
 						return;
 					}
 					//Not a document? push the raw value (string)
 					arrayItemPromises.push(value);
 				});
-
 				//We need to maintain the array order --> process and add them in order of the original array!
-				subPromises.push(when.all(arrayItemPromises).then(function (templateDatas) {
+				subPromises.push(Promise.all(arrayItemPromises).then(function (templateDatas) {
 					result[attribute.title] = templateDatas;
 				}));
 				return;
 			}
 
-			if (entitiesHash[attribute.type]) {
-				if ((attribute.type === 'DocumentReference') || (attribute.title.substr(-9) !== 'Reference')) {
-					subPromises.push(self.getPromise(attribute.type, value, (nestLevel + 1)).then(
+			if (entitiesHash[type]) {
+				if ((type === 'DocumentReference') || (attribute.title.substr(-9) !== 'Reference')) {
+					var referencedSubVariables = helpers.getRequestedSubVariables(requestedPaths, attribute.title);
+					if (referencedSubVariables.length > 0) {
+						subPromises.push(self.getPromiseByPaths(attribute.type, value, referencedSubVariables).then(
 							function (templateData) {
 								result[attribute.title] = templateData;
 							}
-					));
+						));
+					}
+					return;
+				}
+				//something like membership.emailAddressReference
+				var referredDocumentProperty = attribute.title.substr(0, (attribute.title.length - 9));
+				requestedSubVariables = helpers.getRequestedSubVariables(requestedPaths, referredDocumentProperty);
+				if (requestedSubVariables.length === 0) {
 					return;
 				}
 
-				//something like membership.emailAddressReference
-				var referredDocumentProperty = attribute.title.substr(0, (attribute.title.length - 9));
 				if (value.documentReference) {
-					subPromises.push(
-						self.cbc.getByRef(value.documentReference, value).then(
-							function (referredDocument) {
-								result[referredDocumentProperty] = referredDocument;
-							}, function () {
-								result[referredDocumentProperty] = null;
-							}
-						)
+					subPromises.push(self.cbc.getByRef(value.documentReference, value).then(
+						function (referredDocument) {
+							result[referredDocumentProperty] = referredDocument;
+						}, function () {
+							result[referredDocumentProperty] = null;
+						})
 					);
 					return;
 				}
-
 				// a custom defined address / phoneNumber / emailAddress within a reference
 				result[referredDocumentProperty] = value[referredDocumentProperty];
-			}
-
-			// Default key-value store
-			result[attribute.title] = value;
-			if (value === '') {
 				return;
 			}
 
-			// A special ObjectId-string? --- enrich the template data!
-			if (attribute.type === 'ObjectId' &&
-					attribute.ref &&
-					entitiesHash[attribute.ref] &&
-					entitiesHash[attribute.ref].isResource &&
-					attribute.title.substr(-2) === 'Id') {
+			if (fieldNameIsRequested) {
+				result[attribute.title] = value;
+			}
 
-				subPromises.push(self.cbc.getById(attribute.ref, value).then(function (referredObject) {
-					return self.getPromise(attribute.ref, referredObject, nestLevel + 1).then(
-						function (templateData) {
-							result[attribute.title.substr(0, (attribute.title.length - 2))] = templateData;
-						}
-					);
-				}, function () { }));
+			if (type === 'ObjectId') {
+				if (attribute.ref && entitiesHash[attribute.ref] && entitiesHash[attribute.ref].isResource &&
+						(attribute.title.substr(-2) === 'Id')) {
+					requestedSubVariables = helpers.getRequestedSubVariables(requestedPaths,
+						attribute.title.substr(0, (attribute.title.length - 2)));
+
+					if (requestedSubVariables.length === 0) {
+						return;
+					}
+
+					subPromises.push(self.cbc.getById(attribute.ref, value).then(function (referredObject) {
+						return self.getPromiseByPaths(attribute.ref, referredObject, requestedSubVariables).then(
+							function (templateData) {
+								result[attribute.title.substr(0, (attribute.title.length - 2))] = templateData;
+							}
+						);
+					}, function () { }));
+				}
 			}
 		});
 
-		return when.all(subPromises).then(function () {
+		return Promise.all(subPromises).then(function () {
 			return result;
 		});
 	});

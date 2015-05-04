@@ -3,23 +3,45 @@
 var BaseSerializer = require('./Base.js');
 var helpers = require('../inc/helpers.js');
 
-module.exports = function (entityTypeTitle, document, nestLevel) {
+module.exports = function (entityTypeTitle, document, requestedPaths) {
 	return BaseSerializer.apply(this, arguments).then(function (templateData) {
-		var taxMultiplier = ((100 + (templateData.taxPercentage || 0)) / 100);
+		var requestedTotalsVariables, taxMultiplier, totals;
 
-		templateData.totals = {
-			"ex": templateData.quantity * templateData.pricePerUnit,
-			"in": templateData.totalEx * taxMultiplier,
-			"perUnitEx": templateData.pricePerUnit,
-			"perUnitIn": templateData.pricePerUnit * taxMultiplier
+		// get all tax-related "totals"-values, like "invoiceItems.0.totals.ex"
+		requestedTotalsVariables = helpers.getRequestedSubVariables(requestedPaths, 'totals');
+		taxMultiplier = ((100 + (document.taxPercentage || 0)) / 100);
+		totals = {
+			ex: document.quantity * document.pricePerUnit,
+			in: document.totalEx * taxMultiplier,
+			perUnitEx: document.pricePerUnit,
+			perUnitIn: document.pricePerUnit * taxMultiplier
 		};
 
-		//support for legacy syntax -- deprecated!
-		Object.keys(templateData.totals).forEach(function (key) {
-			templateData['total' + helpers.ucfirst(key)] = '€' + helpers.number_format(templateData.totals[key]);
-		});
+		if (requestedTotalsVariables.length !== 0) {
+			templateData.totals = {};
+			Object.keys(totals).forEach(function (totalKey) {
+				if (requestedTotalsVariables.indexOf(totalKey) !== -1) {
+					templateData.totals[totalKey] = totals[totalKey];
+				}
+			});
+		}
 
-		templateData.title = templateData.description;
+		//support for legacy syntax -- deprecated!
+		if (totals) {
+			Object.keys(totals).forEach(function (key) {
+				var dataKey = 'total' + helpers.ucfirst(key);
+				if (requestedPaths.indexOf(dataKey) === -1) {
+					return;
+				}
+
+				templateData[dataKey] = '€' + helpers.number_format(totals[key]);
+			});
+		}
+
+		if (requestedPaths.indexOf('title') !== -1) {
+			templateData.title = document.description;
+		}
+
 		return templateData;
 	});
 };

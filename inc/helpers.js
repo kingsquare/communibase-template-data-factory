@@ -1,3 +1,4 @@
+"use strict";
 
 //Simplified version of https://raw.githubusercontent.com/kvz/phpjs/master/functions/strings/number_format.js
 function number_format(number) {
@@ -19,7 +20,26 @@ function ucfirst(str) {
 	return f + str.substr(1);
 }
 
+function getRequestedSubVariables(requestedPaths, subPropertyName) {
+	var subResults = [];
+
+	requestedPaths.forEach(function (requestedPath) {
+		var pathNibbles = requestedPath.split('.');
+
+		var result = [];
+		while (pathNibbles.length > 0) {
+			result.push(pathNibbles.shift());
+			if (subPropertyName === result.join('.')) {
+				subResults.push(pathNibbles.join('.'));
+			}
+		}
+	});
+
+	return subResults;
+}
+
 module.exports = {
 	"number_format": number_format,
-	"ucfirst": ucfirst
+	"ucfirst": ucfirst,
+	"getRequestedSubVariables": getRequestedSubVariables
 };

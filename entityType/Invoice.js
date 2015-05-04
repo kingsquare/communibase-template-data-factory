@@ -3,14 +3,15 @@
 var BaseSerializer = require('./Base.js');
 var helpers = require('../inc/helpers.js');
 
-module.exports = function (entityTypeTitle, document, nestLevel) {
+module.exports = function (entityTypeTitle, document, requestedPaths) {
 	return BaseSerializer.apply(this, arguments).then(function (templateData) {
-		var taxes = {};
-		var totalEx = 0;
-		var totalTax = 0;
-		var totalIn = 0;
-		templateData.taxes = [];
-		templateData.invoiceItems.forEach(function (invoiceItem) {
+		var taxes, totalEx, totalTax, totalIn, requestedTotalsVariables, requestedTaxesVariables;
+		taxes = {};
+		totalEx = 0;
+		totalTax = 0;
+		totalIn = 0;
+
+		document.invoiceItems.forEach(function (invoiceItem) {
 			var taxPercentage = invoiceItem.taxPercentage;
 			//https://trello.com/c/LdjswRU6/597-1-cent-verschil-op-elke-factuur-enkele-zelfs-2-zelfs-zonder-kortin
 			//taxMultiplier = ((100 + (taxPercentage ? taxPercentage : 0)) / 100); --> FLOATING POINT ISSUE
@@ -29,32 +30,62 @@ module.exports = function (entityTypeTitle, document, nestLevel) {
 			}
 		});
 
-		templateData.totals = {
-			"ex": totalEx,
-			"tax": totalTax,
-			"in": totalIn
+		var totals = {
+			ex: totalEx,
+			tax: totalTax,
+			in: totalIn
 		};
 
+		requestedTotalsVariables = helpers.getRequestedSubVariables(requestedPaths, 'totals');
+		if (requestedTotalsVariables.length !== 0) {
+			templateData.totals = {};
+			if (requestedTotalsVariables.indexOf('ex') !== -1) {
+				templateData.totals.ex = totalEx;
+			}
+			if (requestedTotalsVariables.indexOf('tax') !== -1) {
+				templateData.totals.perUnitEx = totalTax;
+			}
+			if (requestedTotalsVariables.indexOf('in') !== -1) {
+				templateData.totals.perUnitIn = totalIn;
+			}
+		}
+
 		//support for legacy syntax -- deprecated!
-		Object.keys(templateData.totals).forEach(function (key) {
-			templateData['total' + helpers.ucfirst(key)] = '€' + helpers.number_format(templateData.totals[key]);
+		Object.keys(totals).forEach(function (key) {
+			var dataKey = 'total' + helpers.ucfirst(key);
+			if (requestedPaths.indexOf(dataKey) === -1) {
+				return;
+			}
+			templateData[dataKey] = '€' + helpers.number_format(totals[key]);
 		});
 
-		Object.keys(taxes).forEach(function (taxPercentage) {
-			templateData.taxes.push({
-				percentage: taxPercentage,
-				value: taxes[taxPercentage],
-				// deprecated!
-				total: ('€' + helpers.number_format(taxes[taxPercentage]))
+		requestedTaxesVariables = helpers.getRequestedSubVariables(requestedPaths, 'taxes');
+		if (requestedTaxesVariables.length !== 0) {
+			templateData.taxes = [];
+			Object.keys(taxes).forEach(function (taxPercentage) {
+				var tax = {};
+
+				if (requestedTaxesVariables.indexOf('percentage') !== -1) {
+					tax.percentage = taxPercentage;
+				}
+				if (requestedTaxesVariables.indexOf('value') !== -1) {
+					tax.value = taxes[taxPercentage];
+				}
+				if (requestedTaxesVariables.indexOf('total') !== -1) {
+					tax.total = ('€' + helpers.number_format(taxes[taxPercentage]));
+				}
+
+				templateData.taxes.push(tax);
 			});
-		});
+		}
 
-		templateData.isCredit = (totalEx < -0.1);
-		if (!templateData.invoiceNumber) {
+		if (requestedPaths.indexOf('isCredit') !== -1) {
+			templateData.isCredit = (totalEx < -0.1);
+		}
+
+		if (!templateData.invoiceNumber && !document.invoiceNumber) {
 			templateData.invoiceNumber = 'Pro forma';
 		}
-		//this is useless and spills memory...
-		templateData.template = '';
 		return templateData;
 	});
 };

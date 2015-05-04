@@ -4,7 +4,7 @@
   "description": "Helper methods for working with Templates and the Communibase service.",
   "main": "index.js",
   "scripts": {
-    "test": "mocha test/"
+    "test": "node mocha/runTests.js"
   },
   "repository": {
     "type": "git",
@@ -16,12 +16,17 @@
     "url": "https://github.com/kingsquare/communibase-template-data-factory/issues"
   },
   "dependencies": {
+    "Communibase": "git+https://kingsquare-deployment:qZ5Qhv389WwbKgmshdcx5jFKUYJcXhc8@bitbucket.org/kingsquare/communibase.git",
+    "bluebird": "^2.9.25",
     "communibase-connector-js": "~0.1.13",
+    "handlebars": "~2.0.0",
     "lodash": "~2.4.1",
     "when": "~3.6.3"
   },
   "devDependencies": {
+    "bson-stream": "0.0.5",
+    "long-stack-traces": "^0.1.2",
     "mocha": "~2.0.1",
-    "long-stack-traces": "^0.1.2"
+    "mongodb": "^1.4.34"
   }
 }
