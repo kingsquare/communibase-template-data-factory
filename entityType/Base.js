@@ -119,7 +119,7 @@ module.exports = function (entityTypeTitle, document, requestedPaths) {
 					return;
 				}
 
-				if (value.documentReference) {
+				if (value.documentReference && value.documentReference.rootDocumentId) {
 					subPromises.push(Promise.all([
 						self.cbc.getByRef(value.documentReference).catch(function () {}),
 						self.cbc.getById(document.rootDocumentEntityType, document.rootDocumentId).catch(function () {})
