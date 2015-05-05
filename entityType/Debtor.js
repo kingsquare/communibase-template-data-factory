@@ -4,8 +4,10 @@ var BaseSerializer = require('./Base.js');
 
 module.exports = function (entityTypeTitle, document, requestedPaths) {
 	var self = this;
+	var allVariablesAreRequested = (requestedPaths.length === 1 && requestedPaths[0].substring(0, 1) === '#');
+
 	return BaseSerializer.apply(this, arguments).then(function (templateData) {
-		if (requestedPaths.indexOf('salutation') === -1) {
+		if (!allVariablesAreRequested && requestedPaths.indexOf('salutation') === -1) {
 			return templateData;
 		}
 

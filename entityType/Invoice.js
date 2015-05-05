@@ -4,6 +4,8 @@ var BaseSerializer = require('./Base.js');
 var helpers = require('../inc/helpers.js');
 
 module.exports = function (entityTypeTitle, document, requestedPaths) {
+	var allVariablesAreRequested = (requestedPaths.length === 1 && requestedPaths[0].substring(0, 1) === '#');
+
 	return BaseSerializer.apply(this, arguments).then(function (templateData) {
 		var taxes, totalEx, totalTax, totalIn, requestedTotalsVariables, requestedTaxesVariables;
 		taxes = {};
@@ -59,19 +61,19 @@ module.exports = function (entityTypeTitle, document, requestedPaths) {
 			templateData[dataKey] = '€' + helpers.number_format(totals[key]);
 		});
 
-		requestedTaxesVariables = helpers.getRequestedSubVariables(requestedPaths, 'taxes');
+		requestedTaxesVariables = helpers.getRequestedSubVariables(requestedPaths, 'taxes.#');
 		if (requestedTaxesVariables.length !== 0) {
 			templateData.taxes = [];
 			Object.keys(taxes).forEach(function (taxPercentage) {
 				var tax = {};
 
-				if (requestedTaxesVariables.indexOf('percentage') !== -1) {
+				if (requestedTaxesVariables.indexOf('#') !== -1 || requestedTaxesVariables.indexOf('percentage') !== -1) {
 					tax.percentage = taxPercentage;
 				}
-				if (requestedTaxesVariables.indexOf('value') !== -1) {
+				if (requestedTaxesVariables.indexOf('#') !== -1 || requestedTaxesVariables.indexOf('value') !== -1) {
 					tax.value = taxes[taxPercentage];
 				}
-				if (requestedTaxesVariables.indexOf('total') !== -1) {
+				if (requestedTaxesVariables.indexOf('#') !== -1 || requestedTaxesVariables.indexOf('total') !== -1) {
 					tax.total = ('€' + helpers.number_format(taxes[taxPercentage]));
 				}
 
@@ -79,7 +81,7 @@ module.exports = function (entityTypeTitle, document, requestedPaths) {
 			});
 		}
 
-		if (requestedPaths.indexOf('isCredit') !== -1) {
+		if (allVariablesAreRequested || requestedPaths.indexOf('isCredit') !== -1) {
 			templateData.isCredit = (totalEx < -0.1);
 		}
 

@@ -26,6 +26,12 @@ function getRequestedSubVariables(requestedPaths, subPropertyName) {
 	requestedPaths.forEach(function (requestedPath) {
 		var pathNibbles = requestedPath.split('.');
 
+		// if the first nibble is a # (e.g. #.emailAddress or #.#),
+		// change this # into the subPropertyName: emailAddress.emailAddress or emailAddress.#
+		if (pathNibbles[0] === '#' && pathNibbles.length > subPropertyName.split('.').length) {
+			pathNibbles[0] = subPropertyName;
+		}
+
 		var result = [];
 		while (pathNibbles.length > 0) {
 			result.push(pathNibbles.shift());
@@ -38,8 +44,29 @@ function getRequestedSubVariables(requestedPaths, subPropertyName) {
 	return subResults;
 }
 
+function sortDictionaryByKey(myObj) {
+	var keys = Object.keys(myObj),
+		i, len = keys.length,
+		newObject = {};
+
+	keys.sort();
+
+	for (i = 0; i < len; i+=1) {
+		var k = keys[i];
+
+		if (typeof myObj[k] === 'object') {
+			newObject[k] = sortDictionaryByKey(myObj[k]);
+		} else {
+			newObject[k] = myObj[k];
+		}
+	}
+
+	return newObject;
+}
+
 module.exports = {
 	"number_format": number_format,
 	"ucfirst": ucfirst,
-	"getRequestedSubVariables": getRequestedSubVariables
+	"getRequestedSubVariables": getRequestedSubVariables,
+	"sortDictionaryByKey": sortDictionaryByKey,
 };

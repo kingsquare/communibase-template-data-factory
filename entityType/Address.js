@@ -6,12 +6,13 @@ var stxtFile = JSON.parse(fs.readFileSync(__dirname + '/../inc/countryCodeStxt.j
 
 module.exports = function (entityTypeTitle, document, requestedPaths) {
 	var countryCodes = stxtFile[this.language];
+	var allVariablesAreRequested = (requestedPaths.length === 1 && requestedPaths[0].substring(0, 1) === '#');
 
 	return BaseSerializer.apply(this, arguments).then(function (templateData) {
-		if (requestedPaths.indexOf('country') !== -1) {
+		if (allVariablesAreRequested || requestedPaths.indexOf('country') !== -1) {
 			templateData.country = countryCodes[document.countryCode] || document.countryCode;
 		}
-		if (requestedPaths.indexOf('notNl') !== -1) {
+		if (allVariablesAreRequested || requestedPaths.indexOf('notNl') !== -1) {
 			templateData.notNl = document.countryCode !== 'NL';
 		}
 

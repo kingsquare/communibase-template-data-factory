@@ -4,6 +4,8 @@ var BaseSerializer = require('./Base.js');
 var helpers = require('../inc/helpers.js');
 
 module.exports = function (entityTypeTitle, document, requestedPaths) {
+	var allVariablesAreRequested = (requestedPaths.length === 1 && requestedPaths[0].substring(0, 1) === '#');
+
 	return BaseSerializer.apply(this, arguments).then(function (templateData) {
 		var requestedTotalsVariables, taxMultiplier, totals;
 
@@ -38,7 +40,7 @@ module.exports = function (entityTypeTitle, document, requestedPaths) {
 			});
 		}
 
-		if (requestedPaths.indexOf('title') !== -1) {
+		if (allVariablesAreRequested || requestedPaths.indexOf('title') !== -1) {
 			templateData.title = document.description;
 		}
 
