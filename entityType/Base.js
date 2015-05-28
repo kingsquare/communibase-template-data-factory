@@ -99,7 +99,7 @@ module.exports = function (entityTypeTitle, document, requestedPaths) {
 				return;
 			}
 
-			if (entitiesHash[type]) {
+			if (entitiesHash[type] || typeof value === 'object') {
 				if ((type === 'DocumentReference') || (attribute.title.substr(-9) !== 'Reference')) {
 					var referencedSubVariables = helpers.getRequestedSubVariables(requestedPaths, attribute.title);
 					if (referencedSubVariables.length > 0) {
