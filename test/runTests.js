@@ -8,13 +8,13 @@ var dbHost = "localhost";
 var dbPort = "27017";
 
 if (process.env.WERCKER_MONGODB_HOST) {
-	logger.info('Configuring environment vars for Wercker');
+	console.log('Configuring environment vars for Wercker');
 	dbHost = process.env.WERCKER_MONGODB_HOST;
 	dbPort = process.env.WERCKER_MONGODB_PORT;
 }
 
 if (process.env.MONGO_PORT_27017_TCP_ADDR) {
-	logger.info('Configuring environment vars for linked in mongo-service');
+	console.log('Configuring environment vars for linked in mongo-service');
 	dbHost = process.env.MONGO_PORT_27017_TCP_ADDR;
 	dbPort = process.env.MONGO_PORT_27017_TCP_PORT;
 }
