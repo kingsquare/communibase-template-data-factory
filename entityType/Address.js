@@ -1,8 +1,7 @@
 'use strict';
 
 var BaseSerializer = require('./Base.js');
-var fs = require('fs');
-var stxtFile = JSON.parse(fs.readFileSync(__dirname + '/../inc/countryCodeStxt.json'));
+var stxtFile = require('../inc/countryCodeStxt.json');
 
 module.exports = function (entityTypeTitle, document, requestedPaths) {
 	var countryCodes = stxtFile[this.language];

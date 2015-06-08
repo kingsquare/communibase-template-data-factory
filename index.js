@@ -1,5 +1,4 @@
 'use strict';
-var fs = require('fs');
 
 /**
  * Gets all requested paths based on the given template. When inserting:
@@ -64,11 +63,13 @@ function getPaths (node) {
 	return result;
 }
 
-var entitiySerializers = {};
-fs.readdirSync(__dirname + '/entityType').forEach(function (enityTypeFile) {
-	entitiySerializers[enityTypeFile.substr(0, enityTypeFile.length - 3)] =
-			require(__dirname + '/entityType/' + enityTypeFile);
-});
+var entitiySerializers = {
+	'Base': require('./entityType/Base.js'),
+	'Address': require('./entityType/Address.js'),
+	'Debtor': require('./entityType/Debtor.js'),
+	'Invoice': require('./entityType/Invoice.js'),
+	'InvoiceItem': require('./entityType/InvoiceItem.js')
+};
 
 module.exports = function (config) {
 	this.cbc = config.cbc || require('communibase-connector-js');

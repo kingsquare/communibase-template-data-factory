@@ -20,18 +20,14 @@ module.exports = function (entityTypeTitle, document, requestedPaths) {
 				return ((requestedPath.indexOf(attribute.title) === 0) || (requestedPath.substr(0, 1) === '#'));
 			});
 
+			if (!type) {
+				type = ((attribute.type && attribute.type.type) ? attribute.type.type : attribute.type);
+			}
+
 			if (fieldNameIsRequested && ([undefined, null, true, false].indexOf(value) !== -1 ||
 				type === 'Date' || type === 'int' || type === 'float')) {
 				result[attribute.title] = value;
 				return;
-			}
-
-			if (!value) {
-				return;
-			}
-
-			if (!type) {
-				type = ((attribute.type && attribute.type.type) ? attribute.type.type : attribute.type);
 			}
 
 			if (Array.isArray(value)) {

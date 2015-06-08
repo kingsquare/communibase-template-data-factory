@@ -26,6 +26,7 @@ expectedResult = {
 	date: '2013-01-22T23:00:00.000Z',
 	dayBookNumber: '30',
 	debtor: {
+		"comment": "",
 		"companyId": process.env.TEST_COMPANY_ID,
 		"number": "1",
 		"personId": process.env.TEST_PERSON_ID,

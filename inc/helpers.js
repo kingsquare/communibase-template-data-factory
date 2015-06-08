@@ -1,5 +1,7 @@
 "use strict";
 
+var _ = require('lodash');
+
 //Simplified version of https://raw.githubusercontent.com/kvz/phpjs/master/functions/strings/number_format.js
 function number_format(number) {
 	var n = (number + '').replace(/[^0-9+\-Ee.]/g, '');
@@ -54,7 +56,7 @@ function sortDictionaryByKey(myObj) {
 	for (i = 0; i < len; i+=1) {
 		var k = keys[i];
 
-		if (typeof myObj[k] === 'object') {
+		if (_.isObject(myObj[k])) {
 			newObject[k] = sortDictionaryByKey(myObj[k]);
 		} else {
 			newObject[k] = myObj[k];
@@ -68,5 +70,5 @@ module.exports = {
 	"number_format": number_format,
 	"ucfirst": ucfirst,
 	"getRequestedSubVariables": getRequestedSubVariables,
-	"sortDictionaryByKey": sortDictionaryByKey,
+	"sortDictionaryByKey": sortDictionaryByKey
 };
