@@ -61,6 +61,17 @@ describe('Tool', function () {
 			}).catch(done);
 		});
 
+		it('Event._title', function (done) {
+			cbc.getById('Event', process.env.TEST_EVENT_ID).then(function (event) {
+				return factory.getTitlePromise('Event', event).then(function (title) {
+					if (title !== 'Ooa Intervisieseizoen 2016 (1-1-2016)') {
+						throw new Error('The title is not nicely formatted!');
+					}
+					done();
+				});
+			}).catch(done);
+		});
+
 		it('Group._title', function (done) {
 			cbc.getById('Group', process.env.TEST_GROUP_ID).then(function (group) {
 				return factory.getPromise('Group', group, Handlebars.parse('{{_title}}'));

@@ -13,13 +13,15 @@ module.exports = function () {
 	var groupData = JSON.parse(fs.readFileSync(__dirname + '/../fixtures/group.json'));
 	var invoiceData = JSON.parse(fs.readFileSync(__dirname + '/../fixtures/invoice.json'));
 	var companyData = JSON.parse(fs.readFileSync(__dirname + '/../fixtures/company.json'));
+	var eventData = JSON.parse(fs.readFileSync(__dirname + '/../fixtures/event.json'));
 
 
 	return Promise.all([
 		cbc.update('Person', personData),
 		cbc.update('Company', companyData),
-		cbc.update('Group', groupData)
-	]).spread(function (person, company, group) {
+		cbc.update('Group', groupData),
+		cbc.update('Event', eventData)
+	]).spread(function (person, company, group, event) {
 		debtorData.personId = person._id;
 		debtorData.companyId = company._id;
 		membershipData.groupId = group._id;
@@ -38,6 +40,7 @@ module.exports = function () {
 		process.env.TEST_PERSON_ID = person._id;
 		process.env.TEST_COMPANY_ID = company._id;
 		process.env.TEST_GROUP_ID = group._id;
+		process.env.TEST_EVENT_ID = event._id;
 		return cbc.update('Debtor', debtorData);
 	}).then(function (debtor) {
 		membershipData.debtorId = debtor._id;
