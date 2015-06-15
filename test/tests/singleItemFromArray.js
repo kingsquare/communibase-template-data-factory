@@ -1,10 +1,11 @@
 /* global describe: false, it: false */
 'use strict';
 
-var cbc, expectedResult, factory, template, Factory, Handlebars;
+var cbc, expectedResult, helpers, factory, fs, template, Factory, Handlebars;
 
-var fs = require('fs');
+fs = require('fs');
 cbc = require('communibase-connector-js');
+helpers = require('../../inc/helpers.js');
 Factory = require('../../index.js');
 Handlebars = require('handlebars');
 
@@ -13,11 +14,11 @@ factory = new Factory({
 });
 
 expectedResult = {
-	"invoicedPeriods": [
-		null, null, null, {
+	"invoicedPeriods": {
+		3: {
 			"startDate": "2015-03-22T23:00:00.000Z"
 		}
-	],
+	},
 
 	"person": {
 		"firstName": "Janny",
@@ -45,7 +46,11 @@ describe('Tool', function(){
 			cbc.getById('Membership', process.env.TEST_MEMBERSHIP_ID).then(function (membership) {
 				return factory.getPromise('Membership', membership, template);
 			}).then(function (result) {
-				if (JSON.stringify(result) !== JSON.stringify(expectedResult)) {
+				var reality, expectation;
+				reality = JSON.stringify(helpers.sortDictionaryByKey(result));
+				expectation = JSON.stringify(helpers.sortDictionaryByKey(expectedResult));
+
+				if (reality !== expectation) {
 					throw new Error('Not all values are exactly the same!');
 				}
 				done();

@@ -1,3 +1,5 @@
+/*global require: false */
+
 'use strict';
 
 /**
@@ -63,17 +65,42 @@ function getPaths (node) {
 	return result;
 }
 
-var entitiySerializers = {
-	'Base': require('./entityType/Base.js'),
-	'Address': require('./entityType/Address.js'),
-	'Debtor': require('./entityType/Debtor.js'),
-	'Invoice': require('./entityType/Invoice.js'),
-	'InvoiceItem': require('./entityType/InvoiceItem.js')
+var entitySerializers = {
+	Base: require('./entityType/Base.js'),
+	Address: require('./entityType/Address.js'),
+	Company: require('./entityType/Company.js'),
+	Contact: require('./entityType/Contact.js'),
+	ContactPersonMatchResult: require('./entityType/ContactPersonMatchResult.js'),
+	Debtor: require('./entityType/Debtor.js'),
+	DocumentReference: require('./entityType/DocumentReference.js'),
+	EmailAddress: require('./entityType/EmailAddress.js'),
+	EndpointDescription: require('./entityType/EndpointDescription.js'),
+	Event: require('./entityType/Event.js'),
+	File: require('./entityType/File.js'),
+	Invoice: require('./entityType/Invoice.js'),
+	InvoiceItem: require('./entityType/InvoiceItem.js'),
+	Membership: require('./entityType/Membership.js'),
+	Merchant: require('./entityType/Merchant.js'),
+	MerchantData: require('./entityType/MerchantData.js'),
+	Participant: require('./entityType/Participant.js'),
+	PeriodicTariffList: require('./entityType/PeriodicTariffList.js'),
+	Person: require('./entityType/Person.js'),
+	PhoneNumber: require('./entityType/PhoneNumber.js'),
+	PropertyAccessDescription: require('./entityType/PropertyAccessDescription.js'),
+	TariffDecay: require('./entityType/TariffDecay.js'),
+	User: require('./entityType/User.js'),
+	VersionInformation: require('./entityType/VersionInformation.js')
 };
+
+function getCorrespondingSerializer(entityTypeTitle, propertyName) {
+	return (entitySerializers[entityTypeTitle] && entitySerializers[entityTypeTitle][propertyName] ?
+		entitySerializers[entityTypeTitle][propertyName] :
+		entitySerializers.Base[propertyName]);
+}
 
 module.exports = function (config) {
 	this.cbc = config.cbc || require('communibase-connector-js');
-	this.language = config.language || 'NL';
+	this.stxt = config.stxt || {};
 	this.entitiesHashPromise = this.cbc.getAll('EntityType').then(function (entities) {
 		var entitiesHash = {};
 		entities.forEach(function (entity) {
@@ -101,9 +128,49 @@ module.exports = function (config) {
 	 * @returns {Promise}
 	 */
 	this.getPromiseByPaths = function (entityTypeTitle, document, requestedPaths) {
-		var serializer = (entitiySerializers[entityTypeTitle] ?
-				entitiySerializers[entityTypeTitle] :
-				entitiySerializers.Base);
+		var serializer = getCorrespondingSerializer(entityTypeTitle, 'getPromiseByPaths');
 		return serializer.apply(this, arguments);
 	};
+
+	this.getTitlePromise = function(entityTypeTitle, document) {
+		var self, _getTitlePromise, titleFields, composeTitle;
+		self = this;
+
+		if (entityTypeTitle.substr(-9) === 'Reference' && entityTypeTitle !== 'DocumentReference') {
+			if (!document) {
+				return Promise.resolve('');
+			}
+
+			// get the document reference title!
+			if (document.documentReference && document.documentReference.rootDocumentEntityType) {
+				return this.cbc.getByRef(document.documentReference, document).then(function (ref) {
+					return self.getTitlePromise.apply(self, [entityTypeTitle.substr(0, entityTypeTitle.length -9), ref]);
+				}).catch(function () {
+					return Promise.resolve('<< Verwijderd >>');
+				});
+			}
+
+			// get the subdocument title!
+			var subDocument = document[entityTypeTitle[0].toLowerCase() + entityTypeTitle.substring(1, entityTypeTitle.length - 9)];
+			if (!subDocument) {
+				return Promise.resolve('');
+			}
+
+			return this.getTitlePromise.apply(this, [entityTypeTitle.substring(0, entityTypeTitle.length - 9), subDocument]);
+		}
+
+		_getTitlePromise = getCorrespondingSerializer(entityTypeTitle, '_getTitlePromise');
+		titleFields = getCorrespondingSerializer(entityTypeTitle, 'titleFields');
+		composeTitle = getCorrespondingSerializer(entityTypeTitle, 'composeTitle');
+
+		return _getTitlePromise.apply(this, [titleFields, entityTypeTitle, document]).then(function (titleParts) {
+			return composeTitle.apply(self, [titleParts, entityTypeTitle, document]);
+		}).catch(function (err) {
+			// this should never happen!
+			console.log('Dit zou niet moeten gebeuren, wat gaat er mis???');
+			console.log(err);
+			return Promise.resolve('- kon niet worden gevonden -');
+		});
+	};
+
 };

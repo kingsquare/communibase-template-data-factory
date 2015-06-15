@@ -9,12 +9,19 @@ Handlebars = require('handlebars');
 Promise = require('bluebird');
 
 dutchFactory = new Factory({
-	cbc: cbc
+	cbc: cbc,
+	stxt: {
+		'Address.countryCode.DE': 'Duitsland',
+		'Address.countryCode.NL': 'Nederland'
+	}
 });
 
 englishFactory = new Factory({
 	cbc: cbc,
-	language: 'EN'
+	stxt: {
+		'Address.countryCode.DE': 'Germany',
+		'Address.countryCode.NL': 'Netherlands'
+	}
 });
 
 expectedResult = [

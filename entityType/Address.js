@@ -1,20 +1,24 @@
 'use strict';
 
 var BaseSerializer = require('./Base.js');
-var stxtFile = require('../inc/countryCodeStxt.json');
 
-module.exports = function (entityTypeTitle, document, requestedPaths) {
-	var countryCodes = stxtFile[this.language];
-	var allVariablesAreRequested = (requestedPaths.length === 1 && requestedPaths[0].substring(0, 1) === '#');
+module.exports = {
+	titleFields: ['property','street','streetNumber','streetNumberAddition','zipcode','city','countryCode','{{ - }}',
+		'{type}'],
 
-	return BaseSerializer.apply(this, arguments).then(function (templateData) {
-		if (allVariablesAreRequested || requestedPaths.indexOf('country') !== -1) {
-			templateData.country = countryCodes[document.countryCode] || document.countryCode;
-		}
-		if (allVariablesAreRequested || requestedPaths.indexOf('notNl') !== -1) {
-			templateData.notNl = document.countryCode !== 'NL';
-		}
+	getPromiseByPaths: function (entityTypeTitle, document, requestedPaths) {
+		var self = this, allVariablesAreRequested;
+		allVariablesAreRequested = (requestedPaths.length === 1 && requestedPaths[0].substring(0, 1) === '#');
 
-		return templateData;
-	});
+		return BaseSerializer.getPromiseByPaths.apply(this, arguments).then(function (templateData) {
+			if (allVariablesAreRequested || requestedPaths.indexOf('country') !== -1) {
+				templateData.country = self.stxt['Address.countryCode.' + document.countryCode] || document.countryCode;
+			}
+			if (allVariablesAreRequested || requestedPaths.indexOf('notNl') !== -1) {
+				templateData.notNl = document.countryCode !== 'NL';
+			}
+
+			return templateData;
+		});
+	}
 };

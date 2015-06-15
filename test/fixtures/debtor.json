@@ -1,5 +1,6 @@
 {
-  "addresses": [
+  "addressReference":
+  { "address":
 	{
 	  "street": "Rijsenburgselaan",
 	  "streetNumber": "19",
@@ -12,7 +13,7 @@
 	  "type": "postal",
 	  "countryCode": "NL"
 	}
-  ],
+  },
   "chamberOfCommerceNumber": "",
   "comment": "",
   "creditorId": "",

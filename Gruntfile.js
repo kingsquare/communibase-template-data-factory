@@ -9,7 +9,7 @@ module.exports = function (grunt) {
 	grunt.initConfig({
 		shell: {
 			build: {
-				command: 'node development/updateStxts.js && node development/bumpVersion.js'
+				command: 'node development/bumpVersion.js'
 			},
 			options: {
 				execOptions: {

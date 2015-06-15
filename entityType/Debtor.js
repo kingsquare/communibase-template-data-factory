@@ -2,23 +2,28 @@
 
 var BaseSerializer = require('./Base.js');
 
-module.exports = function (entityTypeTitle, document, requestedPaths) {
-	var self = this;
-	var allVariablesAreRequested = (requestedPaths.length === 1 && requestedPaths[0].substring(0, 1) === '#');
+module.exports = {
+	titleFields: ['number','{{ - }}','companyId','personId','{{ - }}','addressReference'],
 
-	return BaseSerializer.apply(this, arguments).then(function (templateData) {
-		if (!allVariablesAreRequested && requestedPaths.indexOf('salutation') === -1) {
-			return templateData;
-		}
+	getPromiseByPaths: function (entityTypeTitle, document, requestedPaths) {
+		var self, allVariablesAreRequested;
+		self = this;
+		allVariablesAreRequested = (requestedPaths.length === 1 && requestedPaths[0].substring(0, 1) === '#');
 
-		templateData.salutation = 'Geachte crediteurenadministratie,';
-		return self.cbc.getById('Person', document.personId).then(function (person) {
-			if (person.salutation) {
-				templateData.salutation = person.salutation;
+		return BaseSerializer.getPromiseByPaths.apply(this, arguments).then(function (templateData) {
+			if (!allVariablesAreRequested && requestedPaths.indexOf('salutation') === -1) {
+				return templateData;
 			}
-			return templateData;
-		}, function () {
-			return templateData;
+
+			templateData.salutation = 'Geachte crediteurenadministratie,';
+			return self.cbc.getById('Person', document.personId).then(function (person) {
+				if (person.salutation) {
+					templateData.salutation = person.salutation;
+				}
+				return templateData;
+			}).catch(function () {
+				return templateData;
+			});
 		});
-	});
+	}
 };

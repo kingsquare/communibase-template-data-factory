@@ -16,4 +16,8 @@ factory.getPromise("Person", person).then(function () { ... })
 All options for the constructor are optional. Possible options:
 
 __cbc__: an instance of the Communibase Connector. Will be spawned if not supplied
-__maxNestLevel__: Default 5. How deep should the factory iterate with retrieving data.
+__stxt__: a Javascript-object containing optional translations, e.g.:
+```{ 
+    "Address.countryCode.NL": "Nederland",
+    "Person.firstName": "Voornaam" 
+ }```

@@ -9,12 +9,18 @@ Factory = require('../../index.js');
 Handlebars = require('handlebars');
 
 factory = new Factory({
-	cbc: cbc
+	cbc: cbc,
+	stxt: {
+		'Address.countryCode.NL': 'Nederland'
+	}
 });
 
 expectedResult = {
+	_title: "100001",
 	invoiceNumber: '100001',
-	address: { street: 'Straatje',
+	address: {
+		_title: 'Straatje 12 4284VA RIJSWIJK NB NL - visit',
+		street: 'Straatje',
 		streetNumber: '12',
 		zipcode: '4284VA',
 		city: 'RIJSWIJK NB',
@@ -26,13 +32,15 @@ expectedResult = {
 	date: '2013-01-22T23:00:00.000Z',
 	dayBookNumber: '30',
 	debtor: {
-		"comment": "",
-		"companyId": process.env.TEST_COMPANY_ID,
-		"number": "1",
-		"personId": process.env.TEST_PERSON_ID,
-		"preferredPaymentType": "invoice",
-		"preferredTypeOfContact": "mail",
-		"salutation": "Geachte mevrouw Van Zutphen,"
+		_title: '1 - NEVI - Postbus 198 2700 AD ZOETERMEER DE - postal J. van Zutphen - Rijsenburgselaan 19 3972 EH ' +
+			'DRIEBERGEN-RIJSENBURG NL - postal',
+		comment: "",
+		companyId: process.env.TEST_COMPANY_ID,
+		number: "1",
+		personId: process.env.TEST_PERSON_ID,
+		preferredPaymentType: "invoice",
+		preferredTypeOfContact: "mail",
+		salutation: "Geachte mevrouw Van Zutphen,"
 	},
 	firstAddressLine: 'Testaanhef',
 	openAmount: 278.3,
