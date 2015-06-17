@@ -37,9 +37,11 @@ module.exports = {
 					type = ((attribute.type && attribute.type.type) ? attribute.type.type : attribute.type);
 				}
 
-				if (fieldNameIsRequested && ([undefined, null, true, false].indexOf(value) !== -1 ||
-					type === 'Date' || type === 'int' || type === 'float')) {
-					result[attribute.title] = value;
+				if ([undefined, null, true, false].indexOf(value) !== -1 ||
+					type === 'Date' || type === 'int' || type === 'float') {
+					if (fieldNameIsRequested) {
+						result[attribute.title] = value;
+					}
 					return;
 				}
 
