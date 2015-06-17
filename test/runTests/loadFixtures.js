@@ -9,6 +9,7 @@ var cbc = require('communibase-connector-js').clone(process.env.COMMUNIBASE_KEY)
 module.exports = function () {
 	var personData = JSON.parse(fs.readFileSync(__dirname + '/../fixtures/person.json'));
 	var debtorData = JSON.parse(fs.readFileSync(__dirname + '/../fixtures/debtor.json'));
+	var debtor2Data = JSON.parse(fs.readFileSync(__dirname + '/../fixtures/debtor_2.json'));
 	var membershipData = JSON.parse(fs.readFileSync(__dirname + '/../fixtures/membership.json'));
 	var groupData = JSON.parse(fs.readFileSync(__dirname + '/../fixtures/group.json'));
 	var invoiceData = JSON.parse(fs.readFileSync(__dirname + '/../fixtures/invoice.json'));
@@ -24,6 +25,9 @@ module.exports = function () {
 	]).spread(function (person, company, group, event) {
 		debtorData.personId = person._id;
 		debtorData.companyId = company._id;
+		debtor2Data.personId = person._id;
+		debtor2Data.addressReference.documentReference.rootDocumentId = person._id;
+		debtor2Data.companyId = company._id;
 		membershipData.groupId = group._id;
 		membershipData.personId = person._id;
 		membershipData.addressReference = {
@@ -41,12 +45,16 @@ module.exports = function () {
 		process.env.TEST_COMPANY_ID = company._id;
 		process.env.TEST_GROUP_ID = group._id;
 		process.env.TEST_EVENT_ID = event._id;
-		return cbc.update('Debtor', debtorData);
-	}).then(function (debtor) {
+		return Promise.all([
+			cbc.update('Debtor', debtorData),
+			cbc.update('Debtor', debtor2Data)
+		]);
+	}).spread(function (debtor, debtor2) {
 		membershipData.debtorId = debtor._id;
 
 		invoiceData.debtorId = debtor._id;
 		process.env.TEST_DEBTOR_ID = debtor._id;
+		process.env.TEST_DEBTOR_2_ID = debtor2._id;
 		return cbc.update('Membership', membershipData);
 	}).then(function (membership) {
 		invoiceData.invoiceItems[0].documentReference = {

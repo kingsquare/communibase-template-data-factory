@@ -22,7 +22,7 @@ module.exports = {
 
 			// add title if requested
 			if (checkIfIsRequested('_title', requestedPaths)) {
-				subPromises.push(self.getTitlePromise(entityTypeTitle, document).then(function(title) {
+				subPromises.push(self.getTitlePromise.apply(self, [entityTypeTitle, document]).then(function(title) {
 					result._title = title;
 				}));
 			}
@@ -66,8 +66,8 @@ module.exports = {
 							var subSubPromises = [];
 
 							referredObjects.forEach(function (referredObject) {
-								subSubPromises.push(self.getPromiseByPaths(attribute.ref, referredObject,
-									requestedSubVariables).then(function (templateData) {
+								subSubPromises.push(self.getPromiseByPaths.apply(self, [attribute.ref, referredObject,
+									requestedSubVariables]).then(function (templateData) {
 										result[attribute.title.substr(-3) + 's'].push(templateData);
 									}));
 							});
@@ -96,8 +96,8 @@ module.exports = {
 
 						//check for strings, e.g. Vasmo Company.classifications
 						if (subDocument && entitiesHash[attribute.items]) {
-							arrayItemPromises.push(self.getPromiseByPaths(attribute.items, subDocument,
-								specificSubValues));
+							arrayItemPromises.push(self.getPromiseByPaths.apply(self, [attribute.items, subDocument,
+								specificSubValues]));
 							return;
 						}
 						//Not a document? push the raw value (string)
@@ -114,8 +114,8 @@ module.exports = {
 					if ((type === 'DocumentReference') || (attribute.title.substr(-9) !== 'Reference')) {
 						var referencedSubVariables = helpers.getRequestedSubVariables(requestedPaths, attribute.title);
 						if (referencedSubVariables.length > 0) {
-							subPromises.push(self.getPromiseByPaths(attribute.type, value, referencedSubVariables).then(
-								function (templateData) {
+							subPromises.push(self.getPromiseByPaths.apply(self, [attribute.type, value,
+								referencedSubVariables]).then(function (templateData) {
 									result[attribute.title] = templateData;
 								}
 							));
@@ -136,15 +136,15 @@ module.exports = {
 							self.cbc.getById(document.rootDocumentEntityType, document.rootDocumentId).catch(function () {})
 						]).spread(function (referredDocument, rootDocument) {
 							if (!rootDocument) {
-								return self.getPromiseByPaths(referenceType, referredDocument, requestedSubVariables)
-									.then(function (templateData) {
+								return self.getPromiseByPaths.apply(self, [referenceType, referredDocument,
+									requestedSubVariables]).then(function (templateData) {
 										result[referredDocumentProperty] = templateData;
 									}
 								);
 							}
 
-							return self.getPromiseByPaths(document.rootDocumentEntityType, rootDocument,
-								requestedSubVariables).then(function (rootDocumentTemplateData) {
+							return self.getPromiseByPaths.apply(self, [document.rootDocumentEntityType, rootDocument,
+								requestedSubVariables]).then(function (rootDocumentTemplateData) {
 									result[referredDocumentProperty] = rootDocumentTemplateData;
 								}
 							);
@@ -152,8 +152,8 @@ module.exports = {
 						return;
 					}
 					// a custom defined address / phoneNumber / emailAddress within a reference
-					subPromises.push(self.getPromiseByPaths(referenceType, value[referredDocumentProperty],
-							requestedSubVariables).then(function (templateData) {
+					subPromises.push(self.getPromiseByPaths.apply(self, [referenceType, value[referredDocumentProperty],
+							requestedSubVariables]).then(function (templateData) {
 								result[referredDocumentProperty] = templateData;
 							})
 					);
@@ -175,8 +175,8 @@ module.exports = {
 						}
 
 						subPromises.push(self.cbc.getById(attribute.ref, value).then(function (referredObject) {
-							return self.getPromiseByPaths(attribute.ref, referredObject, requestedSubVariables).then(
-								function (templateData) {
+							return self.getPromiseByPaths.apply(self, [attribute.ref, referredObject,
+								requestedSubVariables]).then(function (templateData) {
 									result[attribute.title.substr(0, (attribute.title.length - 2))] = templateData;
 								}
 							);
@@ -253,7 +253,7 @@ module.exports = {
 					if (!record) {
 						return '';
 					}
-					return self.getTitlePromise(modelName, record);
+					return self.getTitlePromise.apply(self, [modelName, record]);
 				}));
 				return;
 			}
@@ -263,15 +263,29 @@ module.exports = {
 					return;
 				}
 
+				var entityName = titlePart[0].toUpperCase() + titlePart.substring(1, titlePart.length - 9);
+
 				if (titlePartValue.documentReference && titlePartValue.documentReference.rootDocumentEntityType) {
-					titlePartPromises.push(self.getTitlePromise('DocumentReference', titlePartValue.documentReference));
+					// get the document reference title!
+					if (titlePartValue.documentReference && titlePartValue.documentReference.rootDocumentEntityType) {
+						titlePartPromises.push(self.cbc.getByRef(titlePartValue.documentReference, titlePartValue).then(function (ref) {
+
+							return self.getTitlePromise.apply(self, [entityName, ref]);
+						}).catch(function () {
+							return Promise.resolve(['<< Verwijderd >>']);
+						}));
+						return;
+					}
+				}
+
+				// get the subdocument title!
+				var subDocument = titlePartValue[titlePart.substring(0, titlePart.length - 9)];
+				if (!subDocument) {
 					return;
 				}
 
-				var subDocument = titlePartValue[titlePart.substring(0, titlePart.length - 9)] || {};
-				titlePartPromises.push(self.getTitlePromise(titlePart[0].toUpperCase() +
-					titlePart.substring(1, titlePart.length - 9),
-					subDocument));
+				titlePartPromises.push(self.getTitlePromise.apply(self, [titlePart[0].toUpperCase() +
+					titlePart.substring(1, titlePart.length - 9), subDocument]));
 				return;
 			}
 

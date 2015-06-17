@@ -61,6 +61,19 @@ describe('Tool', function () {
 			}).catch(done);
 		});
 
+		it('Debtor._title (document reference)', function (done) {
+			cbc.getById('Debtor', process.env.TEST_DEBTOR_2_ID).then(function (debtor) {
+				return factory.getTitlePromise('Debtor', debtor);
+			}).then(function (title) {
+				if (title !== '1 - NEVI - Postbus 198 2700 AD ZOETERMEER DE - postal J. van Zutphen - ' +
+					'Theodorus Backerlaan 8 3984PJ ODIJK NL - visit') {
+					throw new Error('The title is not nicely formatted!');
+				}
+
+				done();
+			}).catch(done);
+		});
+
 		it('Event._title', function (done) {
 			cbc.getById('Event', process.env.TEST_EVENT_ID).then(function (event) {
 				return factory.getTitlePromise('Event', event).then(function (title) {
