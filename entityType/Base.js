@@ -39,7 +39,7 @@ module.exports = {
 
 				if (type === 'Date') {
 					if (fieldNameIsRequested && value) {
-						result[attribute.title] = new Date(value).toString();
+						result[attribute.title] = new Date(value);
 					}
 					return;
 				}

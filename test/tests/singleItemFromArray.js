@@ -16,7 +16,7 @@ factory = new Factory({
 expectedResult = {
 	"invoicedPeriods": {
 		3: {
-			"startDate": new Date("2015-03-22T23:00:00.000Z").toString()
+			"startDate": new Date("2015-03-22T23:00:00.000Z")
 		}
 	},
 
