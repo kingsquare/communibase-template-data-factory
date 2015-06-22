@@ -16,7 +16,7 @@ factory = new Factory({
 expectedResult = {
 	"invoicedPeriods": {
 		3: {
-			"startDate": "2015-03-22T23:00:00.000Z"
+			"startDate": "Mon Mar 23 2015 00:00:00 GMT+0100 (CET)"
 		}
 	},
 

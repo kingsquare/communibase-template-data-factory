@@ -29,7 +29,7 @@ expectedResult = {
 		country: 'Nederland',
 		notNl: false
 	},
-	date: '2013-01-22T23:00:00.000Z',
+	date: 'Wed Jan 23 2013 00:00:00 GMT+0100 (CET)',
 	dayBookNumber: '30',
 	debtor: {
 		_title: '1 - NEVI - Postbus 198 2700 AD ZOETERMEER DE - postal J. van Zutphen - Rijsenburgselaan 19 3972 EH ' +
