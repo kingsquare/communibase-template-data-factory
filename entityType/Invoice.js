@@ -60,7 +60,8 @@ module.exports = {
 				if (requestedPaths.indexOf(dataKey) === -1) {
 					return;
 				}
-				templateData[dataKey] = '€' + helpers.number_format(totals[key]);
+
+				templateData[dataKey] = helpers.euro_format(totals[key]);
 			});
 
 			requestedTaxesVariables = helpers.getRequestedSubVariables(requestedPaths, 'taxes.#');

@@ -42,5 +42,16 @@ describe('Tool', function(){
 				done();
 			}).catch(done);
 		});
+
+		it('should parse euro-sign correctly', function (done) {
+			cbc.getById('Invoice', process.env.TEST_INVOICE_2_ID).then(function (invoice) {
+				return factory.getPromise('Invoice', invoice, Handlebars.parse('{{totalIn}}'));
+			}).then(function (result) {
+				if (JSON.stringify(result) !== JSON.stringify({ totalIn: '-€ 200,00' })) {
+					throw new Error('Not all values are exactly the same!');
+				}
+				done();
+			}).catch(done);
+		});
 	});
 });

@@ -38,7 +38,7 @@ module.exports = {
 						return;
 					}
 
-					templateData[dataKey] = '€' + helpers.number_format(totals[key]);
+					templateData[dataKey] = helpers.euro_format(totals[key]);
 				});
 			}
 

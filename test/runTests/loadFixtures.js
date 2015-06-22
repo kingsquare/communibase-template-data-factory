@@ -13,6 +13,7 @@ module.exports = function () {
 	var membershipData = JSON.parse(fs.readFileSync(__dirname + '/../fixtures/membership.json'));
 	var groupData = JSON.parse(fs.readFileSync(__dirname + '/../fixtures/group.json'));
 	var invoiceData = JSON.parse(fs.readFileSync(__dirname + '/../fixtures/invoice.json'));
+	var invoice2Data = JSON.parse(fs.readFileSync(__dirname + '/../fixtures/invoice_2.json'));
 	var companyData = JSON.parse(fs.readFileSync(__dirname + '/../fixtures/company.json'));
 	var eventData = JSON.parse(fs.readFileSync(__dirname + '/../fixtures/event.json'));
 
@@ -53,6 +54,8 @@ module.exports = function () {
 		membershipData.debtorId = debtor._id;
 
 		invoiceData.debtorId = debtor._id;
+		invoice2Data.debtorId = debtor._id;
+
 		process.env.TEST_DEBTOR_ID = debtor._id;
 		process.env.TEST_DEBTOR_2_ID = debtor2._id;
 		return cbc.update('Membership', membershipData);
@@ -69,8 +72,13 @@ module.exports = function () {
 			]
 		};
 		process.env.TEST_MEMBERSHIP_ID = membership._id;
-		return cbc.update('Invoice', invoiceData);
-	}).then(function (invoice) {
+
+		return Promise.all([
+			cbc.update('Invoice', invoiceData),
+			cbc.update('Invoice', invoice2Data)
+		]);
+	}).spread(function (invoice, invoice2) {
 		process.env.TEST_INVOICE_ID = invoice._id;
+		process.env.TEST_INVOICE_2_ID = invoice2._id;
 	});
 };

@@ -2,6 +2,16 @@
 
 var _ = require('lodash');
 
+function euro_format(number) {
+	var formattedNumber = number_format(number);
+
+	if (formattedNumber[0] === '-') {
+		return '-€ ' + formattedNumber.substr(1);
+	}
+
+	return '€ ' + formattedNumber;
+}
+
 //Simplified version of https://raw.githubusercontent.com/kvz/phpjs/master/functions/strings/number_format.js
 function number_format(number) {
 	var n = (number + '').replace(/[^0-9+\-Ee.]/g, '');
@@ -67,6 +77,7 @@ function sortDictionaryByKey(myObj) {
 }
 
 module.exports = {
+	"euro_format": euro_format,
 	"number_format": number_format,
 	"ucfirst": ucfirst,
 	"getRequestedSubVariables": getRequestedSubVariables,

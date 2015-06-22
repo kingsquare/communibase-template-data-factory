@@ -13,8 +13,8 @@ factory = new Factory({
 
 expectedResult = {
 	'invoiceItems': [
-		{ 'totalEx': '€240,00' },
-		{ 'totalEx': '€-10,00' }
+		{ 'totalEx': '€ 240,00' },
+		{ 'totalEx': '-€ 10,00' }
 	]
 };
 
