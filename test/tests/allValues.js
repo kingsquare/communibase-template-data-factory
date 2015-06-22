@@ -16,6 +16,7 @@ factory = new Factory({
 });
 
 expectedResult = {
+	_id: process.env.TEST_INVOICE_ID,
 	_title: "100001",
 	invoiceNumber: '100001',
 	address: {
@@ -32,6 +33,7 @@ expectedResult = {
 	date: new Date('2013-01-22T23:00:00.000Z'),
 	dayBookNumber: '30',
 	debtor: {
+		_id: process.env.TEST_DEBTOR_ID,
 		_title: '1 - NEVI - Postbus 198 2700 AD ZOETERMEER DE - postal J. van Zutphen - Rijsenburgselaan 19 3972 EH ' +
 			'DRIEBERGEN-RIJSENBURG NL - postal',
 		comment: "",

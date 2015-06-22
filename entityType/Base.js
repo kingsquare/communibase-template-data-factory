@@ -20,6 +20,10 @@ module.exports = {
 		return this.entitiesHashPromise.then(function (entitiesHash) {
 			var entityType = entitiesHash[entityTypeTitle];
 
+			if (document._id && checkIfIsRequested('_id', requestedPaths)) {
+				result._id = document._id;
+			}
+
 			// add title if requested
 			if (checkIfIsRequested('_title', requestedPaths)) {
 				subPromises.push(self.getTitlePromise.apply(self, [entityTypeTitle, document]).then(function(title) {
