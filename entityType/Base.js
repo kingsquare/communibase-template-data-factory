@@ -147,6 +147,9 @@ module.exports = {
 							self.cbc.getById(document.rootDocumentEntityType, document.rootDocumentId).catch(function () {})
 						]).spread(function (referredDocument, rootDocument) {
 							if (!rootDocument) {
+								if (!referredDocument) {
+									return;
+								}
 								return self.getPromiseByPaths.apply(self, [referenceType, referredDocument,
 									requestedSubVariables]).then(function (templateData) {
 										result[referredDocumentProperty] = templateData;
