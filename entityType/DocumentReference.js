@@ -26,7 +26,9 @@ module.exports = {
 		var title = 'Verwijzing naar ';
 		title += (this.stxt[rootDocumentEntityType] || rootDocumentEntityType) + ' - ' + document.rootDocumentId;
 		document.path.forEach(function (nibble) {
-			title += ' - ' + (self.stxt[nibble.field] || nibble.field) + ' - ' + nibble.objectId;
+			if (nibble && nibble.field && nibble.objectId) {
+				title += ' - ' + (self.stxt[nibble.field] || nibble.field) + ' - ' + nibble.objectId;
+			}
 		});
 		return Promise.resolve([title]);
 	}
