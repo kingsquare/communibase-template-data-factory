@@ -1,5 +1,3 @@
-/*global Promise:true */
-
 'use strict';
 
 var Promise = require('bluebird');
@@ -25,11 +23,14 @@ module.exports = {
 
 		var title = 'Verwijzing naar ';
 		title += (this.stxt[rootDocumentEntityType] || rootDocumentEntityType) + ' - ' + document.rootDocumentId;
-		document.path.forEach(function (nibble) {
-			if (nibble && nibble.field && nibble.objectId) {
-				title += ' - ' + (self.stxt[nibble.field] || nibble.field) + ' - ' + nibble.objectId;
-			}
-		});
+
+		if (document.path && document.path.forEach) {
+			document.path.forEach(function (nibble) {
+				if (nibble && nibble.field && nibble.objectId) {
+					title += ' - ' + (self.stxt[nibble.field] || nibble.field) + ' - ' + nibble.objectId;
+				}
+			});
+		}
 		return Promise.resolve([title]);
 	}
 };
