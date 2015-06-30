@@ -167,10 +167,12 @@ module.exports = function (config) {
 			return composeTitle.apply(self, [titleParts, entityTypeTitle, document]);
 		}).catch(function (err) {
 			// this should never happen!
-			console.log('Dit zou niet moeten gebeuren, wat gaat er mis???');
 			console.log(err);
 			return Promise.resolve('- kon niet worden gevonden -');
 		});
 	};
 
+	this.setStxt = function(stxt) {
+		this.stxt = stxt
+	};
 };
