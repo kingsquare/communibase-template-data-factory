@@ -12,6 +12,11 @@ var checkIfIsRequested = function (fieldName, requestedPaths) {
 	});
 };
 
+var convertIdToDate = function (record) {
+	// http://stackoverflow.com/questions/6452021/getting-timestamp-from-mongodb-id
+	return new Date(parseInt(record._id.substring(0, 8), 16) * 1000);
+};
+
 module.exports = {
 	titleFields: ['title'],
 	getPromiseByPaths: function (entityTypeTitle, document, requestedPaths) {
@@ -34,6 +39,10 @@ module.exports = {
 			// add updatedAt if requested
 			if (checkIfIsRequested('updatedAt', requestedPaths) && document.updatedAt) {
 				result.updatedAt = new Date(document.updatedAt);
+			}
+
+			if (checkIfIsRequested('_createdAt', requestedPaths) && document._id) {
+				result._createdAt = convertIdToDate(document);
 			}
 
 			// add updatedBy if requested

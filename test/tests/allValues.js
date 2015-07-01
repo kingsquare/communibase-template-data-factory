@@ -44,7 +44,8 @@ expectedResult = {
 		preferredTypeOfContact: "mail",
 		salutation: "Geachte mevrouw Van Zutphen,",
 		updatedBy: 'The API unittest administration test key',
-		updatedAt: new Date(process.env.TEST_DEBTOR_UPDATED_AT)
+		updatedAt: new Date(process.env.TEST_DEBTOR_UPDATED_AT),
+		_createdAt: new Date(process.env.TEST_DEBTOR_UPDATED_AT)
 	},
 	firstAddressLine: 'Testaanhef',
 	openAmount: 278.3,
@@ -59,7 +60,8 @@ expectedResult = {
 	isCredit: false,
 	totals: [],
 	updatedBy: 'The API unittest administration test key',
-	updatedAt: new Date(process.env.TEST_INVOICE_UPDATED_AT)
+	updatedAt: new Date(process.env.TEST_INVOICE_UPDATED_AT),
+	_createdAt: new Date(process.env.TEST_INVOICE_UPDATED_AT)
 };
 
 describe('Tool', function(){
