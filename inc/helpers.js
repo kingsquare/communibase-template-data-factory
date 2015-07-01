@@ -47,7 +47,7 @@ function getRequestedSubVariables(requestedPaths, subPropertyName) {
 		var result = [];
 		while (pathNibbles.length > 0) {
 			result.push(pathNibbles.shift());
-			if (subPropertyName === result.join('.')) {
+			if (subPropertyName === result.join('.') && pathNibbles.length > 0) {
 				subResults.push(pathNibbles.join('.'));
 			}
 		}
