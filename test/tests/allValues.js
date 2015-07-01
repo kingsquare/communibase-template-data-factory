@@ -42,7 +42,9 @@ expectedResult = {
 		personId: process.env.TEST_PERSON_ID,
 		preferredPaymentType: "invoice",
 		preferredTypeOfContact: "mail",
-		salutation: "Geachte mevrouw Van Zutphen,"
+		salutation: "Geachte mevrouw Van Zutphen,",
+		updatedBy: 'The API unittest administration test key',
+		updatedAt: process.env.TEST_DEBTOR_UPDATED_AT
 	},
 	firstAddressLine: 'Testaanhef',
 	openAmount: 278.3,
@@ -55,7 +57,9 @@ expectedResult = {
 	invoiceItems: [],
 	paymentType: 'invoice',
 	isCredit: false,
-	totals: []
+	totals: [],
+	updatedBy: 'The API unittest administration test key',
+	updatedAt: process.env.TEST_INVOICE_UPDATED_AT
 };
 
 describe('Tool', function(){

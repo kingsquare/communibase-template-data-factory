@@ -57,6 +57,7 @@ module.exports = function () {
 		invoice2Data.debtorId = debtor._id;
 
 		process.env.TEST_DEBTOR_ID = debtor._id;
+		process.env.TEST_DEBTOR_UPDATED_AT = debtor.updatedAt;
 		process.env.TEST_DEBTOR_2_ID = debtor2._id;
 		return cbc.update('Membership', membershipData);
 	}).then(function (membership) {
@@ -79,6 +80,7 @@ module.exports = function () {
 		]);
 	}).spread(function (invoice, invoice2) {
 		process.env.TEST_INVOICE_ID = invoice._id;
+		process.env.TEST_INVOICE_UPDATED_AT = invoice.updatedAt;
 		process.env.TEST_INVOICE_2_ID = invoice2._id;
 	});
 };

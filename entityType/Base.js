@@ -31,6 +31,12 @@ module.exports = {
 				}));
 			}
 
+			_.each(['updatedAt', 'updatedBy'], function (extraField) {
+				if (checkIfIsRequested(extraField, requestedPaths)) {
+					result[extraField] = document[extraField];
+				}
+			});
+
 			//Expose _ALL_ attributes (not just commmunibase fields): https://trello.com/c/9yKbd7Zg/460-wat-klopt-er-nie
 			_.each(entityType.attributes, function (attribute) {
 				var value = document[attribute.title], type = attribute.type, arrayItemPromises,
