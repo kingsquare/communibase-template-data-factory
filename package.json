@@ -1,6 +1,6 @@
 {
   "name": "communibase-template-data-factory",
-  "version": "1.0.19",
+  "version": "1.0.20",
   "description": "Helper methods for working with Templates and the Communibase service.",
   "main": "index.js",
   "scripts": {

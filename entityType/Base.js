@@ -31,11 +31,15 @@ module.exports = {
 				}));
 			}
 
-			_.each(['updatedAt', 'updatedBy'], function (extraField) {
-				if (checkIfIsRequested(extraField, requestedPaths)) {
-					result[extraField] = document[extraField];
-				}
-			});
+			// add updatedAt if requested
+			if (checkIfIsRequested('updatedAt', requestedPaths) && document.updatedAt) {
+				result.updatedAt = new Date(document.updatedAt);
+			}
+
+			// add updatedBy if requested
+			if (checkIfIsRequested('updatedBy', requestedPaths) && document.updatedBy) {
+				result.updatedBy = document.updatedBy;
+			}
 
 			//Expose _ALL_ attributes (not just commmunibase fields): https://trello.com/c/9yKbd7Zg/460-wat-klopt-er-nie
 			_.each(entityType.attributes, function (attribute) {
