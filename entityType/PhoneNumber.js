@@ -34,5 +34,17 @@ module.exports = {
 		}
 
 		return BaseSerializer.composeTitle.apply(this, arguments);
+	},
+
+	getPromiseByPaths: function (entityTypeTitle, phoneNumber, requestedPaths) {
+		var allVariablesAreRequested = (requestedPaths.length === 1 && requestedPaths[0].substring(0, 1) === '#');
+
+		return BaseSerializer.getPromiseByPaths.apply(this, arguments).then(function (templateData) {
+			if (allVariablesAreRequested || requestedPaths.indexOf('combined') !== -1) {
+				templateData.combined = phoneNumber.countryCode + phoneNumber.areaCode + phoneNumber.subscriberNumber;
+			}
+
+			return templateData;
+		});
 	}
 };
