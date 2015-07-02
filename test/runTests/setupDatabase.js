@@ -24,6 +24,27 @@ function getDropDbPromise(uri) {
 	});
 }
 
+function addSpectialAttributes(entityType) {
+	if (entityType.title !== 'Person') {
+		return entityType;
+	}
+
+	entityType.attributes.push({
+		title: 'sectors',
+		isCore: false,
+		isRequired: false,
+		type: 'Array',
+		description: 'something with sectors',
+		items: 'string',
+		allowableValues: {
+			valueType: 'List',
+			values: ['a', 'b', 'c', 'd', 'e']
+		}
+	});
+
+	return entityType;
+}
+
 function importBsonEntityTypes(bsonFileLocation, dbUri) {
 	return new Promise(function (resolve, reject) {
 		var bson, toBeSavedEntityTypes;
@@ -32,7 +53,7 @@ function importBsonEntityTypes(bsonFileLocation, dbUri) {
 		toBeSavedEntityTypes = [];
 
 		bson.on('data', function (entityType) {
-			return toBeSavedEntityTypes.push(entityType);
+			return toBeSavedEntityTypes.push(addSpectialAttributes(entityType));
 		});
 
 		bson.on('end', function () {
@@ -43,18 +64,6 @@ function importBsonEntityTypes(bsonFileLocation, dbUri) {
 					});
 			}).then(resolve, reject);
 		});
-	});
-}
-
-function createEntity(entityType, dbUri, params) {
-	return MongoClient.connectAsync(dbUri).then(function (connection) {
-		var entity, data;
-		entity = require('../model/Entity.js');
-		data = entity.create(entityType, params);
-
-		return Promise.promisifyAll(connection.collection(entity.entityId(entityType))).insertAsync(data);
-	}).then(function (results) {
-		return results[0];
 	});
 }
 

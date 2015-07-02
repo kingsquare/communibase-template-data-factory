@@ -145,5 +145,6 @@
   "networkCoordinator": "",
   "networks": "",
   "professionals": "",
-  "profilePictureFileId": null
+  "profilePictureFileId": null,
+  "sectors": ["a","c","e"]
 }

@@ -116,6 +116,12 @@ module.exports = {
 					arrayItemPromises = [];
 					var requestedSubValuesForAll = helpers.getRequestedSubVariables(requestedPaths, attribute.title + '.#');
 					value.forEach(function (subDocument, index) {
+						// if the whole subDocument is required (by e.g. person.addresses.[1])
+						if (_.contains(requestedSubVariables, '[' + index + ']')) {
+							arrayItemPromises.push(Promise.resolve(subDocument));
+							return;
+						}
+
 						var specificSubValues = helpers.getRequestedSubVariables(requestedPaths, attribute.title + '.' +
 						index).concat(requestedSubValuesForAll);
 
