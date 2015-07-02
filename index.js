@@ -107,6 +107,13 @@ module.exports = function (config) {
 			entitiesHash[entity.title] = entity;
 		});
 		return entitiesHash;
+	}).then(function (entitiesHash) {
+		// add a manual entitieshash for file, since it is not editable in CB
+		entitiesHash.File = {
+			isResource: true
+		};
+
+		return entitiesHash;
 	});
 
 	/**
@@ -173,6 +180,6 @@ module.exports = function (config) {
 	};
 
 	this.setStxt = function(stxt) {
-		this.stxt = stxt
+		this.stxt = stxt;
 	};
 };
