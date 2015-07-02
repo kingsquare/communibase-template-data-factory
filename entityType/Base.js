@@ -159,6 +159,17 @@ module.exports = {
 						return;
 					}
 					//something like membership.emailAddressReference
+
+					// find the referenced values for e.g. emailAddressReference
+					requestedSubVariables = helpers.getRequestedSubVariables(requestedPaths, attribute.title);
+					if (requestedSubVariables.length !== 0) {
+						subPromises.push(self.getPromiseByPaths(attribute.type, document[attribute.title],
+								requestedSubVariables).then(function (templateData) {
+							result[attribute.title] = templateData;
+						}));
+					}
+
+					// also get the referenced values for e.g. emailAddress
 					var referredDocumentProperty = attribute.title.substr(0, (attribute.title.length - 9));
 					var referenceType = attribute.type.substr(0, (attribute.type.length - 9));
 					requestedSubVariables = helpers.getRequestedSubVariables(requestedPaths, referredDocumentProperty);

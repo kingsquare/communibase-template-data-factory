@@ -74,16 +74,16 @@
 	  "addressReference": {
 		"ref": "Company|528c887772c1bd17070011cf.addresses|528c877c7bcb1bdcc7001951",
 		"address": {
-		  "city": "",
+		  "city": "Teststad",
 		  "countryCode": "NL",
 		  "latitude": 0,
 		  "longitude": 0,
 		  "property": "",
-		  "street": "",
-		  "streetNumber": "",
+		  "street": "Teststraat",
+		  "streetNumber": 18,
 		  "streetNumberAddition": "",
 		  "type": "postal",
-		  "zipcode": ""
+		  "zipcode": "1988 AB"
 		},
 		"documentReference": {
 		  "path": [],
