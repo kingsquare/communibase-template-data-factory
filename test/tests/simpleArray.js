@@ -22,7 +22,7 @@ describe('Tool', function(){
 	describe('#getTemplateData() - Specific array values (e.g. Person.sectors.[1])', function () {
 		it('should work', function(done) {
 			cbc.getById('Person', process.env.TEST_PERSON_ID).then(function (person) {
-				return factory.getPromiseByPaths('Person', person, ['sectors.[1]']);
+				return factory.getPromise('Person', person, Handlebars.parse('{{sectors.[1]}}'));
 			}).then(function (result) {
 				var reality, expectation;
 				reality = JSON.stringify(helpers.sortDictionaryByKey(result));
