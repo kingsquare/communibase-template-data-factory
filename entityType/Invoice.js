@@ -2,6 +2,7 @@
 
 var BaseSerializer = require('./Base.js');
 var helpers = require('../inc/helpers.js');
+var _ = require('lodash');
 
 module.exports = {
 	titleFields: ['invoiceNumber'],
@@ -39,29 +40,20 @@ module.exports = {
 				tax: totalTax,
 				in: totalIn
 			};
-
 			requestedTotalsVariables = helpers.getRequestedSubVariables(requestedPaths, 'totals');
 			if (requestedTotalsVariables.length !== 0) {
 				templateData.totals = {};
-				if (requestedTotalsVariables.indexOf('ex') !== -1) {
-					templateData.totals.ex = totalEx;
-				}
-				if (requestedTotalsVariables.indexOf('tax') !== -1) {
-					templateData.totals.perUnitEx = totalTax;
-				}
-				if (requestedTotalsVariables.indexOf('in') !== -1) {
-					templateData.totals.perUnitIn = totalIn;
-				}
 			}
-
-			//support for legacy syntax -- deprecated!
-			Object.keys(totals).forEach(function (key) {
-				var dataKey = 'total' + helpers.ucfirst(key);
+			_.each(totals, function (value, identifier) {
+				if (requestedTotalsVariables.indexOf(identifier) !== -1) {
+					templateData.totals[identifier] = value;
+				}
+				//support for legacy syntax -- deprecated!
+				var dataKey = 'total' + helpers.ucfirst(identifier);
 				if (requestedPaths.indexOf(dataKey) === -1) {
 					return;
 				}
-
-				templateData[dataKey] = helpers.euro_format(totals[key]);
+				templateData[dataKey] = helpers.euro_format(totals[identifier]);
 			});
 
 			requestedTaxesVariables = helpers.getRequestedSubVariables(requestedPaths, 'taxes.#');
