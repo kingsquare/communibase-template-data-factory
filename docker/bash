@@ -1,9 +1,9 @@
 docker run --rm \
-	-ti \
+ 	-ti \
 	--link mongodb:mongo \
 	-v $(dirname $(dirname $(readlink -f $0))):/app \
 	-v /tmp:/tmp \
 	-e HOME=/tmp/home_docker \
 	-u $(id -u) \
 	-w /app \
-	node:0.10.33-slim npm $*
+	node:0.10.33-slim bash
