@@ -20,11 +20,11 @@ var convertIdToDate = function (record) {
 module.exports = {
 	titleFields: ['title'],
 	getPromiseByPaths: function (entityTypeTitle, document, requestedPaths) {
-		var result = {}, subPromises = [], self = this;
+		var self = this;
+		var result = {};
+		var subPromises = [];
 
 		return this.entitiesHashPromise.then(function (entitiesHash) {
-			var entityType = entitiesHash[entityTypeTitle];
-
 			if (document._id && checkIfIsRequested('_id', requestedPaths)) {
 				result._id = document._id;
 			}
@@ -51,10 +51,11 @@ module.exports = {
 			}
 
 			//Expose _ALL_ attributes (not just commmunibase fields): https://trello.com/c/9yKbd7Zg/460-wat-klopt-er-nie
-			_.each(entityType.attributes, function (attribute) {
-				var value = document[attribute.title], type = attribute.type, arrayItemPromises,
-					requestedSubVariables, fieldNameIsRequested;
-				fieldNameIsRequested = checkIfIsRequested(attribute.title, requestedPaths);
+			_.each(entitiesHash[entityTypeTitle].attributes, function (attribute) {
+				var value = document[attribute.title];
+				var type = attribute.type;
+				var requestedSubVariables;
+				var fieldNameIsRequested = checkIfIsRequested(attribute.title, requestedPaths);
 
 				if (!type) {
 					type = ((attribute.type && attribute.type.type) ? attribute.type.type : attribute.type);
@@ -66,9 +67,14 @@ module.exports = {
 					}
 					return;
 				}
+				if (type === 'Mixed') {
+					if (fieldNameIsRequested && value) {
+						result[attribute.title] = value;
+					}
+					return;
+				}
 
-				if ([undefined, null, true, false].indexOf(value) !== -1 ||
-					type === 'int' || type === 'float') {
+				if ([undefined, null, true, false].indexOf(value) !== -1 || type === 'int' || type === 'float') {
 					if (fieldNameIsRequested) {
 						result[attribute.title] = value;
 					}
@@ -112,8 +118,8 @@ module.exports = {
 					}
 
 					result[attribute.title] = [];
-					//We need to maintain the array order --> process and add them in order of the original array!
-					arrayItemPromises = [];
+					// We need to maintain the array order --> process and add them in order of the original array!
+					var arrayItemPromises = [];
 					var requestedSubValuesForAll = helpers.getRequestedSubVariables(requestedPaths, attribute.title + '.#');
 					value.forEach(function (subDocument, index) {
 						// if the whole subDocument is required (by e.g. person.addresses.1)
@@ -122,24 +128,25 @@ module.exports = {
 							return;
 						}
 
-						var specificSubValues = helpers.getRequestedSubVariables(requestedPaths, attribute.title + '.' +
-						index).concat(requestedSubValuesForAll);
+						var specificSubValues = helpers.getRequestedSubVariables(
+								requestedPaths, attribute.title + '.' +	index).concat(requestedSubValuesForAll
+						);
 
 						if (specificSubValues.length === 0) {
 							arrayItemPromises.push(Promise.resolve(undefined));
 							return;
 						}
 
-						//check for strings, e.g. Vasmo Company.classifications
+						// check for strings, e.g. Vasmo Company.classifications
 						if (subDocument && entitiesHash[attribute.items]) {
 							arrayItemPromises.push(self.getPromiseByPaths.apply(self, [attribute.items, subDocument,
 								specificSubValues]));
 							return;
 						}
-						//Not a document? push the raw value (string)
+						// Not a document? push the raw value (string)
 						arrayItemPromises.push(value);
 					});
-					//We need to maintain the array order --> process and add them in order of the original array!
+					// We need to maintain the array order --> process and add them in order of the original array!
 					subPromises.push(Promise.all(arrayItemPromises).then(function (templateDatas) {
 						result[attribute.title] = templateDatas;
 					}));
@@ -158,7 +165,7 @@ module.exports = {
 						}
 						return;
 					}
-					//something like membership.emailAddressReference
+					// something like membership.emailAddressReference
 
 					// find the referenced values for e.g. emailAddressReference
 					requestedSubVariables = helpers.getRequestedSubVariables(requestedPaths, attribute.title);
@@ -214,24 +221,26 @@ module.exports = {
 					result[attribute.title] = value;
 				}
 
-				if (type === 'ObjectId') {
-					if (attribute.ref && entitiesHash[attribute.ref] && entitiesHash[attribute.ref].isResource &&
-						(attribute.title.substr(-2) === 'Id')) {
-						requestedSubVariables = helpers.getRequestedSubVariables(requestedPaths,
-							attribute.title.substr(0, (attribute.title.length - 2)));
+				if (type === 'ObjectId' &&
+						attribute.ref &&
+						entitiesHash[attribute.ref] &&
+						entitiesHash[attribute.ref].isResource &&
+						attribute.title.substr(-2) === 'Id') {
 
-						if (requestedSubVariables.length === 0) {
-							return;
-						}
+					requestedSubVariables = helpers.getRequestedSubVariables(requestedPaths,
+						attribute.title.substr(0, (attribute.title.length - 2)));
 
-						subPromises.push(self.cbc.getById(attribute.ref, value).then(function (referredObject) {
-							return self.getPromiseByPaths.apply(self, [attribute.ref, referredObject,
-								requestedSubVariables]).then(function (templateData) {
-									result[attribute.title.substr(0, (attribute.title.length - 2))] = templateData;
-								}
-							);
-						}, function () { }));
+					if (requestedSubVariables.length === 0) {
+						return;
 					}
+
+					subPromises.push(self.cbc.getById(attribute.ref, value).then(function (referredObject) {
+						return self.getPromiseByPaths.apply(self, [attribute.ref, referredObject,
+							requestedSubVariables]).then(function (templateData) {
+								result[attribute.title.substr(0, (attribute.title.length - 2))] = templateData;
+							}
+						);
+					}, function () { }));
 				}
 			});
 
@@ -251,9 +260,8 @@ module.exports = {
 	 * @return {string}
 	 */
 	composeTitle: function (chunks, entityTitle, document) {
-		var id, title;
-		id = document._id;
-		title = chunks.join(' ').trim().replace(/[ \r\n\t]+/g, ' ').replace(/ ,/g, ',');
+		var id = document._id;
+		var title = chunks.join(' ').trim().replace(/[ \r\n\t]+/g, ' ').replace(/ ,/g, ',');
 		return (title.length > 0 ? title : ('<< ' + (id ?
 			(this.stxt[entityTitle] || entityTitle) + ' ' + id :
 			'Nieuw "' + (this.stxt[entityTitle] || entityTitle) + '" document ') + ' >>'));
@@ -269,11 +277,10 @@ module.exports = {
 	 * @private
 	 */
 	_getTitlePromise: function (titleFields, entityTypeTitle, document) {
-		var self = this, titlePartPromises = [];
+		var self = this;
+		var titlePartPromises = [];
 
 		_.each(titleFields, function (titlePart) {
-			var titlePartValue, doTranslate, modelName;
-
 			// addresses will be added later on for companies
 			if (entityTypeTitle === 'Company' && titlePart === 'addresses') {
 				return;
@@ -284,13 +291,13 @@ module.exports = {
 				return;
 			}
 
-			doTranslate = (titlePart.substr(0, 1) === '{');
+			var doTranslate = (titlePart.substr(0, 1) === '{');
 			if (doTranslate) {
 				// E.g. type from Address should be translated from Private to Privé in the title
 				titlePart = titlePart.substr(0, titlePart.length - 1).substr(1);
 			}
 
-			titlePartValue = document[titlePart];
+			var titlePartValue = document[titlePart];
 
 			if (!titlePartValue && titlePartValue !== 0) {
 				titlePartPromises.push('');
@@ -298,7 +305,7 @@ module.exports = {
 			}
 
 			if (titlePart.substr(-2) === 'Id') {
-				modelName = titlePart[0].toUpperCase() + titlePart.substring(1, titlePart.length - 2);
+				var modelName = titlePart[0].toUpperCase() + titlePart.substring(1, titlePart.length - 2);
 				titlePartPromises.push(self.cbc.getById(modelName, titlePartValue).then(function (record) {
 					if (!record) {
 						return '';
