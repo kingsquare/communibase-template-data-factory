@@ -7,8 +7,8 @@ module.exports = {
 		'{type}'],
 
 	getPromiseByPaths: function (entityTypeTitle, document, requestedPaths) {
-		var self = this, allVariablesAreRequested;
-		allVariablesAreRequested = (requestedPaths.length === 1 && requestedPaths[0].substring(0, 1) === '#');
+		var self = this;
+		var allVariablesAreRequested = (requestedPaths.length === 1 && requestedPaths[0].substring(0, 1) === '#');
 
 		return BaseSerializer.getPromiseByPaths.apply(this, arguments).then(function (templateData) {
 			if (allVariablesAreRequested || requestedPaths.indexOf('country') !== -1) {

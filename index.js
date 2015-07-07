@@ -140,8 +140,7 @@ module.exports = function (config) {
 	};
 
 	this.getTitlePromise = function(entityTypeTitle, document) {
-		var self, _getTitlePromise, titleFields, composeTitle;
-		self = this;
+		var self = this;
 
 		if (entityTypeTitle.substr(-9) === 'Reference' && entityTypeTitle !== 'DocumentReference') {
 			if (!document) {
@@ -166,9 +165,9 @@ module.exports = function (config) {
 			return this.getTitlePromise.apply(this, [entityTypeTitle.substring(0, entityTypeTitle.length - 9), subDocument]);
 		}
 
-		_getTitlePromise = getCorrespondingSerializer(entityTypeTitle, '_getTitlePromise');
-		titleFields = getCorrespondingSerializer(entityTypeTitle, 'titleFields');
-		composeTitle = getCorrespondingSerializer(entityTypeTitle, 'composeTitle');
+		var _getTitlePromise = getCorrespondingSerializer(entityTypeTitle, '_getTitlePromise');
+		var titleFields = getCorrespondingSerializer(entityTypeTitle, 'titleFields');
+		var composeTitle = getCorrespondingSerializer(entityTypeTitle, 'composeTitle');
 
 		return _getTitlePromise.apply(this, [titleFields, entityTypeTitle, document]).then(function (titleParts) {
 			return composeTitle.apply(self, [titleParts, entityTypeTitle, document]);

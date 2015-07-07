@@ -3,12 +3,10 @@
 var BaseSerializer = require('./Base.js');
 
 var formatSubscriberNumber = function (subscriberNumber) {
-	var spaceLessNumber, spacePos;
-
 	//just to be sure no double spacing is applied...
-	spaceLessNumber = subscriberNumber.replace(/ /g, '');
+	var spaceLessNumber = subscriberNumber.replace(/ /g, '');
 	if (spaceLessNumber.length >= 6) {
-		spacePos = ((subscriberNumber.length <= 7) ? 3: (subscriberNumber.length - 4));
+		var spacePos = ((subscriberNumber.length <= 7) ? 3: (subscriberNumber.length - 4));
 		//just to be sure no double spacing is applied...
 		subscriberNumber = (spaceLessNumber.slice(0, spacePos) + ' ' + spaceLessNumber.slice(spacePos));
 	}

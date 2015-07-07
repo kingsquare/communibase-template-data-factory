@@ -57,13 +57,13 @@ function getRequestedSubVariables(requestedPaths, subPropertyName) {
 }
 
 function sortDictionaryByKey(myObj) {
-	var keys = Object.keys(myObj),
-		i, len = keys.length,
-		newObject = {};
+	var keys = Object.keys(myObj);
+	var len = keys.length;
+	var newObject = {};
 
 	keys.sort();
 
-	for (i = 0; i < len; i+=1) {
+	for (var i = 0; i < len; i+=1) {
 		var k = keys[i];
 
 		if (_.isObject(myObj[k])) {

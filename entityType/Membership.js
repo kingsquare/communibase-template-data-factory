@@ -6,14 +6,12 @@ var BaseSerializer = require('./Base.js');
 module.exports = {
 	titleFields: ['groupId','companyId','personId','membershipNumber'],
 	composeTitle: function(chunks, entityTitle, document) {
-		var groupName, companyName, personName, membershipNumber, newChunks;
+		var groupName = chunks.shift();
+		var companyName = chunks.shift();
+		var personName = chunks.shift();
+		var membershipNumber = chunks.shift();
 
-		groupName = chunks.shift();
-		companyName = chunks.shift();
-		personName = chunks.shift();
-		membershipNumber = chunks.shift();
-
-		newChunks = [groupName, ' - ', (_.isEmpty(personName) ? companyName : personName)];
+		var newChunks = [groupName, ' - ', (_.isEmpty(personName) ? companyName : personName)];
 
 		if (membershipNumber) {
 			newChunks.push(' - ');

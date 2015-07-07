@@ -13,9 +13,8 @@ var fs = require('fs');
 var cbc = require('communibase-connector-js');
 
 function getDropDbPromise(uri) {
-	var parsedUrl, db;
-	parsedUrl = url.parse(uri);
-	db = new Db(parsedUrl.path.substr(1), new Server(parsedUrl.hostname, parsedUrl.port || 27017), { safe: false });
+	var parsedUrl = url.parse(uri);
+	var db = new Db(parsedUrl.path.substr(1), new Server(parsedUrl.hostname, parsedUrl.port || 27017), { safe: false });
 	db = Promise.promisifyAll(db);
 	return db.openAsync().then(function (db) {
 		return db.dropDatabase();
@@ -47,10 +46,9 @@ function addSpectialAttributes(entityType) {
 
 function importBsonEntityTypes(bsonFileLocation, dbUri) {
 	return new Promise(function (resolve, reject) {
-		var bson, toBeSavedEntityTypes;
-		bson = new BSONStream();
+		var bson = new BSONStream();
 		fs.createReadStream(bsonFileLocation).pipe(bson);
-		toBeSavedEntityTypes = [];
+		var toBeSavedEntityTypes = [];
 
 		bson.on('data', function (entityType) {
 			return toBeSavedEntityTypes.push(addSpectialAttributes(entityType));
@@ -68,13 +66,12 @@ function importBsonEntityTypes(bsonFileLocation, dbUri) {
 }
 
 module.exports = function() {
-	var adminMongooseConnection, adminMongooseConnectionReadyDeferred;
-	adminMongooseConnection = require(
+	var adminMongooseConnection = require(
 		__dirname + '/../../node_modules/Communibase/inc/mongeese/createAdminMongoose.js')(
 		process.env.MASTER_DB_URI
 	);
 
-	adminMongooseConnectionReadyDeferred = new Promise(function (resolve) {
+	var adminMongooseConnectionReadyDeferred = new Promise(function (resolve) {
 		adminMongooseConnection.once('open', resolve);
 	});
 

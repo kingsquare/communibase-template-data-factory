@@ -1,19 +1,18 @@
 /* global describe: false, it: false */
 'use strict';
 
-var cbc, expectedResult, helpers, factory, fs, template, Factory, Handlebars;
+var assert = require('assert');
+var fs = require('fs');
+var cbc = require('communibase-connector-js');
+var helpers = require('../../inc/helpers.js');
+var Factory = require('../../index.js');
+var Handlebars = require('handlebars');
 
-fs = require('fs');
-cbc = require('communibase-connector-js');
-helpers = require('../../inc/helpers.js');
-Factory = require('../../index.js');
-Handlebars = require('handlebars');
-
-factory = new Factory({
+var factory = new Factory({
 	cbc: cbc
 });
 
-expectedResult = {
+var expectedResult = {
 	"invoicedPeriods": {
 		3: {
 			"startDate": new Date("2015-03-22T23:00:00.000Z")
@@ -38,23 +37,18 @@ expectedResult = {
 	}
 };
 
-template = Handlebars.parse(fs.readFileSync(__dirname + '/../templates/singleItemFromArray.hbs', 'utf-8'));
+var template = Handlebars.parse(fs.readFileSync(__dirname + '/../templates/singleItemFromArray.hbs', 'utf-8'));
 
-describe('Tool', function(){
-	describe('#getTemplateData() - Single item from array', function(){
-		it('should work', function(done) {
-			cbc.getById('Membership', process.env.TEST_MEMBERSHIP_ID).then(function (membership) {
-				return factory.getPromise('Membership', membership, template);
-			}).then(function (result) {
-				var reality, expectation;
-				reality = JSON.stringify(helpers.sortDictionaryByKey(result));
-				expectation = JSON.stringify(helpers.sortDictionaryByKey(expectedResult));
+describe('#getTemplateData() - Single item from array', function(){
+	it('should work', function(done) {
+		cbc.getById('Membership', process.env.TEST_MEMBERSHIP_ID).then(function (membership) {
+			return factory.getPromise('Membership', membership, template);
+		}).then(function (result) {
+			var actual = JSON.stringify(helpers.sortDictionaryByKey(result));
+			var expected = JSON.stringify(helpers.sortDictionaryByKey(expectedResult));
 
-				if (reality !== expectation) {
-					throw new Error('Not all values are exactly the same!');
-				}
-				done();
-			}).catch(done);
-		});
+			assert.equal(actual, expected);
+			done();
+		}).catch(done);
 	});
 });

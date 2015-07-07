@@ -1,38 +1,30 @@
 /* global describe: false, it: false */
 'use strict';
 
-var cbc, expectedResult, factory, helpers, Factory, Handlebars;
+var assert = require('assert');
+var cbc = require('communibase-connector-js');
+var helpers = require('../../inc/helpers.js');
+var Factory = require('../../index.js');
+var Handlebars = require('handlebars');
 
-cbc = require('communibase-connector-js');
-helpers = require('../../inc/helpers.js');
-Factory = require('../../index.js');
-Handlebars = require('handlebars');
-
-factory = new Factory({
+var factory = new Factory({
 	cbc: cbc
 });
 
-expectedResult = {
-	sectors: {
-		1: "c"
-	}
-};
-
-describe('Tool', function(){
-	describe('#getTemplateData() - Specific array values (e.g. Person.sectors.[1])', function () {
-		it('should work', function(done) {
-			cbc.getById('Person', process.env.TEST_PERSON_ID).then(function (person) {
-				return factory.getPromise('Person', person, Handlebars.parse('{{sectors.[1]}}'));
-			}).then(function (result) {
-				var reality, expectation;
-				reality = JSON.stringify(helpers.sortDictionaryByKey(result));
-				expectation = JSON.stringify(helpers.sortDictionaryByKey(expectedResult));
-
-				if (reality !== expectation) {
-					throw new Error('Not all values are exactly the same!');
+describe('#getTemplateData() - Specific array values (e.g. Person.sectors.[1])', function () {
+	it('should work', function(done) {
+		cbc.getById('Person', process.env.TEST_PERSON_ID).then(function (person) {
+			return factory.getPromise('Person', person, Handlebars.parse('{{sectors.[1]}}'));
+		}).then(function (result) {
+			var actual = JSON.stringify(helpers.sortDictionaryByKey(result));
+			var expected = JSON.stringify(helpers.sortDictionaryByKey({
+				sectors: {
+					1: "c"
 				}
-				done();
-			}).catch(done);
-		});
+			}));
+
+			assert.equal(actual, expected);
+			done();
+		}).catch(done);
 	});
 });

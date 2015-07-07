@@ -1,46 +1,37 @@
 /* global describe: false, it: false */
 'use strict';
 
+var assert = require('assert');
 var helpers = require('../../inc/helpers.js');
 
-describe('Tool', function(){
-	describe('helpers.getRequestedSubVariables()', function(){
-		it('should get specific subvalues', function(done) {
-			var actualOutput = helpers.getRequestedSubVariables(['a.b', 'c.a.g', 'd', 'e.f'], 'a');
-			if (JSON.stringify(actualOutput) !== JSON.stringify(['b'])) {
-				throw new Error('Not all values are exactly the same!');
-			}
-			done();
-		});
+describe('helpers.getRequestedSubVariables()', function(){
+	it('should get specific subvalues', function(done) {
+		var actual = helpers.getRequestedSubVariables(['a.b', 'c.a.g', 'd', 'e.f'], 'a');
 
-		it('should get specific sub-objects', function(done) {
-			var actualOutput = helpers.getRequestedSubVariables(['a.b', 'c.a.g', 'd', 'e.f'], 'c');
-			if (JSON.stringify(actualOutput) !== JSON.stringify(['a.g'])) {
-				throw new Error('Not all values are exactly the same!');
-			}
-			done();
-		});
+		assert.deepEqual(actual, ['b']);
+		done();
+	});
 
-		it('should get specific sub-subvalues', function(done) {
-			var actualOutput = helpers.getRequestedSubVariables(['a.b', 'c.a.g', 'd', 'e.f'], 'c.a');
-			if (JSON.stringify(actualOutput) !== JSON.stringify(['g'])) {
-				throw new Error('Not all values are exactly the same!');
-			}
-			done();
-		});
+	it('should get specific sub-objects', function(done) {
+		var actual = helpers.getRequestedSubVariables(['a.b', 'c.a.g', 'd', 'e.f'], 'c');
 
-		it('should get all second-hand values', function(done) {
-			var firstOutput = helpers.getRequestedSubVariables(['#.#'], 'e.f');
-			var secondOutPut = helpers.getRequestedSubVariables(['#.#'], 'e');
+		assert.deepEqual(actual, ['a.g']);
+		done();
+	});
 
-			if (JSON.stringify(firstOutput) !== JSON.stringify([])) {
-				throw new Error('Not all values are exactly the same!');
-			}
+	it('should get specific sub-subvalues', function(done) {
+		var actual = helpers.getRequestedSubVariables(['a.b', 'c.a.g', 'd', 'e.f'], 'c.a');
 
-			if (JSON.stringify(secondOutPut) !== JSON.stringify(['#'])) {
-				throw new Error('Not all values are exactly the same!');
-			}
-			done();
-		});
+		assert.deepEqual(actual, ['g']);
+		done();
+	});
+
+	it('should get all second-hand values', function(done) {
+		var first = helpers.getRequestedSubVariables(['#.#'], 'e.f');
+		var second = helpers.getRequestedSubVariables(['#.#'], 'e');
+
+		assert.deepEqual(first, []);
+		assert.deepEqual(second, ['#']);
+		done();
 	});
 });

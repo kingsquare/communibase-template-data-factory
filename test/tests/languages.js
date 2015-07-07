@@ -1,14 +1,13 @@
 /* global describe: false, it: false, Promise: true */
 'use strict';
 
-var cbc, expectedResult, dutchFactory, englishFactory, template, Factory, Handlebars, Promise;
+var assert = require('assert');
+var cbc = require('communibase-connector-js');
+var Factory = require('../../index.js');
+var Handlebars = require('handlebars');
+var Promise = require('bluebird');
 
-cbc = require('communibase-connector-js');
-Factory = require('../../index.js');
-Handlebars = require('handlebars');
-Promise = require('bluebird');
-
-dutchFactory = new Factory({
+var dutchFactory = new Factory({
 	cbc: cbc,
 	stxt: {
 		'Address.countryCode.DE': 'Duitsland',
@@ -16,7 +15,7 @@ dutchFactory = new Factory({
 	}
 });
 
-englishFactory = new Factory({
+var englishFactory = new Factory({
 	cbc: cbc,
 	stxt: {
 		'Address.countryCode.DE': 'Germany',
@@ -24,45 +23,41 @@ englishFactory = new Factory({
 	}
 });
 
-expectedResult = [
-	{
-		'addresses': [
-			{
-				'country': 'Duitsland'
-			},
-			{
-				'country': 'Nederland'
-			}
-		]
-	},
-	{
-		'addresses': [
-			{
-				'country': 'Germany'
-			},
-			{
-				'country': 'Netherlands'
-			}
-		]
-	}
-];
+var template = Handlebars.parse('{{#addresses}} {{country}} {{/addresses}}');
 
-template = Handlebars.parse('{{#addresses}} {{country}} {{/addresses}}');
-
-describe('Tool', function(){
-	describe('#getTemplateData() - Languages', function(){
-		it('should work', function(done) {
-			cbc.getById('Company', process.env.TEST_COMPANY_ID).then(function (company) {
-				return Promise.all([
-					dutchFactory.getPromise('Company', company, template),
-					englishFactory.getPromise('Company', company, template),
-				]);
-			}).then(function (result) {
-				if (JSON.stringify(result) !== JSON.stringify(expectedResult)) {
-					throw new Error('Not all values are exactly the same!');
+describe('#getTemplateData() - Languages', function(){
+	it('should work', function(done) {
+		cbc.getById('Company', process.env.TEST_COMPANY_ID).then(function (company) {
+			return Promise.all([
+				dutchFactory.getPromise('Company', company, template),
+				englishFactory.getPromise('Company', company, template)
+			]);
+		}).then(function (actual) {
+			var expected = [
+				{
+					'addresses': [
+						{
+							'country': 'Duitsland'
+						},
+						{
+							'country': 'Nederland'
+						}
+					]
+				},
+				{
+					'addresses': [
+						{
+							'country': 'Germany'
+						},
+						{
+							'country': 'Netherlands'
+						}
+					]
 				}
-				done();
-			}).catch(done);
-		});
+			];
+
+			assert.deepEqual(actual, expected);
+			done();
+		}).catch(done);
 	});
 });

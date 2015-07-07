@@ -6,9 +6,8 @@ module.exports = {
 	titleFields: ['number','{{ - }}','companyId','personId','{{ - }}','addressReference'],
 
 	getPromiseByPaths: function (entityTypeTitle, document, requestedPaths) {
-		var self, allVariablesAreRequested;
-		self = this;
-		allVariablesAreRequested = (requestedPaths.length === 1 && requestedPaths[0].substring(0, 1) === '#');
+		var self = this;
+		var allVariablesAreRequested = (requestedPaths.length === 1 && requestedPaths[0].substring(0, 1) === '#');
 
 		return BaseSerializer.getPromiseByPaths.apply(this, arguments).then(function (templateData) {
 			if (!allVariablesAreRequested && requestedPaths.indexOf('salutation') === -1) {

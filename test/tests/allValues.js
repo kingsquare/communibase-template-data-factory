@@ -1,25 +1,31 @@
 /* global describe: false, it: false */
 'use strict';
 
-var cbc, expectedResult, factory, helpers, Factory, Handlebars;
+var assert = require('assert');
+var cbc = require('communibase-connector-js');
+var helpers = require('../../inc/helpers.js');
+var Factory = require('../../index.js');
+var Handlebars = require('handlebars');
 
-cbc = require('communibase-connector-js');
-helpers = require('../../inc/helpers.js');
-Factory = require('../../index.js');
-Handlebars = require('handlebars');
-
-factory = new Factory({
+var factory = new Factory({
 	cbc: cbc,
 	stxt: {
 		'Address.countryCode.NL': 'Nederland'
 	}
 });
 
-expectedResult = {
+var expectedResult = {
 	_id: process.env.TEST_INVOICE_ID,
-	_title: "100001",
+	_title: '100001',
 	invoiceNumber: '100001',
 	address: {
+		point: {
+			coordinates: {
+				0: 0,
+				1: 0
+			},
+			type: 'Point'
+		},
 		_title: 'Straatje 12 4284VA RIJSWIJK NB NL - visit',
 		street: 'Straatje',
 		streetNumber: '12',
@@ -64,21 +70,17 @@ expectedResult = {
 	_createdAt: new Date(process.env.TEST_INVOICE_UPDATED_AT)
 };
 
-describe('Tool', function(){
-	describe('#getTemplateData() - All first-hand values (#.#)', function(){
-		it('should work', function(done) {
-			cbc.getById('Invoice', process.env.TEST_INVOICE_ID).then(function (invoice) {
-				return factory.getPromiseByPaths('Invoice', invoice, ['#.#']);
-			}).then(function (result) {
-				var reality, expectation;
-				reality = JSON.stringify(helpers.sortDictionaryByKey(result));
-				expectation = JSON.stringify(helpers.sortDictionaryByKey(expectedResult));
+describe('#getTemplateData() - All first-hand values (#.#)', function(){
+	it('should work', function(done) {
+		cbc.getById('Invoice', process.env.TEST_INVOICE_ID).then(function (invoice) {
+			return factory.getPromiseByPaths('Invoice', invoice, ['#.#']);
+		}).then(function (result) {
+			var actual = JSON.stringify(helpers.sortDictionaryByKey(result));
+			var expected = JSON.stringify(helpers.sortDictionaryByKey(expectedResult));
 
-				if (reality !== expectation) {
-					throw new Error('Not all values are exactly the same!');
-				}
-				done();
-			}).catch(done);
-		});
+			assert.deepEqual(actual, expected);
+			done();
+
+		}).catch(done);
 	});
 });

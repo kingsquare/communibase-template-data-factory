@@ -1,58 +1,50 @@
 /* global describe: false, it: false */
 'use strict';
 
-var cbc, expectedResult, factory, template, Factory, Handlebars;
-
-cbc = require('communibase-connector-js');
-Factory = require('../../index.js');
-Handlebars = require('handlebars');
-
-factory = new Factory({
+var assert = require('assert');
+var cbc = require('communibase-connector-js');
+var Factory = require('../../index.js');
+var Handlebars = require('handlebars');
+var factory = new Factory({
 	cbc: cbc
 });
 
 var input = [ 'invoiceNumber', 'invoiceItems.0.taxPercentage', 'invoiceItems.0.totals.ex', 'address.street'];
+var template = Handlebars.parse('{{' + input.join('}};{{') +'}}');
 
-expectedResult = {
-	'invoiceNumber': '100001',
-	'invoiceItems': [
-		{
-			"taxPercentage": 21,
-			"totals": {
-				"ex": 240
-			}
-		}, null
-	],
-	'address': {
-		'street': 'Straatje'
-	}
-};
-
-template = Handlebars.parse('{{' + input.join('}};{{') +'}}');
-
-describe('Tool', function(){
-	describe('#getTemplateData() - Invoice', function(){
-		it('should work', function(done) {
-			cbc.getById('Invoice', process.env.TEST_INVOICE_ID).then(function (invoice) {
-				return factory.getPromise('Invoice', invoice, template);
-			}).then(function (result) {
-				if (JSON.stringify(result) !== JSON.stringify(expectedResult)) {
-					throw new Error('Not all values are exactly the same!');
+describe('#getTemplateData() - Invoice', function(){
+	it('should work', function(done) {
+		cbc.getById('Invoice', process.env.TEST_INVOICE_ID).then(function (invoice) {
+			return factory.getPromise('Invoice', invoice, template);
+		}).then(function (actual) {
+			var expected = {
+				invoiceNumber: "100001",
+				invoiceItems: [
+					{
+						taxPercentage: 21,
+						totals: {
+							ex: 240
+						}
+					}, undefined
+				],
+				address: {
+					street: "Straatje"
 				}
-				done();
-			}).catch(done);
-		});
+			};
 
-		it('should parse euro-sign correctly', function (done) {
-			cbc.getById('Invoice', process.env.TEST_INVOICE_2_ID).then(function (invoice) {
-				return factory.getPromise('Invoice', invoice, Handlebars.parse('{{ totalIn }}'));
-			}).then(function (result) {
-				if (JSON.stringify(result) !== JSON.stringify({ totalIn: '-€ 200,00' })) {
-					console.log(JSON.stringify(result), JSON.stringify({ totalIn: '-€ 200,00' }));
-					throw new Error('Not all values are exactly the same!');
-				}
-				done();
-			}).catch(done);
-		});
+			assert.deepEqual(actual, expected);
+			done();
+		}).catch(done);
+	});
+
+	it('should parse euro-sign correctly', function (done) {
+		cbc.getById('Invoice', process.env.TEST_INVOICE_2_ID).then(function (invoice) {
+			return factory.getPromise('Invoice', invoice, Handlebars.parse('{{ totalIn }}'));
+		}).then(function (actual) {
+			var expected = { totalIn: '-€ 200,00' };
+
+			assert.deepEqual(actual, expected, "totalIn differ from expected");
+			done();
+		}).catch(done);
 	});
 });

@@ -2,6 +2,8 @@
 
 var BaseSerializer = require('./Base.js');
 var helpers = require('../inc/helpers.js');
+var _ = require('lodash');
+
 
 module.exports = {
 	titleFields: ['description'],
@@ -9,12 +11,9 @@ module.exports = {
 		var allVariablesAreRequested = (requestedPaths.length === 1 && requestedPaths[0].substring(0, 1) === '#');
 
 		return BaseSerializer.getPromiseByPaths.apply(this, arguments).then(function (templateData) {
-			var requestedTotalsVariables, taxMultiplier, totals;
-
-			// get all tax-related "totals"-values, like "invoiceItems.0.totals.ex"
-			requestedTotalsVariables = helpers.getRequestedSubVariables(requestedPaths, 'totals');
-			taxMultiplier = ((100 + (document.taxPercentage || 0)) / 100);
-			totals = {
+			var requestedTotalsVariables = helpers.getRequestedSubVariables(requestedPaths, 'totals');
+			var taxMultiplier = ((100 + (document.taxPercentage || 0)) / 100);
+			var totals = {
 				ex: document.quantity * document.pricePerUnit,
 				in: document.totalEx * taxMultiplier,
 				perUnitEx: document.pricePerUnit,
@@ -23,24 +22,19 @@ module.exports = {
 
 			if (requestedTotalsVariables.length !== 0) {
 				templateData.totals = {};
-				Object.keys(totals).forEach(function (totalKey) {
-					if (requestedTotalsVariables.indexOf(totalKey) !== -1) {
-						templateData.totals[totalKey] = totals[totalKey];
-					}
-				});
 			}
 
-			//support for legacy syntax -- deprecated!
-			if (totals) {
-				Object.keys(totals).forEach(function (key) {
-					var dataKey = 'total' + helpers.ucfirst(key);
-					if (requestedPaths.indexOf(dataKey) === -1) {
-						return;
-					}
+			_.each(totals, function (value, identifier) {
+				if (requestedTotalsVariables.indexOf(identifier) !== -1) {
+					templateData.totals[identifier] = value;
+				}
 
-					templateData[dataKey] = helpers.euro_format(totals[key]);
-				});
-			}
+				//support for legacy syntax -- deprecated!
+				var dataKey = 'total' + helpers.ucfirst(identifier);
+				if (requestedPaths.indexOf(dataKey) !== -1) {
+					templateData[dataKey] = helpers.euro_format(value);
+				}
+			});
 
 			if (allVariablesAreRequested || requestedPaths.indexOf('title') !== -1) {
 				templateData.title = document.description;
