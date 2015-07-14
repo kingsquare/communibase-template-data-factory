@@ -123,4 +123,16 @@ describe('#getTitlePromise()', function () {
 			done();
 		}).catch(done);
 	});
+
+	it('EmailAddressReference._title', function (done) {
+		cbc.getById('Person', process.env.TEST_PERSON_ID).then(function (person) {
+			return factory.getPromise('Person', person, Handlebars.parse('{{positions.0.emailAddressReference._title}}'));
+		}).then(function (actual) {
+			var expected = {
+				"positions":[{"emailAddressReference":{"_title":"j.van.zutphen@belastingdienst.nl - private"}}]
+			};
+			assert.deepEqual(actual, expected);
+			done();
+		}).catch(done);
+	});
 });

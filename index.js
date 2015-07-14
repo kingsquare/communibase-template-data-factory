@@ -65,6 +65,8 @@ function getPaths (node) {
 	return result;
 }
 
+var Promise = require('bluebird');
+
 var entitySerializers = {
 	Base: require('./entityType/Base.js'),
 	Address: require('./entityType/Address.js'),
@@ -139,7 +141,7 @@ module.exports = function (config) {
 		return serializer.apply(this, arguments);
 	};
 
-	this.getTitlePromise = function(entityTypeTitle, document) {
+	this.getTitlePromise = function(entityTypeTitle, document, parents) {
 		var self = this;
 
 		if (entityTypeTitle.substr(-9) === 'Reference' && entityTypeTitle !== 'DocumentReference') {
@@ -149,8 +151,17 @@ module.exports = function (config) {
 
 			// get the document reference title!
 			if (document.documentReference && document.documentReference.rootDocumentEntityType) {
-				return this.cbc.getByRef(document.documentReference, document).then(function (ref) {
-					return self.getTitlePromise.apply(self, [entityTypeTitle.substr(0, entityTypeTitle.length -9), ref]);
+				if (!parents) {
+					parents = [];
+				}
+				var parentDocument = null;
+				var rootDocumentEntityTypeNibbles = document.documentReference.rootDocumentEntityType.split('.');
+				if (rootDocumentEntityTypeNibbles[0] === 'parent') {
+					parents.unshift(document);
+					parentDocument = parents[rootDocumentEntityTypeNibbles.length-1];
+				}
+				return this.cbc.getByRef(document.documentReference, parentDocument).then(function (ref) {
+					return self.getTitlePromise.apply(self, [entityTypeTitle.substr(0, entityTypeTitle.length -9), ref, parents]);
 				}).catch(function () {
 					return Promise.resolve('<< Verwijderd >>');
 				});

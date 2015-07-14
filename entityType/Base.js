@@ -44,7 +44,7 @@ module.exports = {
 
 			// add title if requested
 			if (checkIfIsRequested('_title', requestedPaths)) {
-				subPromises.push(self.getTitlePromise.apply(self, [entityTypeTitle, document]).then(function(title) {
+				subPromises.push(self.getTitlePromise.apply(self, [entityTypeTitle, document, parents]).then(function(title) {
 					result._title = title;
 				}));
 			}
