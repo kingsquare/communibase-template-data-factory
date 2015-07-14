@@ -5,7 +5,7 @@ var BaseSerializer = require('./Base.js');
 module.exports = {
 	titleFields: ['number','{{ - }}','companyId','personId','{{ - }}','addressReference'],
 
-	getPromiseByPaths: function (entityTypeTitle, document, requestedPaths) {
+	getPromiseByPaths: function (entityTypeTitle, document, requestedPaths, parents) {
 		var self = this;
 		var allVariablesAreRequested = (requestedPaths.length === 1 && requestedPaths[0].substring(0, 1) === '#');
 

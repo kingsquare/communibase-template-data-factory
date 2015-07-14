@@ -44,4 +44,15 @@ describe('#getTemplateData() - Document references', function(){
 			done();
 		}).catch(done);
 	});
+
+	it('should support parent referencing', function(done) {
+		cbc.getById('Person', process.env.TEST_PERSON_ID).then(function (person) {
+			return factory.getPromiseByPaths('Person', person, ['positions.0.emailAddress.emailAddress']);
+		}).then(function (result) {
+			if (JSON.stringify(result) !== '{"positions":[{"emailAddress":{"emailAddress":"j.van.zutphen@belastingdienst.nl"}}]}') {
+				throw new Error('Got invalid result for parent reference!');
+			}
+			done();
+		}).catch(done);
+	});
 });

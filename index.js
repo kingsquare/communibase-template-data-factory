@@ -134,7 +134,7 @@ module.exports = function (config) {
 	 * @param {Array} requestedPaths - An array of all values that are requested from the document
 	 * @returns {Promise}
 	 */
-	this.getPromiseByPaths = function (entityTypeTitle, document, requestedPaths) {
+	this.getPromiseByPaths = function (entityTypeTitle, document, requestedPaths, parents) {
 		var serializer = getCorrespondingSerializer(entityTypeTitle, 'getPromiseByPaths');
 		return serializer.apply(this, arguments);
 	};

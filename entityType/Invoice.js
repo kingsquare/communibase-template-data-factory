@@ -12,7 +12,7 @@ function round(value, precision) {
 
 module.exports = {
 	titleFields: ['invoiceNumber'],
-	getPromiseByPaths: function (entityTypeTitle, document, requestedPaths) {
+	getPromiseByPaths: function (entityTypeTitle, document, requestedPaths, parents) {
 		var allVariablesAreRequested = (requestedPaths.length === 1 && requestedPaths[0].substring(0, 1) === '#');
 
 		return BaseSerializer.getPromiseByPaths.apply(this, arguments).then(function (templateData) {

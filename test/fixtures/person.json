@@ -95,10 +95,13 @@
 	  "companyId": "528c887772c1bd17070011cf",
 	  "companyRolId": 3555021,
 	  "emailAddressReference": {
-		"ref": "parent.parent.emailAddresses|528c992a5deb71133c003976",
 		"documentReference": {
-		  "path": [],
-		  "rootDocumentEntityType": "",
+		  "path": [{
+			  "field": "emailAddresses",
+			  "objectId": "528c992a5deb71133c003976",
+			  "_id": "559fa1c2b4580eb8004581a8"
+		  }],
+		  "rootDocumentEntityType": "parent.parent.parent",
 		  "rootDocumentId": null
 		},
 		"emailAddress": {
