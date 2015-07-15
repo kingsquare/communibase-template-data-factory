@@ -33,7 +33,7 @@ module.exports = {
 					taxPercentage = 'null';
 				}
 
-				var taxMultiplier = (taxPercentage / 100);
+				var taxMultiplier = ((100 + (taxPercentage === 'null' ? 0 : taxPercentage)) / 100);
 				var itemEx = invoiceItem.quantity * invoiceItem.pricePerUnit;
 				var taxValue = itemEx * taxMultiplier;
 
@@ -53,7 +53,7 @@ module.exports = {
 				totals.exRounded += itemExRounded;
 				totals.tax += taxValue;
 				totals.taxRounded += taxValueRounded;
-				totals['in'] += (itemEx * (1 + taxMultiplier));
+				totals['in'] += (itemEx * taxMultiplier);
 				totals.inRounded += (itemExRounded + taxValueRounded);
 			});
 
