@@ -15,7 +15,7 @@ module.exports = {
 			var taxMultiplier = ((100 + (document.taxPercentage || 0)) / 100);
 			var totals = {
 				ex: document.quantity * document.pricePerUnit,
-				in: document.totalEx * taxMultiplier,
+				in: document.quantity * document.pricePerUnit * taxMultiplier,
 				perUnitEx: document.pricePerUnit,
 				perUnitIn: document.pricePerUnit * taxMultiplier
 			};
