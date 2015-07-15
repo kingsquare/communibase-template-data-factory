@@ -57,7 +57,7 @@ describe('#invoiceTotals rounds correctly', function () {
 		factory.getPromise('Invoice', input, Handlebars.parse(input.template)).then(function (actual) {
 
 			_.each(expectedPartOfResults, function (expected, identifier) {
-				assert.deepEqual(actual[identifier], expected, 'totals.' + identifier + ' differ from expected');
+				assert.deepEqual(actual[identifier], expected, 'totals.' + identifier + ' differ from expected' + JSON.stringify(actual[identifier]) + JSON.stringify(expected));
 			});
 
 			done();

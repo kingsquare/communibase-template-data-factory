@@ -29,22 +29,20 @@ module.exports = {
 
 			document.invoiceItems.forEach(function (invoiceItem) {
 				var taxPercentage = invoiceItem.taxPercentage;
-				if (taxPercentage === null) {
-					taxPercentage = 'null';
-				}
+				var taxMultiplier = (taxPercentage ? taxPercentage / 100 : 0);
+				var incltaxMultiplier = (taxPercentage ? ((100 + taxPercentage) / 100) : 1);
 
-				var taxMultiplier = ((100 + (taxPercentage === 'null' ? 0 : taxPercentage)) / 100);
 				var itemEx = invoiceItem.quantity * invoiceItem.pricePerUnit;
 				var taxValue = itemEx * taxMultiplier;
 
 				//https://trello.com/c/pdaBvS2Q/530-geen-prio-financieel-als-de-btw-grondslag-van-een-factuurregel-exact-0-
 				if (itemEx !== 0) {
-					if (totals.taxes[taxPercentage] === undefined) {
-						totals.taxes[taxPercentage] = 0;
-						totals.taxesRounded[taxPercentage] = 0;
+					if (totals.taxes[taxPercentage || 'null'] === undefined) {
+						totals.taxes[taxPercentage || 'null'] = 0;
+						totals.taxesRounded[taxPercentage || 'null'] = 0;
 					}
-					totals.taxes[taxPercentage] += taxValue;
-					totals.taxesRounded[taxPercentage] += round(taxValue, 2);
+					totals.taxes[taxPercentage || 'null'] += taxValue;
+					totals.taxesRounded[taxPercentage || 'null'] += round(taxValue, 2);
 				}
 
 				var itemExRounded = round(itemEx, 2);
@@ -53,7 +51,7 @@ module.exports = {
 				totals.exRounded += itemExRounded;
 				totals.tax += taxValue;
 				totals.taxRounded += taxValueRounded;
-				totals['in'] += (itemEx * taxMultiplier);
+				totals['in'] += (itemEx * incltaxMultiplier);
 				totals.inRounded += (itemExRounded + taxValueRounded);
 			});
 

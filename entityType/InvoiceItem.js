@@ -12,12 +12,12 @@ module.exports = {
 
 		return BaseSerializer.getPromiseByPaths.apply(this, arguments).then(function (templateData) {
 			var requestedTotalsVariables = helpers.getRequestedSubVariables(requestedPaths, 'totals');
-			var taxMultiplier = ((100 + (document.taxPercentage || 0)) / 100);
+			var incltaxMultiplier = (document.taxPercentage ? ((100 + document.taxPercentage) / 100) : 1);
 			var totals = {
 				ex: document.quantity * document.pricePerUnit,
-				in: document.quantity * document.pricePerUnit * taxMultiplier,
+				in: document.quantity * document.pricePerUnit * incltaxMultiplier,
 				perUnitEx: document.pricePerUnit,
-				perUnitIn: document.pricePerUnit * taxMultiplier
+				perUnitIn: document.pricePerUnit * incltaxMultiplier
 			};
 
 			if (requestedTotalsVariables.length !== 0) {

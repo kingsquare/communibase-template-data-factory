@@ -55,4 +55,13 @@ describe('#getTemplateData() - Document references', function(){
 			done();
 		}).catch(done);
 	});
+
+	it('should expose rootDocument when requested', function(done) {
+		cbc.getById('Person', process.env.TEST_PERSON_ID).then(function (person) {
+			return factory.getPromiseByPaths('Person', person, ['positions.0.emailAddressReference.documentReference.rootDocument.firstName']);
+		}).then(function (actual) {
+			assert.deepEqual(actual, {"positions":[{"emailAddressReference":{"documentReference":{"rootDocument":{"firstName":"Janny"}}}}]});
+			done();
+		}).catch(done);
+	});
 });

@@ -30,6 +30,7 @@ function log(e) {
 module.exports = {
 	titleFields: ['title'],
 	getPromiseByPaths: function (entityTypeTitle, document, requestedPaths, parents) {
+		document.__cb_type__ = entityTypeTitle;
 		if (!parents) {
 			parents = [];
 		}
