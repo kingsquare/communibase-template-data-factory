@@ -71,6 +71,10 @@ module.exports = {
 					_.each(totals[taxSumType], function(value, taxPercentage) {
 						var tax = {};
 
+						if (taxPercentage === 'null') {
+							return;
+						}
+
 						if (requestedTaxesVariables.indexOf('#') !== -1 || requestedTaxesVariables.indexOf('percentage') !== -1) {
 							tax.percentage = taxPercentage;
 						}
