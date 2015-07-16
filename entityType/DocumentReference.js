@@ -49,7 +49,11 @@ module.exports = {
 				Promise.resolve(parents[rootDocumentEntityTypeNibbles.length - 1]) :
 				self.cbc.getById(document.rootDocumentEntityType, document.rootDocumentId));
 			return parentPromise.then(function (parent) {
-				return self.getPromiseByPaths(parent.__cb_type__, parent, rootDocumentPaths, []);
+				var parentType = ((rootDocumentEntityTypeNibbles[0] === 'parent') ?
+					parent.__cb_type__ :
+					document.rootDocumentEntityType
+				);
+				return self.getPromiseByPaths(parentType, parent, rootDocumentPaths, []);
 			}).then(function (rootDocumentData) {
 				templateData.rootDocument = rootDocumentData;
 				return templateData;
