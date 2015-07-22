@@ -103,20 +103,6 @@ function getCorrespondingSerializer(entityTypeTitle, propertyName) {
 module.exports = function (config) {
 	this.cbc = config.cbc || require('communibase-connector-js');
 	this.stxt = config.stxt || {};
-	this.entitiesHashPromise = this.cbc.getAll('EntityType').then(function (entities) {
-		var entitiesHash = {};
-		entities.forEach(function (entity) {
-			entitiesHash[entity.title] = entity;
-		});
-		return entitiesHash;
-	}).then(function (entitiesHash) {
-		// add a manual entitieshash for file, since it is not editable in CB
-		entitiesHash.File = {
-			isResource: true
-		};
-
-		return entitiesHash;
-	});
 
 	/**
 	 * Returns all data to be assign to template, based on the wizard-source object
@@ -128,6 +114,24 @@ module.exports = function (config) {
 	this.getPromise = function (entityTypeTitle, document, template) {
 		return this.getPromiseByPaths(entityTypeTitle, document, getPaths(template));
 	};
+
+	this.getEntitiesHashPromise = function () {
+		if (!this.entitiesHashPromise) {
+			this.entitiesHashPromise = this.cbc.getAll('EntityType').then(function (entities) {
+				var entitiesHash = {};
+				entities.forEach(function (entity) {
+					entitiesHash[entity.title] = entity;
+				});
+				return entitiesHash;
+			}).then(function (entitiesHash) {
+				entitiesHash.File = {
+					isResource: true
+				};
+				return entitiesHash;
+			});
+		}
+		return this.entitiesHashPromise;
+	}
 
 	/**
 	 * Returns all data to be assigned to template, based on the requested variables / paths

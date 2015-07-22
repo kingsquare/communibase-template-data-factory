@@ -38,7 +38,7 @@ module.exports = {
 		var result = {};
 		var subPromises = [];
 
-		return this.entitiesHashPromise.then(function (entitiesHash) {
+		return this.getEntitiesHashPromise().then(function (entitiesHash) {
 			if (document._id && checkIfIsRequested('_id', requestedPaths)) {
 				result._id = document._id;
 			}
