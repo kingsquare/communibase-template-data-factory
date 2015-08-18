@@ -16,7 +16,6 @@
     "url": "https://github.com/kingsquare/communibase-template-data-factory/issues"
   },
   "dependencies": {
-    "Communibase": "git+https://kingsquare-deployment:qZ5Qhv389WwbKgmshdcx5jFKUYJcXhc8@bitbucket.org/communibase/api",
     "bluebird": "^2.9.25",
     "communibase-connector-js": "~0.4.1",
     "handlebars": "~2.0.0",
@@ -25,6 +24,7 @@
     "when": "~3.6.3"
   },
   "devDependencies": {
+    "Communibase": "git://bitbucket.org/communibase/api",
     "bson-stream": "0.0.5",
     "grunt": "^0.4.5",
     "grunt-shell": "^1.1.2",
