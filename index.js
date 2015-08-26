@@ -88,6 +88,7 @@ var entitySerializers = {
 	PeriodicTariffList: require('./entityType/PeriodicTariffList.js'),
 	Person: require('./entityType/Person.js'),
 	PhoneNumber: require('./entityType/PhoneNumber.js'),
+	Position: require('./entityType/Position.js'),
 	PropertyAccessDescription: require('./entityType/PropertyAccessDescription.js'),
 	TariffDecay: require('./entityType/TariffDecay.js'),
 	User: require('./entityType/User.js'),
