@@ -57,6 +57,9 @@ module.exports = {
 			}).then(function (rootDocumentData) {
 				templateData.rootDocument = rootDocumentData;
 				return templateData;
+			}).catch(function () { //e
+				//e.g. parent unavailable?
+				return {};
 			});
 		});
 	}
