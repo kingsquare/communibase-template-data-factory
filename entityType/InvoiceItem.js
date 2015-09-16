@@ -4,7 +4,6 @@ var BaseSerializer = require('./Base.js');
 var helpers = require('../inc/helpers.js');
 var _ = require('lodash');
 
-
 module.exports = {
 	titleFields: ['description'],
 	getPromiseByPaths: function (entityTypeTitle, document, requestedPaths, parents) {
@@ -19,6 +18,11 @@ module.exports = {
 				perUnitEx: document.pricePerUnit,
 				perUnitIn: document.pricePerUnit * incltaxMultiplier
 			};
+
+			totals.exRounded = helpers.round(totals.ex, 2);
+			totals.inRounded = helpers.round(totals.in, 2);
+			totals.perUnitExRounded = helpers.round(totals.perUnitEx, 2);
+			totals.perUnitInRounded = helpers.round(totals.perUnitIn, 2);
 
 			if (requestedTotalsVariables.length !== 0) {
 				templateData.totals = {};

@@ -4,12 +4,6 @@ var BaseSerializer = require('./Base.js');
 var helpers = require('../inc/helpers.js');
 var _ = require('lodash');
 
-
-function round(value, precision) {
-	precision = Math.pow(10, precision);
-	return Math.round(value * precision) / precision;
-}
-
 module.exports = {
 	titleFields: ['invoiceNumber'],
 	getPromiseByPaths: function (entityTypeTitle, document, requestedPaths, parents) {
@@ -42,11 +36,11 @@ module.exports = {
 						totals.taxesRounded[taxPercentage || 'null'] = 0;
 					}
 					totals.taxes[taxPercentage || 'null'] += taxValue;
-					totals.taxesRounded[taxPercentage || 'null'] += round(taxValue, 2);
+					totals.taxesRounded[taxPercentage || 'null'] += helpers.round(taxValue, 2);
 				}
 
-				var itemExRounded = round(itemEx, 2);
-				var taxValueRounded = round(taxValue, 2);
+				var itemExRounded = helpers.round(itemEx, 2);
+				var taxValueRounded = helpers.round(taxValue, 2);
 				totals.ex += itemEx;
 				totals.exRounded += itemExRounded;
 				totals.tax += taxValue;
@@ -57,13 +51,13 @@ module.exports = {
 
 			_.each(totals, function (value, identifier) {
 				if (_.isNumber(value)) {
-					totals[identifier] = round(value, 2);
+					totals[identifier] = helpers.round(value, 2);
 				}
 			});
 
 			_.each(['taxes', 'taxesRounded'], function (taxSumType) {
 				_.each(totals[taxSumType], function(value, taxPercentage) {
-					totals[taxSumType][taxPercentage] = round(value, 2);
+					totals[taxSumType][taxPercentage] = helpers.round(value, 2);
 				});
 				var requestedTaxesVariables = helpers.getRequestedSubVariables(requestedPaths, taxSumType + '.#');
 				if (requestedTaxesVariables.length !== 0) {

@@ -76,10 +76,16 @@ function sortDictionaryByKey(myObj) {
 	return newObject;
 }
 
+// http://stackoverflow.com/questions/11832914/round-to-at-most-2-decimal-places-in-javascript
+function round(number, precision) {
+	return Number(number.toFixed(precision));
+}
+
 module.exports = {
 	"euro_format": euro_format,
 	"number_format": number_format,
 	"ucfirst": ucfirst,
 	"getRequestedSubVariables": getRequestedSubVariables,
-	"sortDictionaryByKey": sortDictionaryByKey
+	"sortDictionaryByKey": sortDictionaryByKey,
+	"round": round
 };
