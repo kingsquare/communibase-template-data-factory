@@ -13,9 +13,13 @@
 function getPaths (node) {
 	var result = [];
 
-	switch (node.type) {
+	if (!node || !node.type) {
+		return result;
+	}
+
+	switch (node.type.toLowerCase()) {
 		// E.g. "date" / "debtor.debtorNumber"
-		case 'ID':
+		case 'id':
 			result.push(node.parts.join('.'));
 			break;
 
