@@ -198,6 +198,8 @@ module.exports = function (config) {
 		});
 	};
 
+	this.getPaths = getPaths;
+
 	this.setStxt = function(stxt) {
 		this.stxt = stxt;
 	};
