@@ -17,12 +17,10 @@ module.exports = function () {
 	var companyData = JSON.parse(fs.readFileSync(__dirname + '/../fixtures/company.json'));
 	var eventData = JSON.parse(fs.readFileSync(__dirname + '/../fixtures/event.json'));
 
-
 	return Promise.all([
 		cbc.update('Person', personData),
 		cbc.update('Company', companyData),
-		cbc.update('Group', groupData),
-		cbc.update('Event', eventData)
+		cbc.update('Group', groupData)
 	]).spread(function (person, company, group, event) {
 		debtorData.personId = person._id;
 		debtorData.companyId = company._id;
@@ -31,6 +29,8 @@ module.exports = function () {
 		debtor2Data.companyId = company._id;
 		membershipData.groupId = group._id;
 		membershipData.personId = person._id;
+		eventData.participants[0].personId = person._id;
+		eventData.sessions[0].participants[0].personId = person._id;
 		membershipData.addressReference = {
 			documentReference: {
 				"rootDocumentEntityType": "Person",
@@ -45,12 +45,12 @@ module.exports = function () {
 		process.env.TEST_PERSON_ID = person._id;
 		process.env.TEST_COMPANY_ID = company._id;
 		process.env.TEST_GROUP_ID = group._id;
-		process.env.TEST_EVENT_ID = event._id;
 		return Promise.all([
 			cbc.update('Debtor', debtorData),
-			cbc.update('Debtor', debtor2Data)
+			cbc.update('Debtor', debtor2Data),
+			cbc.update('Event', eventData)
 		]);
-	}).spread(function (debtor, debtor2) {
+	}).spread(function (debtor, debtor2, event) {
 		membershipData.debtorId = debtor._id;
 
 		invoiceData.debtorId = debtor._id;
@@ -59,6 +59,7 @@ module.exports = function () {
 		process.env.TEST_DEBTOR_ID = debtor._id;
 		process.env.TEST_DEBTOR_UPDATED_AT = debtor.updatedAt;
 		process.env.TEST_DEBTOR_2_ID = debtor2._id;
+		process.env.TEST_EVENT_ID = event._id;
 		return cbc.update('Membership', membershipData);
 	}).then(function (membership) {
 		invoiceData.invoiceItems[0].documentReference = {

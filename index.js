@@ -2,6 +2,8 @@
 
 'use strict';
 
+var _ = require('lodash');
+
 /**
  * Gets all requested paths based on the given template. When inserting:
  * {{invoiceNumber}} - {{#invoiceItems}} {{totalEx}} {{/invoiceItems}}
@@ -10,7 +12,7 @@
  * @param node
  * @returns {Array} result - The requested paths
  */
-function getPaths (node) {
+function _getPaths (node) {
 	var result = [];
 
 	if (!node || !node.type) {
@@ -25,7 +27,7 @@ function getPaths (node) {
 
 		case 'program':
 			node.statements.forEach(function (statement) {
-				getPaths(statement).forEach(function (variable) {
+				_getPaths(statement).forEach(function (variable) {
 					result.push(variable);
 				});
 			});
@@ -33,10 +35,10 @@ function getPaths (node) {
 
 		// E.g. #each / #if / #compare / "#invoiceItems" / "#ifIsCredit"
 		case 'block':
-			var blockKeys = getPaths(node.mustache);
+			var blockKeys = _getPaths(node.mustache);
 
 			if ((!node.mustache.isHelper || node.mustache.id.string === 'each') && node.program) {
-				getPaths(node.program).forEach(function (subValue) {
+				_getPaths(node.program).forEach(function (subValue) {
 					result.push(blockKeys[0] + '.#.' + subValue);
 				});
 				break;
@@ -45,7 +47,7 @@ function getPaths (node) {
 			result = blockKeys;
 
 			if (node.program) {
-				getPaths(node.program).forEach(function (variable) {
+				_getPaths(node.program).forEach(function (variable) {
 					result.push(variable);
 				});
 			}
@@ -54,12 +56,12 @@ function getPaths (node) {
 		// E.g. "{{#compare person.gender 'M'}}"
 		case 'mustache':
 			if (!node.isHelper) {
-				result.push(node.id.parts.join('.'));
+				result.push(node.id.idName);
 				break;
 			}
 
 			node.params.forEach(function (param) {
-				getPaths(param).forEach(function (variable) {
+				_getPaths(param).forEach(function (variable) {
 					result.push(variable);
 				});
 			});
@@ -117,7 +119,7 @@ module.exports = function (config) {
 	 * @returns {Promise}
 	 */
 	this.getPromise = function (entityTypeTitle, document, template) {
-		return this.getPromiseByPaths(entityTypeTitle, document, getPaths(template));
+		return this.getPromiseByPaths(entityTypeTitle, document, this.getPaths(template));
 	};
 
 	this.getEntitiesHashPromise = function () {
@@ -198,7 +200,40 @@ module.exports = function (config) {
 		});
 	};
 
-	this.getPaths = getPaths;
+	this.getPaths = function (node) {
+		//sanitize paths
+		return _.unique(_getPaths(node).map(function (path) {
+			//find and process parent references
+			var newPath = [];
+			var nibbles = path.split('.');
+			for (var i = 0; i < nibbles.length; i++) {
+				var currentNibble = nibbles[i];
+
+				//detect ".."
+				var parentRequested = (currentNibble === '') && (nibbles.length >= (i+2)) && (nibbles[i+1] === '') &&
+						(nibbles[i+2].indexOf('/') === 0);
+				while (parentRequested) {
+					//traverse to parent...
+					var poppedNibble = newPath.pop();
+					//parent is array iterator?
+					if (poppedNibble.match(/^(#|\d+)$/) !== null) {
+						newPath.pop();
+					}
+
+					i += 2;
+					//more parent refs coming...
+					if (nibbles[i] === '/') {
+						nibbles[i] = '';
+					} else {
+						currentNibble = nibbles[i].substr(1);
+						parentRequested = false;
+					}
+				}
+				newPath.push(currentNibble);
+			}
+			return newPath.join('.');
+		}));
+	};
 
 	this.setStxt = function(stxt) {
 		this.stxt = stxt;

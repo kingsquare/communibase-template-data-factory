@@ -36,7 +36,16 @@
 	  "generalLedgerAccountNumber": "",
 	  "costCentre": "",
 	  "multipleSelectionAllowed": false,
-	  "participants": [],
+	  "participants": [{
+		  "choiceParticipant": "firstChoice",
+		  "_id": "55a515c24e207aba0003b9b3",
+		  "comment": "",
+		  "debtorId": null,
+		  "diet": "",
+		  "discountPercentage": null,
+		  "invoicePurchaseOrderNumber": "",
+		  "status": "registered"
+	  }],
 	  "tariffs": []
 	},
 	{
@@ -67,5 +76,14 @@
 	}
   ],
   "tariffs": [],
-  "participants": []
+  "participants": [{
+	  "choiceParticipant": "firstChoice",
+	  "_id": "55a515c24e207aba0003b9b3",
+	  "comment": "",
+	  "debtorId": null,
+	  "diet": "",
+	  "discountPercentage": null,
+	  "invoicePurchaseOrderNumber": "",
+	  "status": "registered"
+  }]
 }
