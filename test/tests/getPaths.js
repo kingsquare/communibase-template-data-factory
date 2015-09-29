@@ -11,7 +11,7 @@ var factory = new Factory({
 });
 
 
-var template = Handlebars.parse('{{#each sessions}}{{#each participants}}{{../../title}} - {{../title}} {{person.firstName}} {{/each}}{{/each}}');
+var template = Handlebars.parse('{{#each sessions}}{{#each participants}}{{csvEscape ../../title}} - {{../title}} {{person.firstName}} {{/each}}{{/each}}');
 
 describe('#getPaths()', function(){
 	it('should traverse to parents properly', function(done) {

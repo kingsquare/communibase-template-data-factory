@@ -22,7 +22,7 @@ function _getPaths (node) {
 	switch (node.type.toLowerCase()) {
 		// E.g. "date" / "debtor.debtorNumber"
 		case 'id':
-			result.push(node.parts.join('.'));
+			result.push(node.idName);
 			break;
 
 		case 'program':
