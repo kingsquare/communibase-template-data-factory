@@ -19,6 +19,14 @@ describe('#getPaths()', function(){
 		done();
 	});
 
+	it('should support if-else constructs', function(done) {
+		//factory.setDebug(true);
+		var paths = factory.getPaths(Handlebars.parse('{{#if person.firstName}}{{person.firstName}}{{else}}{{person.initials}}{{/if}}'));
+		//factory.setDebug(false);
+		assert.deepEqual(paths, ['person.firstName', 'person.initials']);
+		done();
+	});
+
 	it ('should hydrate proper data', function (done) {
 		cbc.getById('Event', process.env.TEST_EVENT_ID).then(function (event) {
 			return factory.getPromise('Event', event, template);

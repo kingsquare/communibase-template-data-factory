@@ -3,6 +3,7 @@
 'use strict';
 
 var _ = require('lodash');
+var debug = false;
 
 /**
  * Gets all requested paths based on the given template. When inserting:
@@ -14,6 +15,10 @@ var _ = require('lodash');
  */
 function _getPaths (node) {
 	var result = [];
+
+	if (debug) {
+		console.log(JSON.stringify(node) + "\n\n");
+	}
 
 	if (!node || !node.type) {
 		return result;
@@ -48,6 +53,11 @@ function _getPaths (node) {
 
 			if (node.program) {
 				_getPaths(node.program).forEach(function (variable) {
+					result.push(variable);
+				});
+			}
+			if (node.inverse) {
+				_getPaths(node.inverse).forEach(function (variable) {
 					result.push(variable);
 				});
 			}
@@ -238,4 +248,8 @@ module.exports = function (config) {
 	this.setStxt = function(stxt) {
 		this.stxt = stxt;
 	};
+
+	this.setDebug = function (enable) {
+		debug = enable;
+	}
 };
