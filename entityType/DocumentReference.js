@@ -40,7 +40,7 @@ module.exports = {
 		var self = this;
 		return BaseSerializer.getPromiseByPaths.apply(this, arguments).then(function (templateData) {
 			var rootDocumentPaths = helpers.getRequestedSubVariables(requestedPaths, 'rootDocument');
-			if (rootDocumentPaths.length === 0) {
+			if (!document.rootDocumentEntityType || rootDocumentPaths.length === 0) {
 				return templateData;
 			}
 
