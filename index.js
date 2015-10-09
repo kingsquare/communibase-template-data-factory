@@ -59,7 +59,8 @@ function _getPaths (node) {
 				});
 
 				_getPaths(node.program).forEach(function (subValue) {
-					result.push(subValue.replace(/^results\./, blockKeys[0] + '.'));
+					//indexes may change due to filtering: always request __all__ subValues
+					result.push(subValue.replace(/^results\.(\d+|#)\./, blockKeys[0] + '.#.'));
 				});
 				break;
 			}

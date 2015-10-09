@@ -26,10 +26,10 @@ describe('#getPaths()', function(){
 	});
 
 	it('should support filter constructs', function(done) {
-		//factory.setDebug(true);
-//		factory.setDebug(true)
 		var paths = factory.getPaths(Handlebars.parse('{{#filter person.positions "_active" "eq" true}}{{#each results}}{{company.title}}{{/each}}{{/filter}}'));
-//		factory.setDebug(false);
+		assert.deepEqual(paths, ['person.positions.#._active', 'person.positions.#.company.title']);
+
+		var paths = factory.getPaths(Handlebars.parse('{{#filter person.positions true "eq" "_active"}}{{results.0.company.title}}{{/filter}}'));
 		assert.deepEqual(paths, ['person.positions.#._active', 'person.positions.#.company.title']);
 		done();
 	});
