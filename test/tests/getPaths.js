@@ -20,10 +20,17 @@ describe('#getPaths()', function(){
 	});
 
 	it('should support if-else constructs', function(done) {
-		//factory.setDebug(true);
 		var paths = factory.getPaths(Handlebars.parse('{{#if person.firstName}}{{person.firstName}}{{else}}{{person.initials}}{{/if}}'));
-		//factory.setDebug(false);
 		assert.deepEqual(paths, ['person.firstName', 'person.initials']);
+		done();
+	});
+
+	it('should support filter constructs', function(done) {
+		//factory.setDebug(true);
+//		factory.setDebug(true)
+		var paths = factory.getPaths(Handlebars.parse('{{#filter person.positions "_active" "eq" true}}{{#each results}}{{company.title}}{{/each}}{{/filter}}'));
+//		factory.setDebug(false);
+		assert.deepEqual(paths, ['person.positions.#._active', 'person.positions.#.company.title']);
 		done();
 	});
 

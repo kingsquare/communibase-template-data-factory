@@ -49,6 +49,21 @@ function _getPaths (node) {
 				break;
 			}
 
+			if  (node.mustache.id.string === 'filter') {
+				// look for used properties in equation
+				[node.mustache.params[1], node.mustache.params[(node.mustache.params.length === 4) ? 3 : 2]].forEach(
+						function (possiblePropertyNode) {
+					if (possiblePropertyNode.type === 'STRING') {
+						result.push(blockKeys[0] + '.#.' + possiblePropertyNode.string);
+					}
+				});
+
+				_getPaths(node.program).forEach(function (subValue) {
+					result.push(subValue.replace(/^results\./, blockKeys[0] + '.'));
+				});
+				break;
+			}
+
 			result = blockKeys;
 
 			if (node.program) {
