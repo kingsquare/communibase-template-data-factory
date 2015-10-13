@@ -14,6 +14,9 @@ var factory = new Factory({
 
 var expectedResult = {
 	"invoicedPeriods": {
+		0: {},
+		1: {},
+		2: {},
 		3: {
 			"startDate": new Date("2015-03-22T23:00:00.000Z")
 		}

@@ -144,29 +144,17 @@ module.exports = {
 					var arrayItemPromises = [];
 					var requestedSubValuesForAll = helpers.getRequestedSubVariables(requestedPaths, attribute.title + '.#');
 					value.forEach(function (subDocument, index) {
-						// if the whole subDocument is required (by e.g. person.addresses.1)
-						if (_.contains(requestedSubVariables, index.toString())) {
-							arrayItemPromises.push(Promise.resolve(subDocument));
-							return;
-						}
-
-						var specificSubValues = helpers.getRequestedSubVariables(
-								requestedPaths, attribute.title + '.' +	index).concat(requestedSubValuesForAll
-						);
-
-						if (specificSubValues.length === 0) {
-							arrayItemPromises.push(Promise.resolve(undefined));
-							return;
-						}
-
 						// check for strings, e.g. Vasmo Company.classifications
 						if (subDocument && entitiesHash[attribute.items]) {
 							arrayItemPromises.push(self.getPromiseByPaths.apply(self, [attribute.items, subDocument,
-								specificSubValues, getNewParents(parents, document)]));
+								helpers.getRequestedSubVariables(
+										requestedPaths, attribute.title + '.' +	index).concat(requestedSubValuesForAll
+								), getNewParents(parents, document)]));
 							return;
 						}
-						// Not a document? push the raw value (string)
-						arrayItemPromises.push(value);
+
+						// we dont know what to expect. Just add it all...
+						arrayItemPromises.push(subDocument);
 					});
 					// We need to maintain the array order --> process and add them in order of the original array!
 					subPromises.push(Promise.all(arrayItemPromises).then(function (templateDatas) {

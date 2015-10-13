@@ -164,7 +164,7 @@ module.exports = function (config) {
 			});
 		}
 		return this.entitiesHashPromise;
-	}
+	};
 
 	/**
 	 * Returns all data to be assigned to template, based on the requested variables / paths
@@ -231,7 +231,8 @@ module.exports = function (config) {
 		return _.unique(_getPaths(node).map(function (path) {
 			//find and process parent references
 			var newPath = [];
-			var nibbles = path.split('.');
+			//trim and split https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/Trim + dots
+			var nibbles = path.replace(/^[\s\uFEFF\xA0\.]+|[\s\uFEFF\xA0\.]+$/g, '').split('.');
 			for (var i = 0; i < nibbles.length; i++) {
 				var currentNibble = nibbles[i];
 
@@ -267,5 +268,5 @@ module.exports = function (config) {
 
 	this.setDebug = function (enable) {
 		debug = enable;
-	}
+	};
 };

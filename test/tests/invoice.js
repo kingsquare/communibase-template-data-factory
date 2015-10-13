@@ -25,7 +25,7 @@ describe('#getTemplateData() - Invoice', function(){
 						totals: {
 							ex: 240
 						}
-					}, undefined
+					}, {}
 				],
 				address: {
 					street: "Straatje"
