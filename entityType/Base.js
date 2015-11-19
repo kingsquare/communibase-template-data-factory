@@ -189,7 +189,7 @@ module.exports = {
 					var referredDocumentProperty = attribute.title.substr(0, (attribute.title.length - 9));
 					var referenceType = attribute.type.substr(0, (attribute.type.length - 9));
 					requestedSubVariables = helpers.getRequestedSubVariables(requestedPaths, referredDocumentProperty);
-					if (requestedSubVariables.length === 0) {
+					if (!value || (requestedSubVariables.length === 0)) {
 						return;
 					}
 
@@ -216,12 +216,15 @@ module.exports = {
 						}));
 						return;
 					}
-					// a custom defined address / phoneNumber / emailAddress within a reference
-					subPromises.push(self.getPromiseByPaths.apply(self, [referenceType, value[referredDocumentProperty],
-							requestedSubVariables, getNewParents(parents, document)]).then(function (templateData) {
+
+					if (value[referredDocumentProperty]) {
+						// a custom defined address / phoneNumber / emailAddress within a reference
+						subPromises.push(self.getPromiseByPaths.apply(self, [referenceType, value[referredDocumentProperty],
+								requestedSubVariables, getNewParents(parents, document)]).then(function (templateData) {
 								result[referredDocumentProperty] = templateData;
 							})
-					);
+						);
+					}
 					return;
 				}
 
