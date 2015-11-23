@@ -163,7 +163,11 @@ module.exports = {
 					return;
 				}
 
-				if (entitiesHash[type] || typeof value === 'object') {
+				if (entitiesHash[type]) {
+					if (!value) {
+						return;
+					}
+
 					if (!isReference) {
 						var referencedSubVariables = helpers.getRequestedSubVariables(requestedPaths, attribute.title);
 						if (referencedSubVariables.length > 0) {
