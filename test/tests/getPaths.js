@@ -4,7 +4,6 @@
 var assert = require('assert');
 var Factory = require('../../index.js');
 var Handlebars = require('handlebars');
-var Promise = require('bluebird');
 var cbc = require('communibase-connector-js');
 var factory = new Factory({
 	cbc: cbc
@@ -41,5 +40,12 @@ describe('#getPaths()', function(){
 			assert.deepEqual(result, {"title":"Ooa Intervisieseizoen 2016","sessions":[{"title":"Ooa Startbijeenkomst 2016","participants":[{"person":{"firstName":"Janny"}}]},{"title":"Ooa Kennismakingsbijeenkomst nieuwe leden","participants":[]},{"title":"Ooa Informatiebijeenkomst facilitators","participants":[]}]});
 			done();
 		}).catch(done);
+	});
+
+	it ('should get stuff from helper methods too', function (done) {
+		var template = Handlebars.parse('{{#each participants}}{{#filter ../sessions "personId" "eq" personId}}{{results.0.status}}{{/filter}}{{/each}}');
+		var paths = factory.getPaths(Handlebars.parse(template));
+		assert.deepEqual(paths, ['sessions.#.personId', 'participants.#.personId', 'sessions.#.status']);
+		done();
 	});
 });

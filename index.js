@@ -53,8 +53,16 @@ function _getPaths (node) {
 				// look for used properties in equation
 				[node.mustache.params[1], node.mustache.params[(node.mustache.params.length === 4) ? 3 : 2]].forEach(
 						function (possiblePropertyNode) {
-					if (possiblePropertyNode.type === 'STRING') {
+					switch (possiblePropertyNode.type) {
+					case 'STRING':
+						//e.g. ../session.personId
 						result.push(blockKeys[0] + '.#.' + possiblePropertyNode.string);
+						break;
+
+					case 'ID':
+						//e.g. personId
+						result.push(possiblePropertyNode.string);
+						break;
 					}
 				});
 
