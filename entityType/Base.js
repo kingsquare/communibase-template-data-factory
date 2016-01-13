@@ -30,7 +30,9 @@ function log(e) {
 module.exports = {
 	titleFields: ['title'],
 	getPromiseByPaths: function (entityTypeTitle, document, requestedPaths, parents) {
+		// jscs:disable requireCamelCaseOrUpperCaseIdentifiers
 		document.__cb_type__ = entityTypeTitle;
+		// jscs:enable requireCamelCaseOrUpperCaseIdentifiers
 		if (!parents) {
 			parents = [];
 		}
@@ -65,6 +67,10 @@ module.exports = {
 			}
 
 			//Expose _ALL_ attributes (not just commmunibase fields): https://trello.com/c/9yKbd7Zg/460-wat-klopt-er-nie
+			/**
+			 * @param {Object} attribute
+			 * @param {string} attribute.ref
+			 */
 			_.each(entitiesHash[entityTypeTitle].attributes, function (attribute) {
 				var fieldNameIsRequested = checkIfIsRequested(attribute.title, requestedPaths);
 				var type = attribute.type;
@@ -102,8 +108,8 @@ module.exports = {
 					return;
 				}
 
+				var requestedSubVariables;
 				if (Array.isArray(value)) {
-					var requestedSubVariables;
 					if (attribute.ref) {
 						if (fieldNameIsRequested) {
 							result[attribute.title] = attribute.ref;
@@ -134,10 +140,13 @@ module.exports = {
 						return;
 					}
 
-					requestedSubVariables = helpers.getRequestedSubVariables(requestedPaths, attribute.title);
-					if (requestedSubVariables.length === 0) {
-						return;
-					}
+					// @see https://trello.com/c/WFeSEuNT/1757-gin-export-regio-s-lukt-niet
+					// May be literal request, for array of strings and used helpers
+					//
+					//requestedSubVariables = helpers.getRequestedSubVariables(requestedPaths, attribute.title);
+					//if (requestedSubVariables.length === 0) {
+					//	return;
+					//}
 
 					result[attribute.title] = [];
 					// We need to maintain the array order --> process and add them in order of the original array!
@@ -204,7 +213,7 @@ module.exports = {
 						var rootDocumentEntityTypeNibbles = rootDocumentEntityType.split('.');
 						if (rootDocumentEntityTypeNibbles[0] === 'parent') {
 							// @todo findout why 3 ??
-							parentDocument = parents[rootDocumentEntityTypeNibbles.length-3];
+							parentDocument = parents[rootDocumentEntityTypeNibbles.length - 3];
 						}
 						subPromises.push(self.cbc.getByRef(documentReference, parentDocument).then(
 							function (referredDocument) {
@@ -280,13 +289,14 @@ module.exports = {
 	/**
 	 * Overloadable and preferable over .get('_title')
 	 *
-	 * @param titleFields
-	 * @param entityTypeTitle
-	 * @param document
+	 * @param {Array} titleFields
+	 * @param {string} entityTypeTitle
+	 * @param {Object} document
+	 * @param {Array} parents
 	 * @returns {*|Promise}
 	 * @private
 	 */
-	_getTitlePromise: function (titleFields, entityTypeTitle, document) {
+	_getTitlePromise: function (titleFields, entityTypeTitle, document, parents) {
 		var self = this;
 		var titlePartPromises = [];
 
@@ -337,7 +347,7 @@ module.exports = {
 					var parentDocument = null;
 					var rootDocumentEntityTypeNibbles = titlePartValue.documentReference.rootDocumentEntityType.split('.');
 					if (rootDocumentEntityTypeNibbles[0] === 'parent') {
-						parentDocument = parents[rootDocumentEntityTypeNibbles.length-1];
+						parentDocument = parents[rootDocumentEntityTypeNibbles.length - 1];
 					}
 					titlePartPromises.push(self.cbc.getByRef(titlePartValue.documentReference, parentDocument).then(function (ref) {
 						return self.getTitlePromise.apply(self, [entityName, ref]);
