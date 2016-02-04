@@ -10,14 +10,15 @@ var debug = false;
  * {{invoiceNumber}} - {{#invoiceItems}} {{totalEx}} {{/invoiceItems}}
  * It should return:
  * ["invoiceNumber", "invoiceItems.#.totalEx"]
- * @param node
+ *
+ * @param {object} node
  * @returns {Array} result - The requested paths
  */
-function _getPaths (node) {
+function _getPaths(node) {
 	var result = [];
 
 	if (debug) {
-		console.log(JSON.stringify(node) + "\n\n");
+		console.log(JSON.stringify(node) + '\n\n');
 	}
 
 	if (!node || !node.type) {
@@ -25,7 +26,7 @@ function _getPaths (node) {
 	}
 
 	switch (node.type.toLowerCase()) {
-		// E.g. "date" / "debtor.debtorNumber"
+		// E.g. 'date' / 'debtor.debtorNumber'
 		case 'id':
 			result.push(node.idName);
 			break;
@@ -38,7 +39,7 @@ function _getPaths (node) {
 			});
 			break;
 
-		// E.g. #each / #if / #compare / "#invoiceItems" / "#ifIsCredit"
+		// E.g. #each / #if / #compare / '#invoiceItems' / '#ifIsCredit'
 		case 'block':
 			var blockKeys = _getPaths(node.mustache);
 
@@ -49,7 +50,7 @@ function _getPaths (node) {
 				break;
 			}
 
-			if  (node.mustache.id.string === 'filter') {
+			if (node.mustache.id.string === 'filter') {
 				// look for used properties in equation
 				[node.mustache.params[1], node.mustache.params[(node.mustache.params.length === 4) ? 3 : 2]].forEach(
 						function (possiblePropertyNode) {
@@ -87,7 +88,7 @@ function _getPaths (node) {
 			}
 			break;
 
-		// E.g. "{{#compare person.gender 'M'}}"
+		// E.g. '{{#compare person.gender 'M'}}'
 		case 'mustache':
 			if (!node.isHelper) {
 				result.push(node.id.idName);
@@ -147,6 +148,7 @@ module.exports = function (config) {
 
 	/**
 	 * Returns all data to be assign to template, based on the wizard-source object
+	 *
 	 * @param {String} entityTypeTitle - The entity type (i.e. Person, Shift, etc)
 	 * @param {Object} document - The actual document (entity) instance which should be templatified
 	 * @param {Handlebars} template - The template this is based on
@@ -176,6 +178,7 @@ module.exports = function (config) {
 
 	/**
 	 * Returns all data to be assigned to template, based on the requested variables / paths
+	 *
 	 * @param {String} entityTypeTitle - The entity type (i.e. Person, Shift, etc)
 	 * @param {Object} document - The actual document (entity) instance which should be templatified
 	 * @param {Array} requestedPaths - An array of all values that are requested from the document
@@ -203,17 +206,18 @@ module.exports = function (config) {
 				var rootDocumentEntityTypeNibbles = document.documentReference.rootDocumentEntityType.split('.');
 				if (rootDocumentEntityTypeNibbles[0] === 'parent') {
 					parents.unshift(document);
-					parentDocument = parents[rootDocumentEntityTypeNibbles.length-1];
+					parentDocument = parents[rootDocumentEntityTypeNibbles.length - 1];
 				}
 				return this.cbc.getByRef(document.documentReference, parentDocument).then(function (ref) {
-					return self.getTitlePromise.apply(self, [entityTypeTitle.substr(0, entityTypeTitle.length -9), ref, parents]);
+					return self.getTitlePromise.apply(self, [entityTypeTitle.substr(0, entityTypeTitle.length - 9), ref, parents]);
 				}).catch(function () {
 					return Promise.resolve('<< Verwijderd >>');
 				});
 			}
 
 			// get the subdocument title!
-			var subDocument = document[entityTypeTitle[0].toLowerCase() + entityTypeTitle.substring(1, entityTypeTitle.length - 9)];
+			var subDocument = document[entityTypeTitle[0].toLowerCase() +
+					entityTypeTitle.substring(1, entityTypeTitle.length - 9)];
 			if (!subDocument) {
 				return Promise.resolve('');
 			}
@@ -244,9 +248,9 @@ module.exports = function (config) {
 			for (var i = 0; i < nibbles.length; i++) {
 				var currentNibble = nibbles[i];
 
-				//detect ".."
-				var parentRequested = (currentNibble === '') && (nibbles.length >= (i+2)) && (nibbles[i+1] === '') &&
-						(nibbles[i+2].indexOf('/') === 0);
+				//detect '..'
+				var parentRequested = (currentNibble === '') && (nibbles.length >= (i + 2)) && (nibbles[i + 1] === '') &&
+						(nibbles[i + 2].indexOf('/') === 0);
 				while (parentRequested) {
 					//traverse to parent...
 					var poppedNibble = newPath.pop();
@@ -272,6 +276,10 @@ module.exports = function (config) {
 
 	this.setStxt = function(stxt) {
 		this.stxt = stxt;
+	};
+
+	this.setSerializers = function(serializers) {
+		Object.assign(entitySerializers, serializers);
 	};
 
 	this.setDebug = function (enable) {

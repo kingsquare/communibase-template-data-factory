@@ -23,6 +23,11 @@ __stxt__: a Javascript-object containing optional translations, e.g.:
     "Person.firstName": "Voornaam" 
  }
  ```
+ 
+ ## Extra serializers
+ 
+Extra (custom) serializers can be added to the factory using the `addSerializers`-method. See serializers in the
+`entityType`-folder for examples and implementations
 
  ### PLEASE NOTE ###
 
