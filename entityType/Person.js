@@ -1,4 +1,4 @@
-"use strict";
+'use strict';
 
 var _ = require('lodash');
 var BaseSerializer = require('./Base.js');
@@ -26,18 +26,18 @@ module.exports = {
 		var membershipNumberRequested = (allVariablesAreRequested || requestedPaths.indexOf('membershipNumber') !== -1);
 		var templateDataPromise = BaseSerializer.getPromiseByPaths.apply(this, arguments);
 		if (!membershipNumberRequested) {
-			return templateDataPromise
+			return templateDataPromise;
 		}
 
 		//hydrate membershipNumber on request, see https://trello.com/c/bfsOJ1Mr/1569-exportcode-zou-toch-moeten
 		return Promise.all([
 			templateDataPromise,
 			self.cbc.search('Membership', {
-				"personId": document._id ,
-				"membershipNumber": { "$gt": 0 }
+				'personId': document._id ,
+				'membershipNumber': { '$gt': 0 }
 			}, {
-				"fields": "membershipNumber",
-				"limit": 1
+				'fields': 'membershipNumber',
+				'limit': 1
 			})
 		]).spread(function (templateData, membershipData) {
 			if (membershipData && membershipData.length) {
