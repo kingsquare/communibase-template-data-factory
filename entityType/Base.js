@@ -78,9 +78,11 @@ module.exports = {
 					type = ((attribute.type && attribute.type.type) ? attribute.type.type : attribute.type);
 				}
 
+				// Do _NOT_ check attribute.title.substr(-2) === 'Id' --- Attributes may be named improperly
+				// (e.g. Event.speaker)
 				var isReference =  (
 					(type === 'ObjectId' && attribute.ref && entitiesHash[attribute.ref] &&
-							entitiesHash[attribute.ref].isResource && attribute.title.substr(-2) === 'Id') ||
+							entitiesHash[attribute.ref].isResource) ||
 					((attribute.title.substr(-9) === 'Reference') && (type !== 'DocumentReference'))
 				);
 				if (!fieldNameIsRequested && !isReference) {
