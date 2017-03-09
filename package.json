@@ -1,6 +1,6 @@
 {
   "name": "communibase-template-data-factory",
-  "version": "1.0.61",
+  "version": "1.0.62",
   "description": "Helper methods for working with Templates and the Communibase service.",
   "main": "index.js",
   "scripts": {
@@ -19,7 +19,7 @@
     "bluebird": "3.5.0",
     "communibase-connector-js": "^0.5.10",
     "handlebars": "^2.0.0",
-    "lodash": "^4.17.4",
+    "lodash": "3.10.1",
     "moment": "2.17.1"
   },
   "devDependencies": {
