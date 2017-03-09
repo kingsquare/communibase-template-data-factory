@@ -1,6 +1,6 @@
 {
   "name": "communibase-template-data-factory",
-  "version": "1.0.60",
+  "version": "1.0.61",
   "description": "Helper methods for working with Templates and the Communibase service.",
   "main": "index.js",
   "scripts": {
@@ -31,7 +31,6 @@
     "mongodb": "^2.2.24"
   },
   "engines": {
-    "node": ">= 6.6.0",
-    "npm": "3.10.3"
+    "node": ">= 4"
   }
 }
