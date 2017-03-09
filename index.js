@@ -240,7 +240,7 @@ module.exports = function (config) {
 
 	this.getPaths = function (node) {
 		//sanitize paths
-		return _.unique(_getPaths(node).map(function (path) {
+		return _.uniq(_getPaths(node).map(function (path) {
 			//find and process parent references
 			var newPath = [];
 			//trim and split https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/Trim + dots

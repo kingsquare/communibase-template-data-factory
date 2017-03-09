@@ -1,7 +1,8 @@
 'use strict';
 
-var setupDatabase = require('./runTests/setupDatabase.js');
-var bootServer = require('./runTests/bootServer.js');
+const setupDatabase = require('./runTests/setupDatabase.js');
+const bootServer = require('./runTests/bootServer.js');
+const child_process = require('child_process');
 
 //setup proper environment vars and run casper
 var dbHost = "localhost";
@@ -42,7 +43,7 @@ setupDatabase().then(bootServer).then(function (serverProcess) {
 }).then(function (serverProcess) {
 //	var command = "mocha --debug-brk test/tests/getPaths.js";
 	var command = "mocha test/tests/";
-	var mochaProcess = require('child_process').exec(command, [], { env: process.env });
+	var mochaProcess = child_process.exec(command, { env: process.env });
 	mochaProcess.stdout.pipe(process.stdout);
 	mochaProcess.stderr.pipe(process.stderr);
 	mochaProcess.on('close', function (code) {
