@@ -71,7 +71,13 @@ module.exports = {
 			 * @param {Object} attribute
 			 * @param {string} attribute.ref
 			 */
-			_.each(entitiesHash[entityTypeTitle].attributes, function (attribute) {
+			var entity = entitiesHash[entityTypeTitle];
+			if (!entity) {
+				console.log('Could not find entity', entityTypeTitle);
+				return;
+			}
+
+			_.each(entity.attributes, function (attribute) {
 				var fieldNameIsRequested = checkIfIsRequested(attribute.title, requestedPaths);
 				var type = attribute.type;
 				if (!type) {
