@@ -10,7 +10,7 @@ module.exports = {
     });
 
     if (!merchant.data) {
-      return Promise.resolve(titles.join(' - '));
+      return Promise.resolve(titles);
     }
 
     return this.getTitlePromise('MerchantData', merchant.data).then((dataTitle) => {
