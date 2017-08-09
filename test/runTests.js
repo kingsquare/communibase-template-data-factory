@@ -1,5 +1,3 @@
-
-
 const setupDatabase = require('./runTests/setupDatabase.js');
 const bootServer = require('./runTests/bootServer.js');
 const child_process = require('child_process');
@@ -31,6 +29,12 @@ process.env.COMMUNIBASE_API_URL = `${process.env.PUBLIC_URL}/${process.env.PUBLI
 process.env.MASTER_DB_URI = `mongodb://${dbHost}:${dbPort}/test_master`;
 process.env.MASTER_APIKEY = 'master1234567890123456789012345678';
 process.env.MASTER_ADMINISTRATION_ID = '525ba35bb32e0e390400000b';
+process.env.AWS_S3_EU_WEST_1_KEY = 'AWS_S3_EU_WEST_1_KEY123';
+process.env.AWS_S3_EU_WEST_1_SECRET = 'AWS_S3_EU_WEST_1_KEY123';
+process.env.AWS_SES_EU_WEST_1_KEY = 'AWS_SES_EU_WEST_1_KEY123';
+process.env.AWS_SES_EU_WEST_1_SECRET = 'AWS_SES_EU_WEST_1_SECRET123';
+process.env.AWS_SES_US_EAST_1_KEY = 'AWS_SES_US_EAST_1_KEY123';
+process.env.AWS_SES_US_EAST_1_SECRET = 'AWS_SES_US_EAST_1_SECRET123';
 
 // test db variables
 process.env.TEST_ADMINISTRATION_DB_URI = `mongodb://${dbHost}:${dbPort}/test_administration`;
