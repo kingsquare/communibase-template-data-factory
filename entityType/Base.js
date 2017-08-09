@@ -2,14 +2,12 @@ const _ = require('lodash');
 const Promise = require('bluebird');
 const helpers = require('../inc/helpers.js');
 
-const checkIfIsRequested = function (fieldName, requestedPaths) {
-  return requestedPaths.some(requestedPath => ((requestedPath.indexOf(fieldName) === 0) || (requestedPath.substr(0, 1) === '#')));
-};
+const checkIfIsRequested = (fieldName, requestedPaths) => requestedPaths.some(
+  requestedPath => ((requestedPath.indexOf(fieldName) === 0) || (requestedPath.substr(0, 1) === '#'))
+);
 
-const convertIdToDate = function (record) {
-  // http://stackoverflow.com/questions/6452021/getting-timestamp-from-mongodb-id
-  return new Date(parseInt(record._id.substring(0, 8), 16) * 1000);
-};
+// http://stackoverflow.com/questions/6452021/getting-timestamp-from-mongodb-id
+const convertIdToDate = record => new Date(parseInt(record._id.substring(0, 8), 16) * 1000);
 
 function getNewParents(parents, document) {
   const result = parents.slice(0);
@@ -70,7 +68,7 @@ module.exports = {
       const entity = entitiesHash[entityTypeTitle];
       if (!entity) {
         console.log('Could not find entity', entityTypeTitle);
-        return;
+        return null;
       }
 
       _.each(entity.attributes, (attribute) => {
@@ -136,8 +134,8 @@ module.exports = {
               referredObjects.forEach((referredObject) => {
                 subSubPromises.push(self.getPromiseByPaths.apply(self, [attribute.ref, referredObject,
                   requestedSubVariables, getNewParents(parents, document)]).then((templateData) => {
-                  result[`${attribute.title.substr(-3)}s`].push(templateData);
-                }));
+                    result[`${attribute.title.substr(-3)}s`].push(templateData);
+                  }));
               });
               return Promise.all(subSubPromises);
             }, () => { }));
@@ -198,8 +196,8 @@ module.exports = {
           if (requestedSubVariables.length !== 0) {
             subPromises.push(self.getPromiseByPaths(attribute.type, value, requestedSubVariables,
                 getNewParents(parents, document)).then((templateData) => {
-  result[attribute.title] = templateData;
-}));
+                  result[attribute.title] = templateData;
+                }));
           }
 
           // also get the referenced values for e.g. emailAddress
@@ -220,16 +218,20 @@ module.exports = {
               parentDocument = parents[rootDocumentEntityTypeNibbles.length - 3];
             }
             subPromises.push(self.cbc.getByRef(documentReference, parentDocument).then(
-              referredDocument =>
-                // Break the "parents-chain": the proper parent is resolved and does not have to
-                // processed any further
-   self.getPromiseByPaths.apply(self, [referenceType, referredDocument,
-     requestedSubVariables, []]).then((templateData) => {
-       result[referredDocumentProperty] = templateData;
-     })
+              // Break the "parents-chain": the proper parent is resolved and does not have to
+              // processed any further
+              referredDocument => self.getPromiseByPaths.call(
+                self,
+                referenceType,
+                referredDocument,
+                requestedSubVariables,
+                []
+              ).then((templateData) => {
+                result[referredDocumentProperty] = templateData;
+              })
             ).catch((e) => {
-  log(e);
-}));
+              log(e);
+            }));
             return;
           }
 
@@ -256,11 +258,13 @@ module.exports = {
             return;
           }
 
-          subPromises.push(self.cbc.getById(attribute.ref, value).then(referredObject => self.getPromiseByPaths.apply(self, [attribute.ref, referredObject,
-            requestedSubVariables, getNewParents(parents, document)]).then((templateData) => {
-              result[attribute.title.substr(0, (attribute.title.length - 2))] = templateData;
-            }
-            ), () => { }));
+          subPromises.push(self.cbc.getById(attribute.ref, value).then(
+            referredObject => self.getPromiseByPaths.apply(self, [attribute.ref, referredObject,
+              requestedSubVariables, getNewParents(parents, document)]).then((templateData) => {
+                result[attribute.title.substr(0, (attribute.title.length - 2))] = templateData;
+              }),
+            () => { }
+          ));
         }
       });
 
@@ -348,7 +352,9 @@ module.exports = {
           if (rootDocumentEntityTypeNibbles[0] === 'parent') {
             parentDocument = parents[rootDocumentEntityTypeNibbles.length - 1];
           }
-          titlePartPromises.push(self.cbc.getByRef(titlePartValue.documentReference, parentDocument).then(ref => self.getTitlePromise.apply(self, [entityName, ref])).catch((e) => {
+          titlePartPromises.push(self.cbc.getByRef(titlePartValue.documentReference, parentDocument).then(
+            ref => self.getTitlePromise.call(self, entityName, ref)
+          ).catch((e) => {
             log(e);
             return Promise.resolve(['<< Verwijderd >>']);
           }));
@@ -367,7 +373,7 @@ module.exports = {
       }
 
       if (doTranslate) {
-        titlePartValue = self.stxt[`${entityTypeTitle}.${titlePart}.${titlePartValue}`] ||  titlePartValue;
+        titlePartValue = self.stxt[`${entityTypeTitle}.${titlePart}.${titlePartValue}`] || titlePartValue;
       }
 
       titlePartPromises.push(titlePartValue);
