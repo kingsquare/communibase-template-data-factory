@@ -314,13 +314,11 @@ module.exports = {
         return;
       }
 
-      const doTranslate = (titlePart.substr(0, 1) === '{');
-      if (doTranslate) {
-        // E.g. type from Address should be translated from Private to Privé in the title
+      if ((titlePart.substr(0, 1) === '{')) {
         titlePart = titlePart.substr(0, titlePart.length - 1).substr(1);
       }
 
-      let titlePartValue = document[titlePart];
+      const titlePartValue = document[titlePart];
 
       if (!titlePartValue && titlePartValue !== 0) {
         titlePartPromises.push('');
@@ -372,11 +370,8 @@ module.exports = {
         return;
       }
 
-      if (doTranslate) {
-        titlePartValue = self.stxt[`${entityTypeTitle}.${titlePart}.${titlePartValue}`] || titlePartValue;
-      }
-
-      titlePartPromises.push(titlePartValue);
+      // E.g. type from Address should be translated from Private to Privé in the title{
+      titlePartPromises.push(self.stxt[`${entityTypeTitle}.${titlePart}.${titlePartValue}`] || titlePartValue);
     });
 
     return Promise.all(titlePartPromises).catch((e) => {
