@@ -1,21 +1,21 @@
-"use strict";
+
 
 module.exports = {
-	titleFields: ['merchantId'],
-	_getTitlePromise: function(titleFields, entityTypeTitle, merchant) {
-		var titles = [];
+  titleFields: ['merchantId'],
+  _getTitlePromise(titleFields, entityTypeTitle, merchant) {
+    const titles = [];
 
-		titleFields.forEach(function (titleField) {
-			titles.push(merchant[titleField]);
-		});
+    titleFields.forEach((titleField) => {
+      titles.push(merchant[titleField]);
+    });
 
-		if (!merchant.data) {
-			return Promise.resolve(titles.join(' - '));
-		}
+    if (!merchant.data) {
+      return Promise.resolve(titles.join(' - '));
+    }
 
-		return this.getTitlePromise('MerchantData', merchant.data).then(function (dataTitle) {
-			titles.push(dataTitle);
-			return titles;
-		});
-	}
+    return this.getTitlePromise('MerchantData', merchant.data).then((dataTitle) => {
+      titles.push(dataTitle);
+      return titles;
+    });
+  }
 };

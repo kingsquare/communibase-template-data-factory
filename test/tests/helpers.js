@@ -1,37 +1,37 @@
 /* global describe: false, it: false */
-'use strict';
 
-var assert = require('assert');
-var helpers = require('../../inc/helpers.js');
 
-describe('helpers.getRequestedSubVariables()', function(){
-	it('should get specific subvalues', function(done) {
-		var actual = helpers.getRequestedSubVariables(['a.b', 'c.a.g', 'd', 'e.f'], 'a');
+const assert = require('assert');
+const helpers = require('../../inc/helpers.js');
 
-		assert.deepEqual(actual, ['b']);
-		done();
-	});
+describe('helpers.getRequestedSubVariables()', () => {
+  it('should get specific subvalues', (done) => {
+    const actual = helpers.getRequestedSubVariables(['a.b', 'c.a.g', 'd', 'e.f'], 'a');
 
-	it('should get specific sub-objects', function(done) {
-		var actual = helpers.getRequestedSubVariables(['a.b', 'c.a.g', 'd', 'e.f'], 'c');
+    assert.deepEqual(actual, ['b']);
+    done();
+  });
 
-		assert.deepEqual(actual, ['a.g']);
-		done();
-	});
+  it('should get specific sub-objects', (done) => {
+    const actual = helpers.getRequestedSubVariables(['a.b', 'c.a.g', 'd', 'e.f'], 'c');
 
-	it('should get specific sub-subvalues', function(done) {
-		var actual = helpers.getRequestedSubVariables(['a.b', 'c.a.g', 'd', 'e.f'], 'c.a');
+    assert.deepEqual(actual, ['a.g']);
+    done();
+  });
 
-		assert.deepEqual(actual, ['g']);
-		done();
-	});
+  it('should get specific sub-subvalues', (done) => {
+    const actual = helpers.getRequestedSubVariables(['a.b', 'c.a.g', 'd', 'e.f'], 'c.a');
 
-	it('should get all second-hand values', function(done) {
-		var first = helpers.getRequestedSubVariables(['#.#'], 'e.f');
-		var second = helpers.getRequestedSubVariables(['#.#'], 'e');
+    assert.deepEqual(actual, ['g']);
+    done();
+  });
 
-		assert.deepEqual(first, []);
-		assert.deepEqual(second, ['#']);
-		done();
-	});
+  it('should get all second-hand values', (done) => {
+    const first = helpers.getRequestedSubVariables(['#.#'], 'e.f');
+    const second = helpers.getRequestedSubVariables(['#.#'], 'e');
+
+    assert.deepEqual(first, []);
+    assert.deepEqual(second, ['#']);
+    done();
+  });
 });

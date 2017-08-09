@@ -1,50 +1,47 @@
 /* global describe: false, it: false */
-'use strict';
 
-var assert = require('assert');
-var cbc = require('communibase-connector-js');
-var Factory = require('../../index.js');
-var Handlebars = require('handlebars');
-var factory = new Factory({
-	cbc: cbc
+
+const assert = require('assert');
+const cbc = require('communibase-connector-js');
+const Factory = require('../../index.js');
+const Handlebars = require('handlebars');
+
+const factory = new Factory({
+  cbc
 });
 
-var input = [ 'invoiceNumber', 'invoiceItems.0.taxPercentage', 'invoiceItems.0.totals.ex', 'address.street'];
-var template = Handlebars.parse('{{' + input.join('}};{{') +'}}');
+const input = ['invoiceNumber', 'invoiceItems.0.taxPercentage', 'invoiceItems.0.totals.ex', 'address.street'];
+const template = Handlebars.parse(`{{${input.join('}};{{')}}}`);
 
-describe('#getTemplateData() - Invoice', function(){
-	it('should work', function(done) {
-		cbc.getById('Invoice', process.env.TEST_INVOICE_ID).then(function (invoice) {
-			return factory.getPromise('Invoice', invoice, template);
-		}).then(function (actual) {
-			var expected = {
-				invoiceNumber: "100001",
-				invoiceItems: [
-					{
-						taxPercentage: 21,
-						totals: {
-							ex: 240
-						}
-					}, {}
-				],
-				address: {
-					street: "Straatje"
-				}
-			};
+describe('#getTemplateData() - Invoice', () => {
+  it('should work', (done) => {
+    cbc.getById('Invoice', process.env.TEST_INVOICE_ID).then(invoice => factory.getPromise('Invoice', invoice, template)).then((actual) => {
+      const expected = {
+        invoiceNumber: '100001',
+        invoiceItems: [
+          {
+            taxPercentage: 21,
+            totals: {
+              ex: 240
+            }
+          }, {}
+        ],
+        address: {
+          street: 'Straatje'
+        }
+      };
 
-			assert.deepEqual(actual, expected);
-			done();
-		}).catch(done);
-	});
+      assert.deepEqual(actual, expected);
+      done();
+    }).catch(done);
+  });
 
-	it('should parse euro-sign correctly', function (done) {
-		cbc.getById('Invoice', process.env.TEST_INVOICE_2_ID).then(function (invoice) {
-			return factory.getPromise('Invoice', invoice, Handlebars.parse('{{ totalIn }}'));
-		}).then(function (actual) {
-			var expected = { totalIn: '-€ 200,00' };
+  it('should parse euro-sign correctly', (done) => {
+    cbc.getById('Invoice', process.env.TEST_INVOICE_2_ID).then(invoice => factory.getPromise('Invoice', invoice, Handlebars.parse('{{ totalIn }}'))).then((actual) => {
+      const expected = { totalIn: '-€ 200,00' };
 
-			assert.deepEqual(actual, expected, "totalIn differ from expected");
-			done();
-		}).catch(done);
-	});
+      assert.deepEqual(actual, expected, 'totalIn differ from expected');
+      done();
+    }).catch(done);
+  });
 });

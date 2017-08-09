@@ -25,6 +25,11 @@
   "devDependencies": {
     "Communibase": "git+ssh://git@bitbucket.org/communibase/api.git",
     "bson-stream": "0.0.8",
+    "eslint": "^3.18.0",
+    "eslint-config-kingsquare": "^1.0.6",
+    "eslint-plugin-import": "^2.2.0",
+    "eslint-plugin-jsx-a11y": "^5.1.1",
+    "eslint-plugin-react": "^7.1.0",
     "grunt": "^1.0.1",
     "grunt-shell": "^2.1.0",
     "mocha": "~3.2.0",

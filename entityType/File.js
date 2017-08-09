@@ -1,3 +1,3 @@
 module.exports = {
-	titleFields: ['filename']
+  titleFields: ['filename']
 };

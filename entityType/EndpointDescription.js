@@ -1,3 +1,3 @@
 module.exports = {
-	titleFields: ['method','url']
+  titleFields: ['method', 'url']
 };
