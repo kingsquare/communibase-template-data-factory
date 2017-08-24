@@ -45,8 +45,8 @@ module.exports = {
         totals.exRounded += itemExRounded;
         totals.tax += taxValue;
         totals.taxRounded += taxValueRounded;
-        totals.in += (itemEx * incltaxMultiplier);
-        totals.inRounded += (itemExRounded + taxValueRounded);
+        totals.in += (itemEx * (document.reverseChargedVat ? 1 : incltaxMultiplier));
+        totals.inRounded += (itemExRounded + (document.reverseChargedVat ? 0 : taxValueRounded));
       });
 
       _.each(totals, (value, identifier) => {
