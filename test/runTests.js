@@ -41,7 +41,7 @@ process.env.TEST_ADMINISTRATION_DB_URI = `mongodb://${dbHost}:${dbPort}/test_adm
 process.env.COMMUNIBASE_KEY = 'test123456789012345678901234567890';
 
 setupDatabase().then(bootServer).then(serverProcess => require('./runTests/loadFixtures.js')().then(() => serverProcess)).then((serverProcess) => {
-//  var command = "mocha --debug-brk test/tests/getPaths.js";
+//  var command = "mocha --debug-brk test/tests/documentReference.js";
   const command = 'mocha test/tests/';
   const mochaProcess = child_process.exec(command, { env: process.env });
   mochaProcess.stdout.pipe(process.stdout);

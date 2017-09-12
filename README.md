@@ -29,6 +29,10 @@ __stxt__: a Javascript-object containing optional translations, e.g.:
 Extra (custom) serializers can be added to the factory using the `addSerializers`-method. See serializers in the
 `entityType`-folder for examples and implementations
 
+## Debugging?
+
+See runTest.js line 44, attach a debugger from the IDE to mocha
+
  ### PLEASE NOTE ###
 
  This library is compatible with Handlebars 2.0.0

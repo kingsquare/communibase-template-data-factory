@@ -83,34 +83,88 @@ module.exports = {
         const isReference = (
           (type === 'ObjectId' && attribute.ref && entitiesHash[attribute.ref] &&
               entitiesHash[attribute.ref].isResource) ||
-          ((attribute.title.substr(-9) === 'Reference') && (type !== 'DocumentReference'))
+          ((attribute.title.substr(-9) === 'Reference'))
         );
         if (!fieldNameIsRequested && !isReference) {
           return;
         }
 
+        /* rewrite properties: emailAddressReference => emailAddress and documentReference => document */
+        const referredDocumentProperty = attribute.title.substr(0, (attribute.title.length - 9));
         const value = document[attribute.title];
-        if (type === 'Date') {
-          if (fieldNameIsRequested && value) {
-            result[attribute.title] = new Date(value);
-          }
-          return;
-        }
-        if (type === 'Mixed') {
-          if (fieldNameIsRequested && value) {
-            result[attribute.title] = value;
-          }
-          return;
+        let requestedSubVariables;
+        let requestedReferredSubVariables;
+
+        switch (type) {
+          case 'Date':
+            if (fieldNameIsRequested && value) {
+              result[attribute.title] = new Date(value);
+            }
+            return;
+
+          case 'Mixed':
+            if (fieldNameIsRequested && value) {
+              result[attribute.title] = value;
+            }
+            return;
+
+          case 'int':
+          case 'float':
+            if (fieldNameIsRequested) {
+              result[attribute.title] = value;
+            }
+            return;
+
+          case 'DocumentReference':
+            if (!value) {
+              return;
+            }
+
+            requestedSubVariables = helpers.getRequestedSubVariables(requestedPaths, attribute.title);
+            requestedReferredSubVariables = helpers.getRequestedSubVariables(requestedPaths, referredDocumentProperty);
+
+            if (requestedSubVariables.length) {
+              subPromises.push(self.getPromiseByPaths.apply(
+                self,
+                [
+                  'DocumentReference',
+                  value,
+                  requestedSubVariables,
+                  getNewParents(parents, document)
+                ]
+              ).then((templateData) => {
+                result[attribute.title] = templateData;
+              }));
+            }
+
+            if (requestedReferredSubVariables.length) {
+              subPromises.push(self.cbc.getByRef(value, parents[parents.length - 1]).then(
+                // Break the "parents-chain": the proper parent is resolved and does not have to
+                // processed any further
+                referredDocument => self.getPromiseByPaths.call(
+                  self,
+                  value.rootDocumentEntityType,
+                  referredDocument,
+                  requestedReferredSubVariables,
+                  []
+                ).then((templateData) => {
+                  result[referredDocumentProperty] = templateData;
+                })
+              ).catch((e) => {
+                log(e);
+              }));
+            }
+
+            return;
         }
 
-        if ([undefined, null, true, false].indexOf(value) !== -1 || type === 'int' || type === 'float') {
+        if ([undefined, null, true, false].indexOf(value) !== -1) {
           if (fieldNameIsRequested) {
             result[attribute.title] = value;
           }
           return;
         }
 
-        let requestedSubVariables;
         if (Array.isArray(value)) {
           if (attribute.ref) {
             if (fieldNameIsRequested) {
@@ -132,8 +186,11 @@ module.exports = {
               const subSubPromises = [];
 
               referredObjects.forEach((referredObject) => {
-                subSubPromises.push(self.getPromiseByPaths.apply(self, [attribute.ref, referredObject,
-                  requestedSubVariables, getNewParents(parents, document)]).then((templateData) => {
+                subSubPromises.push(
+                  self.getPromiseByPaths.apply(
+                    self,
+                    [attribute.ref, referredObject, requestedSubVariables, getNewParents(parents, document)]
+                  ).then((templateData) => {
                     result[`${attribute.title.substr(-3)}s`].push(templateData);
                   }));
               });
@@ -157,10 +214,20 @@ module.exports = {
           value.forEach((subDocument, index) => {
             // check for strings, e.g. Vasmo Company.classifications
             if (subDocument && entitiesHash[attribute.items]) {
-              arrayItemPromises.push(self.getPromiseByPaths.apply(self, [attribute.items, subDocument,
-                helpers.getRequestedSubVariables(
-                    requestedPaths, `${attribute.title}.${index}`).concat(requestedSubValuesForAll
-                ), getNewParents(parents, document)]));
+              arrayItemPromises.push(
+                self.getPromiseByPaths.apply(
+                  self,
+                  [
+                    attribute.items,
+                    subDocument,
+                    helpers.getRequestedSubVariables(
+                      requestedPaths,
+                      `${attribute.title}.${index}`
+                    ).concat(requestedSubValuesForAll),
+                    getNewParents(parents, document)
+                  ]
+                )
+              );
               return;
             }
 
@@ -182,10 +249,17 @@ module.exports = {
           if (!isReference) {
             const referencedSubVariables = helpers.getRequestedSubVariables(requestedPaths, attribute.title);
             if (referencedSubVariables.length > 0) {
-              subPromises.push(self.getPromiseByPaths.apply(self, [attribute.type, value,
-                referencedSubVariables, getNewParents(parents, document)]).then((templateData) => {
-                  result[attribute.title] = templateData;
-                }));
+              subPromises.push(self.getPromiseByPaths.apply(
+                self,
+                [
+                  attribute.type,
+                  value,
+                  referencedSubVariables,
+                  getNewParents(parents, document)
+                ]
+              ).then((templateData) => {
+                result[attribute.title] = templateData;
+              }));
             }
             return;
           }
@@ -194,14 +268,17 @@ module.exports = {
           // find the referenced values for e.g. emailAddressReference
           requestedSubVariables = helpers.getRequestedSubVariables(requestedPaths, attribute.title);
           if (requestedSubVariables.length !== 0) {
-            subPromises.push(self.getPromiseByPaths(attribute.type, value, requestedSubVariables,
-                getNewParents(parents, document)).then((templateData) => {
-                  result[attribute.title] = templateData;
-                }));
+            subPromises.push(self.getPromiseByPaths(
+              attribute.type,
+              value,
+              requestedSubVariables,
+              getNewParents(parents, document)
+            ).then((templateData) => {
+              result[attribute.title] = templateData;
+            }));
           }
 
           // also get the referenced values for e.g. emailAddress
-          const referredDocumentProperty = attribute.title.substr(0, (attribute.title.length - 9));
           const referenceType = attribute.type.substr(0, (attribute.type.length - 9));
           requestedSubVariables = helpers.getRequestedSubVariables(requestedPaths, referredDocumentProperty);
           if (!value || (requestedSubVariables.length === 0)) {
@@ -237,11 +314,17 @@ module.exports = {
 
           if (value[referredDocumentProperty]) {
             // a custom defined address / phoneNumber / emailAddress within a reference
-            subPromises.push(self.getPromiseByPaths.apply(self, [referenceType, value[referredDocumentProperty],
-              requestedSubVariables, getNewParents(parents, document)]).then((templateData) => {
-                result[referredDocumentProperty] = templateData;
-              })
-            );
+            subPromises.push(self.getPromiseByPaths.apply(
+              self,
+              [
+                referenceType,
+                value[referredDocumentProperty],
+                requestedSubVariables,
+                getNewParents(parents, document)
+              ]
+            ).then((templateData) => {
+              result[referredDocumentProperty] = templateData;
+            }));
           }
           return;
         }
@@ -259,10 +342,16 @@ module.exports = {
           }
 
           subPromises.push(self.cbc.getById(attribute.ref, value).then(
-            referredObject => self.getPromiseByPaths.apply(self, [attribute.ref, referredObject,
-              requestedSubVariables, getNewParents(parents, document)]).then((templateData) => {
-                result[attribute.title.substr(0, (attribute.title.length - 2))] = templateData;
-              }),
+            referredObject => self.getPromiseByPaths.apply(
+              self,
+              [
+                attribute.ref,
+                referredObject,
+                requestedSubVariables, getNewParents(parents, document)
+              ]
+            ).then((templateData) => {
+              result[attribute.title.substr(0, (attribute.title.length - 2))] = templateData;
+            }),
             () => { }
           ));
         }

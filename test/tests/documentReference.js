@@ -102,4 +102,26 @@ describe('#getTemplateData() - Document references', () => {
       done();
     }).catch(done);
   });
+
+  it('should traverse 1-to-1 documentreference property', (done) => {
+    cbc.getById(
+      'Invoice',
+      process.env.TEST_INVOICE_ID
+    ).then(
+      (invoice) => {
+        console.log('komt ie');
+        return factory.getPromiseByPaths(
+          'Invoice',
+          invoice,
+          ['invoiceItems.0.document.startDate']
+        );
+      }
+    ).then((actual) => {
+      assert.equal(
+        JSON.stringify(actual),
+        '{"invoiceItems":[{"document":{"startDate":"2015-03-22T23:00:00.000Z"}},{}]}'
+      );
+      done();
+    }).catch(done);
+  });
 });
