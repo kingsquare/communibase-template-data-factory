@@ -53,9 +53,9 @@ function importBsonEntityTypes(bsonFileLocation, dbUri) {
 
     bson.on('end', () => {
       MongoClient.connectAsync(dbUri).then(administrationConnection => Promise.promisifyAll(administrationConnection.collection('EntityType'))
-          .insertAsync(toBeSavedEntityTypes).then(() => {
-  administrationConnection.close();
-})).then(resolve, reject);
+        .insertAsync(toBeSavedEntityTypes).then(() => {
+          administrationConnection.close();
+        })).then(resolve, reject);
     });
   });
 }
@@ -111,7 +111,7 @@ module.exports = function () {
   }).then(() => {
     console.log('Inserting administration entitytypes...');
     return importBsonEntityTypes(`${__dirname
-      }/../../node_modules/Communibase/test/resources/dump/blueprint/EntityType.bson`,
-      process.env.TEST_ADMINISTRATION_DB_URI);
+    }/../../node_modules/Communibase/test/resources/dump/blueprint/EntityType.bson`,
+    process.env.TEST_ADMINISTRATION_DB_URI);
   });
 };
