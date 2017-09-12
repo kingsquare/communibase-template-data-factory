@@ -143,7 +143,10 @@ module.exports = {
                 // processed any further
                 referredDocument => self.getPromiseByPaths.call(
                   self,
-                  value.rootDocumentEntityType,
+                  // The referered entity type...??
+                  entitiesHash[value.rootDocumentEntityType].attributes.find(
+                    obj => obj.title === value.path[0].field
+                  ).items,
                   referredDocument,
                   requestedReferredSubVariables,
                   []
