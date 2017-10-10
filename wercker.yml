@@ -1,4 +1,4 @@
-box: node:4.1
+box: node:8.3
 services:
     - mongo:3.4
 build:
