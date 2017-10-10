@@ -1,6 +1,3 @@
-/* global Promise:true */
-
-
 const Promise = require('bluebird');
 const mongodb = require('mongodb');
 
@@ -11,13 +8,12 @@ const Db = mongodb.Db;
 const Server = mongodb.Server;
 const url = require('url');
 const fs = require('fs');
-const cbc = require('communibase-connector-js');
 
 function getDropDbPromise(uri) {
   const parsedUrl = url.parse(uri);
   let db = new Db(parsedUrl.path.substr(1), new Server(parsedUrl.hostname, parsedUrl.port || 27017), { safe: false });
   db = Promise.promisifyAll(db);
-  return db.openAsync().then(db => db.dropDatabase()).then(() => {
+  return db.openAsync().then(_db => _db.dropDatabase()).then(() => {
     db.close();
   });
 }
@@ -52,6 +48,7 @@ function importBsonEntityTypes(bsonFileLocation, dbUri) {
     bson.on('data', entityType => toBeSavedEntityTypes.push(addSpectialAttributes(entityType)));
 
     bson.on('end', () => {
+      // eslint-disable-next-line max-len
       MongoClient.connectAsync(dbUri).then(administrationConnection => Promise.promisifyAll(administrationConnection.collection('EntityType'))
         .insertAsync(toBeSavedEntityTypes).then(() => {
           administrationConnection.close();
@@ -60,9 +57,9 @@ function importBsonEntityTypes(bsonFileLocation, dbUri) {
   });
 }
 
-module.exports = function () {
-  const adminMongooseConnection = require(
-    `${__dirname}/../../node_modules/Communibase/inc/mongeese/createAdminMongoose.js`)(
+module.exports = () => {
+  // eslint-disable-next-line import/no-dynamic-require,global-require
+  const adminMongooseConnection = require(`${__dirname}/../../node_modules/Communibase/inc/mongeese/createAdminMongoose.js`)(
     process.env.MASTER_DB_URI
   );
 
@@ -106,12 +103,14 @@ module.exports = function () {
       apiEndpoints: [],
       propertyAccessDescriptions: []
     });
-  }).then(() => {
-    adminMongooseConnection.close();
-  }).then(() => {
-    console.log('Inserting administration entitytypes...');
-    return importBsonEntityTypes(`${__dirname
-    }/../../node_modules/Communibase/test/resources/dump/blueprint/EntityType.bson`,
-    process.env.TEST_ADMINISTRATION_DB_URI);
-  });
+  })
+    .then(() => {
+      adminMongooseConnection.close();
+    })
+    .then(() => {
+      console.log('Inserting administration entitytypes...');
+      return importBsonEntityTypes(`${__dirname
+      }/../../node_modules/Communibase/test/resources/dump/blueprint/EntityType.bson`,
+      process.env.TEST_ADMINISTRATION_DB_URI);
+    });
 };

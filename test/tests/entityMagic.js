@@ -1,10 +1,6 @@
-/* global process:false */
-
-
 const assert = require('assert');
 const Factory = require('../../index.js');
 const Handlebars = require('handlebars');
-const Promise = require('bluebird');
 const cbc = require('communibase-connector-js');
 
 const factory = new Factory({

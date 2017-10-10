@@ -1,10 +1,8 @@
-
-
 const BaseSerializer = require('./Base.js');
 
 module.exports = {
-  titleFields: ['property', 'street', 'streetNumber', 'streetNumberAddition', 'zipcode', 'city', 'countryCode', '{{ - }}',
-    '{type}'],
+  titleFields: ['property', 'street', 'streetNumber', 'streetNumberAddition', 'zipcode', 'city',
+    'countryCode', '{{ - }}', '{type}'],
 
   getPromiseByPaths(entityTypeTitle, document, requestedPaths, parents) {
     const self = this;

@@ -1,5 +1,3 @@
-
-
 const BaseSerializer = require('./Base.js');
 
 module.exports = {

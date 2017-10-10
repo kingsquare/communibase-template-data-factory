@@ -1,11 +1,8 @@
-/* global Promise:true */
-
-
 const Promise = require('bluebird');
 const fs = require('fs');
 const cbc = require('communibase-connector-js').clone(process.env.COMMUNIBASE_KEY);
 
-module.exports = function () {
+module.exports = () => {
   const personData = JSON.parse(fs.readFileSync(`${__dirname}/../fixtures/person.json`));
   const debtorData = JSON.parse(fs.readFileSync(`${__dirname}/../fixtures/debtor.json`));
   const debtor2Data = JSON.parse(fs.readFileSync(`${__dirname}/../fixtures/debtor_2.json`));
@@ -20,7 +17,7 @@ module.exports = function () {
     cbc.update('Person', personData),
     cbc.update('Company', companyData),
     cbc.update('Group', groupData)
-  ]).spread((person, company, group, event) => {
+  ]).spread((person, company, group) => {
     debtorData.personId = person._id;
     debtorData.companyId = company._id;
     debtor2Data.personId = person._id;
@@ -78,9 +75,10 @@ module.exports = function () {
       cbc.update('Invoice', invoiceData),
       cbc.update('Invoice', invoice2Data)
     ]);
-  }).spread((invoice, invoice2) => {
-    process.env.TEST_INVOICE_ID = invoice._id;
-    process.env.TEST_INVOICE_UPDATED_AT = invoice.updatedAt;
-    process.env.TEST_INVOICE_2_ID = invoice2._id;
-  });
+  })
+    .spread((invoice, invoice2) => {
+      process.env.TEST_INVOICE_ID = invoice._id;
+      process.env.TEST_INVOICE_UPDATED_AT = invoice.updatedAt;
+      process.env.TEST_INVOICE_2_ID = invoice2._id;
+    });
 };

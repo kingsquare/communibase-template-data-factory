@@ -1,6 +1,6 @@
 const setupDatabase = require('./runTests/setupDatabase.js');
 const bootServer = require('./runTests/bootServer.js');
-const child_process = require('child_process');
+const ChildProcess = require('child_process');
 
 // setup proper environment vars and run casper
 let dbHost = 'localhost';
@@ -40,18 +40,20 @@ process.env.AWS_SES_US_EAST_1_SECRET = 'AWS_SES_US_EAST_1_SECRET123';
 process.env.TEST_ADMINISTRATION_DB_URI = `mongodb://${dbHost}:${dbPort}/test_administration`;
 process.env.COMMUNIBASE_KEY = 'test123456789012345678901234567890';
 
-setupDatabase().then(bootServer).then(serverProcess => require('./runTests/loadFixtures.js')().then(() => serverProcess)).then((serverProcess) => {
-//  var command = "mocha --debug-brk test/tests/documentReference.js";
-  const command = 'mocha test/tests/';
-  const mochaProcess = child_process.exec(command, { env: process.env });
-  mochaProcess.stdout.pipe(process.stdout);
-  mochaProcess.stderr.pipe(process.stderr);
-  mochaProcess.on('close', (code) => {
-    serverProcess.kill();
-    process.exit(code);
+setupDatabase()
+  .then(bootServer).then(serverProcess => require('./runTests/loadFixtures.js')().then(() => serverProcess))
+  .then((serverProcess) => {
+  //  var command = "mocha --debug-brk test/tests/documentReference.js";
+    const command = 'mocha test/tests/';
+    const mochaProcess = ChildProcess.exec(command, { env: process.env });
+    mochaProcess.stdout.pipe(process.stdout);
+    mochaProcess.stderr.pipe(process.stderr);
+    mochaProcess.on('close', (code) => {
+      serverProcess.kill();
+      process.exit(code);
+    });
+  }, (err) => {
+    console.error(err);
+    console.log(err.stack);
+    process.exit(1);
   });
-}, (err) => {
-  console.log(err);
-  console.log(err.stack);
-  process.exit(1);
-});

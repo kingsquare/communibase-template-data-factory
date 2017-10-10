@@ -1,5 +1,3 @@
-/* global describe: false, it: false */
-
 const assert = require('assert');
 const fs = require('fs');
 const cbc = require('communibase-connector-js');

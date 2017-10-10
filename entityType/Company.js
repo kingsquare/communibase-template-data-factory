@@ -1,6 +1,3 @@
-/* global Promise:true */
-
-
 const BaseSerializer = require('./Base.js');
 
 module.exports = {
@@ -18,7 +15,8 @@ module.exports = {
         return titleParts;
       }).catch(() => titleParts);
     }).catch((err) => {
-      console.log(err);
+      // eslint-disable-next-line no-console
+      console.error(err);
       return ['<< Onbekend, informatie ontbreekt >>'];
     });
   }

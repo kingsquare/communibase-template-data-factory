@@ -1,6 +1,3 @@
-/* global describe: false, it: false */
-
-
 const assert = require('assert');
 const cbc = require('communibase-connector-js');
 const Factory = require('../../index.js');

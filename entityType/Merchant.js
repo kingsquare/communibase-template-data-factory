@@ -1,5 +1,3 @@
-
-
 module.exports = {
   titleFields: ['merchantId'],
   _getTitlePromise(titleFields, entityTypeTitle, merchant) {

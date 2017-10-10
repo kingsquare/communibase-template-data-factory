@@ -15,9 +15,10 @@ function getNewParents(parents, document) {
   return result;
 }
 
-function log(e) {
+function log(err) {
   if (process && process.env && process.env.NODE_ENV && process.env.NODE_ENV === 'development' && console) {
-    console.log(e);
+    // eslint-disable-next-line no-console
+    console.error(err);
   }
 }
 
@@ -67,6 +68,7 @@ module.exports = {
        */
       const entity = entitiesHash[entityTypeTitle];
       if (!entity) {
+        // eslint-disable-next-line no-console
         console.log('Could not find entity', entityTypeTitle);
         return null;
       }

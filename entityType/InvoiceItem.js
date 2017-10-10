@@ -1,5 +1,3 @@
-
-
 const BaseSerializer = require('./Base.js');
 const helpers = require('../inc/helpers.js');
 const _ = require('lodash');

@@ -1,5 +1,3 @@
-
-
 const Promise = require('bluebird');
 const BaseSerializer = require('./Base.js');
 const helpers = require('../inc/helpers.js');
@@ -57,9 +55,9 @@ module.exports = {
       }).then((rootDocumentData) => {
         templateData.rootDocument = rootDocumentData;
         return templateData;
-      }).catch(() =>  // e
+      }).catch((/* err */) =>
         // e.g. parent unavailable?
-   ({}));
+        ({}));
     });
   }
 };

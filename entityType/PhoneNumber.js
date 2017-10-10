@@ -1,8 +1,6 @@
-
-
 const BaseSerializer = require('./Base.js');
 
-const formatSubscriberNumber = function (subscriberNumber) {
+const formatSubscriberNumber = (subscriberNumber) => {
   // just to be sure no double spacing is applied...
   const spaceLessNumber = subscriberNumber.replace(/ /g, '');
   if (spaceLessNumber.length >= 6) {
@@ -10,10 +8,8 @@ const formatSubscriberNumber = function (subscriberNumber) {
     // just to be sure no double spacing is applied...
     subscriberNumber = (`${spaceLessNumber.slice(0, spacePos)} ${spaceLessNumber.slice(spacePos)}`);
   }
-
   return subscriberNumber;
 };
-
 
 module.exports = {
   titleFields: ['countryCode', 'areaCode', 'subscriberNumber', '{{ - }}', '{type}'],

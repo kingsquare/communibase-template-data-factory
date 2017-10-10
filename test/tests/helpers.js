@@ -1,6 +1,3 @@
-/* global describe: false, it: false */
-
-
 const assert = require('assert');
 const helpers = require('../../inc/helpers.js');
 

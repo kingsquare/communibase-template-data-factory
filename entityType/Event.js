@@ -1,5 +1,3 @@
-
-
 const BaseSerializer = require('./Base.js');
 const moment = require('moment');
 

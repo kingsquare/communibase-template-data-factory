@@ -1,19 +1,8 @@
-
-
 const _ = require('lodash');
 
-function euro_format(number) {
-  const formattedNumber = number_format(number);
-
-  if (formattedNumber[0] === '-') {
-    return `-€ ${formattedNumber.substr(1)}`;
-  }
-
-  return `€ ${formattedNumber}`;
-}
-
 // Simplified version of https://raw.githubusercontent.com/kvz/phpjs/master/functions/strings/number_format.js
-function number_format(number) {
+// eslint-disable-next-line camelcase
+const number_format = (number) => {
   const n = (`${number}`).replace(/[^0-9+\-Ee.]/g, '');
   const s = (`${(Math.round(n * 100) / 100).toFixed(2)}`).split('.');
   if (s[0].length > 3) {
@@ -21,18 +10,28 @@ function number_format(number) {
   }
   if ((s[1] || '').length < 2) {
     s[1] = s[1] || '';
-    s[1] += new Array(2 - s[1].length + 1).join('0');
+    s[1] += new Array(2 - (s[1].length + 1)).join('0');
   }
   return s.join(',');
-}
+};
 
-function ucfirst(str) {
+// eslint-disable-next-line camelcase
+const euro_format = (number) => {
+  const formattedNumber = number_format(number);
+  if (formattedNumber[0] === '-') {
+    return `-€ ${formattedNumber.substr(1)}`;
+  }
+
+  return `€ ${formattedNumber}`;
+};
+
+const ucfirst = (str) => {
   str += '';
   const f = str.charAt(0).toUpperCase();
   return f + str.substr(1);
-}
+};
 
-function getRequestedSubVariables(requestedPaths, subPropertyName) {
+const getRequestedSubVariables = (requestedPaths, subPropertyName) => {
   const subResults = [];
 
   requestedPaths.forEach((requestedPath) => {
@@ -54,15 +53,14 @@ function getRequestedSubVariables(requestedPaths, subPropertyName) {
   });
 
   return subResults;
-}
+};
 
-function sortDictionaryByKey(myObj) {
+const sortDictionaryByKey = (myObj) => {
   const keys = Object.keys(myObj);
   const len = keys.length;
   const newObject = {};
 
   keys.sort();
-
   for (let i = 0; i < len; i += 1) {
     const k = keys[i];
 
@@ -72,14 +70,11 @@ function sortDictionaryByKey(myObj) {
       newObject[k] = myObj[k];
     }
   }
-
   return newObject;
-}
+};
 
 // http://stackoverflow.com/questions/11832914/round-to-at-most-2-decimal-places-in-javascript
-function round(number, precision) {
-  return Number(number.toFixed(precision));
-}
+const round = (number, precision) => Number(number.toFixed(precision));
 
 module.exports = {
   euro_format,

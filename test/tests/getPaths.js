@@ -1,6 +1,3 @@
-/* global describe: false, it: false, Promise: true */
-
-
 const assert = require('assert');
 const Factory = require('../../index.js');
 const Handlebars = require('handlebars');
@@ -26,10 +23,10 @@ describe('#getPaths()', () => {
   });
 
   it('should support filter constructs', (done) => {
-    var paths = factory.getPaths(Handlebars.parse('{{#filter person.positions "_active" "eq" true}}{{#each results}}{{company.title}}{{/each}}{{/filter}}'));
+    let paths = factory.getPaths(Handlebars.parse('{{#filter person.positions "_active" "eq" true}}{{#each results}}{{company.title}}{{/each}}{{/filter}}'));
     assert.deepEqual(paths, ['person.positions.#._active', 'person.positions.#.company.title']);
 
-    var paths = factory.getPaths(Handlebars.parse('{{#filter person.positions true "eq" "_active"}}{{results.0.company.title}}{{/filter}}'));
+    paths = factory.getPaths(Handlebars.parse('{{#filter person.positions true "eq" "_active"}}{{results.0.company.title}}{{/filter}}'));
     assert.deepEqual(paths, ['person.positions.#._active', 'person.positions.#.company.title']);
     done();
   });
@@ -42,8 +39,8 @@ describe('#getPaths()', () => {
   });
 
   it('should get stuff from helper methods too', (done) => {
-    const template = Handlebars.parse('{{#each participants}}{{#filter ../sessions "personId" "eq" personId}}{{results.0.status}}{{/filter}}{{/each}}');
-    const paths = factory.getPaths(Handlebars.parse(template));
+    const _template = Handlebars.parse('{{#each participants}}{{#filter ../sessions "personId" "eq" personId}}{{results.0.status}}{{/filter}}{{/each}}');
+    const paths = factory.getPaths(Handlebars.parse(_template));
     assert.deepEqual(paths, ['sessions.#.personId', 'participants.#.personId', 'sessions.#.status']);
     done();
   });

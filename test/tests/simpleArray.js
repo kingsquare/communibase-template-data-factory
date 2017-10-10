@@ -1,6 +1,3 @@
-/* global describe: false, it: false */
-
-
 const assert = require('assert');
 const cbc = require('communibase-connector-js');
 const helpers = require('../../inc/helpers.js');
@@ -13,7 +10,6 @@ const factory = new Factory({
 
 describe('#getTemplateData() - Specific array values (e.g. Person.sectors.[1])', () => {
   it('should work', (done) => {
-    const paths = factory.getPaths(Handlebars.parse('{{sectors.[1]}}'));
     cbc.getById('Person', process.env.TEST_PERSON_ID).then(person => factory.getPromise('Person', person, Handlebars.parse('{{sectors.[1]}}'))).then((result) => {
       const actual = JSON.stringify(result);
       const expected = JSON.stringify({ sectors: ['a', 'c', 'e'] });
@@ -24,7 +20,6 @@ describe('#getTemplateData() - Specific array values (e.g. Person.sectors.[1])',
 
   it('should handle string arrays properly', (done) => {
     cbc.getById('Person', process.env.TEST_PERSON_ID).then(person => factory.getPromise('Person', person, Handlebars.parse('{{#each sectors}}{{.}}!{{/each}}'))).then((result) => {
-      const paths = factory.getPaths(Handlebars.parse('{{#each sectors}}{{.}}!{{/each}}'));
       const actual = JSON.stringify(helpers.sortDictionaryByKey(result));
       const expected = JSON.stringify(helpers.sortDictionaryByKey({
         sectors: ['a', 'c', 'e']

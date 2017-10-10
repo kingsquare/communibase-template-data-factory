@@ -1,5 +1,4 @@
-/* global require: false */
-
+/* eslint-disable global-require */
 const Promise = require('bluebird');
 const _ = require('lodash');
 
@@ -16,8 +15,8 @@ let debug = false;
  */
 function _getPaths(node) {
   let result = [];
-
   if (debug) {
+    // eslint-disable-next-line no-console
     console.log(`${JSON.stringify(node)}\n\n`);
   }
 
@@ -230,7 +229,8 @@ module.exports = function exports(config) {
       titleParts => composeTitle.call(this, titleParts, entityTypeTitle, document)
     ).catch((err) => {
       // this should never happen!
-      console.log(err);
+      // eslint-disable-next-line no-console
+      console.error(err);
       return Promise.resolve('- kon niet worden gevonden -');
     });
   };
@@ -276,7 +276,7 @@ module.exports = function exports(config) {
     this.stxt = stxt;
   };
 
-  this.setSerializers = function (serializers) {
+  this.setSerializers = (serializers) => {
     Object.assign(entitySerializers, serializers);
   };
 

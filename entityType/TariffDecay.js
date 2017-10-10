@@ -1,5 +1,3 @@
-
-
 module.exports = {
   titleFields: ['passedPercentage'],
   composeTitle(chunks, entityTitle, document) {
@@ -7,9 +5,9 @@ module.exports = {
     const title = chunks.join(' ').trim().replace(/ +/g, ' ');
     return (title.length > 0 ?
       `Korting na ${chunks[0]}% verstreken` :
-        (`<< ${id ?
-          `${this.stxt[entityTitle] || entityTitle} ${id}` :
-          `Nieuw "${this.stxt[entityTitle] || entityTitle}" document `
-        } >>`));
+      (`<< ${id ?
+        `${this.stxt[entityTitle] || entityTitle} ${id}` :
+        `Nieuw "${this.stxt[entityTitle] || entityTitle}" document `
+      } >>`));
   }
 };
