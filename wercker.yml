@@ -1,6 +1,6 @@
 box: node:4.1
 services:
-    - mongo:2.6
+    - mongo:3.4
 build:
   steps:
     - add-to-known_hosts:
