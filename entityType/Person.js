@@ -1,18 +1,10 @@
-
-
 const _ = require('lodash');
 const BaseSerializer = require('./Base.js');
 const Promise = require('bluebird');
 
 module.exports = {
-  titleFields: ['firstName', 'initials', 'middleName', 'lastName', 'maidenName'],
+  titleFields: ['firstName', 'initials', 'middleName', 'lastName'],
   composeTitle(chunks, entityTitle, document) {
-    // Maiden name available: add the - but no spaces https://onzetaal.nl/taaladvies/advies/achternamen-combineren
-    const maidenName = chunks.pop();
-    if (!_.isEmpty(maidenName)) {
-      chunks[3] = `${chunks[3]}-${maidenName}`;
-    }
-
     // Initials available: pop off the firstName
     if (!_.isEmpty(chunks[1])) {
       chunks.shift();
