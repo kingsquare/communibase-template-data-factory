@@ -1,8 +1,8 @@
 const assert = require('assert');
 const fs = require('fs');
 const cbc = require('communibase-connector-js');
-const helpers = require('../../inc/helpers.js');
-const Factory = require('../../index.js');
+const helpers = require('../../src/inc/helpers.js');
+const Factory = require('../../src/index.js');
 const Handlebars = require('handlebars');
 
 const factory = new Factory({

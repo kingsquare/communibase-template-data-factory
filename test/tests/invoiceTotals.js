@@ -1,5 +1,5 @@
 const assert = require('assert');
-const Factory = require('../../index.js');
+const Factory = require('../../src/index.js');
 const Handlebars = require('handlebars');
 const _ = require('lodash');
 

@@ -171,14 +171,14 @@ module.exports = {
         }
 
         if (Array.isArray(value)) {
-          if (attribute.ref) {
+          // is request for derived subdocument properties?
+          const doTraverseSubdocuments = attribute.ref && entitiesHash[attribute.ref]
+              && (attribute.title.substr(-3) !== 'Ids');
+          if (doTraverseSubdocuments) {
             if (fieldNameIsRequested) {
               result[attribute.title] = attribute.ref;
             }
 
-            if (!entitiesHash[attribute.ref] || (attribute.title.substr(-3) !== 'Ids')) {
-              return;
-            }
             // applicableForGroupIds => applicableForGroups
             requestedSubVariables = helpers.getRequestedSubVariables(requestedPaths, `${attribute.title.substr(-3)}s`);
             if (requestedSubVariables.length === 0) {

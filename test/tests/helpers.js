@@ -1,5 +1,5 @@
 const assert = require('assert');
-const helpers = require('../../inc/helpers.js');
+const helpers = require('../../src/inc/helpers.js');
 
 describe('helpers.getRequestedSubVariables()', () => {
   it('should get specific subvalues', (done) => {

@@ -1,7 +1,7 @@
 const assert = require('assert');
 const cbc = require('communibase-connector-js');
-const helpers = require('../../inc/helpers.js');
-const Factory = require('../../index.js');
+const helpers = require('../../src/inc/helpers.js');
+const Factory = require('../../src/index.js');
 
 const factory = new Factory({
   cbc
