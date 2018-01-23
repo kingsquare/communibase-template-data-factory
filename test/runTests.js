@@ -43,9 +43,12 @@ process.env.COMMUNIBASE_KEY = 'test123456789012345678901234567890';
 setupDatabase()
   .then(bootServer).then(serverProcess => require('./runTests/loadFixtures.js')().then(() => serverProcess))
   .then((serverProcess) => {
-  //  var command = "mocha --debug-brk test/tests/documentReference.js";
-    const command = 'mocha test/tests/';
-    const mochaProcess = ChildProcess.exec(command, { env: process.env });
+    // var command = "mocha --debug-brk test/tests/documentReference.js";
+    const isDebugged = typeof v8debug === 'object' || /--debug|--inspect/.test(process.execArgv.join(' '));
+    const mochaProcess = ChildProcess.exec(
+      `mocha${isDebugged ? ' --inspect' : ''} test/tests/`,
+      { env: process.env }
+    );
     mochaProcess.stdout.pipe(process.stdout);
     mochaProcess.stderr.pipe(process.stderr);
     mochaProcess.on('close', (code) => {

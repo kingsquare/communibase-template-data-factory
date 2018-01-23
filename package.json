@@ -3,7 +3,7 @@
   "version": "2.0.2",
   "description": "Helper methods for working with Templates and the Communibase service.",
   "scripts": {
-    "test": "node test/runTests.js",
+    "test": "node $NODE_DEBUG_OPTION test/runTests.js",
     "build": "rm -rf dist; babel src --out-dir dist"
   },
   "main": "dist/index.js",
@@ -32,6 +32,7 @@
     "eslint-config-kingsquare": "^1.0.8",
     "grunt": "^1.0.1",
     "grunt-shell": "^2.1.0",
+    "kingsquare-handlebars-helpers": "^1.1.8",
     "mocha": "^4.0.1",
     "mongodb": "^2.2.24"
   },

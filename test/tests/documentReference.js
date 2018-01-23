@@ -107,7 +107,6 @@ describe('#getTemplateData() - Document references', () => {
       process.env.TEST_INVOICE_ID
     ).then(
       (invoice) => {
-        console.log('komt ie');
         return factory.getPromiseByPaths(
           'Invoice',
           invoice,
