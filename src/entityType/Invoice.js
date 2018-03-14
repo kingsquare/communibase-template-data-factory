@@ -93,7 +93,7 @@ module.exports = {
         templateData.totals = {};
       }
       _.each(totals, (value, identifier) => {
-        if (requestedTotalsVariables.indexOf(identifier) !== -1) {
+        if (requestedTotalsVariables.indexOf(identifier.split('.')[0]) !== -1) {
           templateData.totals[identifier] = value;
         }
         // support for legacy syntax -- deprecated!
