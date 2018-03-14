@@ -11,6 +11,8 @@ module.exports = {
       const totals = {
         ex: 0,
         exRounded: 0,
+        exTaxes: {},
+        exTaxesRounded: {},
         tax: 0,
         taxRounded: 0,
         taxes: {},
@@ -32,9 +34,13 @@ module.exports = {
           if (totals.taxes[taxPercentage || 'null'] === undefined) {
             totals.taxes[taxPercentage || 'null'] = 0;
             totals.taxesRounded[taxPercentage || 'null'] = 0;
+            totals.exTaxes[taxPercentage || 'null'] = 0;
+            totals.exTaxesRounded[taxPercentage || 'null'] = 0;
           }
           totals.taxes[taxPercentage || 'null'] += taxValue;
           totals.taxesRounded[taxPercentage || 'null'] += helpers.round(taxValue, 2);
+          totals.exTaxes[taxPercentage || 'null'] += itemEx;
+          totals.exTaxesRounded[taxPercentage || 'null'] += helpers.round(itemEx, 2);
         }
 
         const itemExRounded = helpers.round(itemEx, 2);

@@ -1,6 +1,6 @@
 {
   "name": "communibase-template-data-factory",
-  "version": "2.0.4",
+  "version": "2.0.5",
   "description": "Helper methods for working with Templates and the Communibase service.",
   "scripts": {
     "test": "node $NODE_DEBUG_OPTION test/runTests.js",
@@ -18,7 +18,7 @@
   },
   "dependencies": {
     "bluebird": "^3.5.1",
-    "communibase-connector-js": "^0.5.11",
+    "communibase-connector-js": "^0.5.16",
     "handlebars": "^2.0.0",
     "lodash": "^4.17.4",
     "moment": "^2.19.2"
