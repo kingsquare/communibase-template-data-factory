@@ -88,12 +88,14 @@ module.exports = {
         }
       });
 
-      const requestedTotalsVariables = helpers.getRequestedSubVariables(requestedPaths, 'totals');
+      const requestedTotalsVariables = helpers.getRequestedSubVariables(requestedPaths, 'totals').map(
+        requestedPath => requestedPath.split('.')[0]
+      );
       if (requestedTotalsVariables.length !== 0) {
         templateData.totals = {};
       }
       _.each(totals, (value, identifier) => {
-        if (requestedTotalsVariables.indexOf(identifier.split('.')[0]) !== -1) {
+        if (requestedTotalsVariables.indexOf(identifier) !== -1) {
           templateData.totals[identifier] = value;
         }
         // support for legacy syntax -- deprecated!
