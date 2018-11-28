@@ -1,3 +1,3 @@
 module.exports = {
-  titleFields: ['emailAddress', '{{ - }}', '{type}']
+  titleFields: ["emailAddress", "{{ - }}", "{type}"]
 };

@@ -1,3 +1,3 @@
 module.exports = {
-  titleFields: ['updatedAt', 'updatedBy']
+  titleFields: ["updatedAt", "updatedBy"]
 };

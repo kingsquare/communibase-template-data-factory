@@ -1,6 +1,6 @@
-const Promise = require('bluebird');
-const BaseSerializer = require('./Base.js');
-const helpers = require('../inc/helpers.js');
+const Promise = require("bluebird");
+const BaseSerializer = require("./Base.js");
+const helpers = require("../inc/helpers.js");
 
 module.exports = {
   _getTitlePromise(titleFields, entityTypeTitle, document) {
@@ -13,21 +13,24 @@ module.exports = {
     }
 
     if (!document) {
-      return Promise.resolve(['<< Zie specificatie >>']);
+      return Promise.resolve(["<< Zie specificatie >>"]);
     }
 
     const rootDocumentEntityType = document.rootDocumentEntityType;
     if (!rootDocumentEntityType) {
-      return Promise.resolve(['<< Zie specificatie >>']);
+      return Promise.resolve(["<< Zie specificatie >>"]);
     }
 
-    let title = 'Verwijzing naar ';
-    title += `${this.stxt[rootDocumentEntityType] || rootDocumentEntityType} - ${document.rootDocumentId}`;
+    let title = "Verwijzing naar ";
+    title += `${this.stxt[rootDocumentEntityType] ||
+      rootDocumentEntityType} - ${document.rootDocumentId}`;
 
     if (document.path && document.path.forEach) {
-      document.path.forEach((nibble) => {
+      document.path.forEach(nibble => {
         if (nibble && nibble.field && nibble.objectId) {
-          title += ` - ${self.stxt[nibble.field] || nibble.field} - ${nibble.objectId}`;
+          title += ` - ${self.stxt[nibble.field] || nibble.field} - ${
+            nibble.objectId
+          }`;
         }
       });
     }
@@ -36,28 +39,50 @@ module.exports = {
 
   getPromiseByPaths(entityTypeTitle, document, requestedPaths, parents) {
     const self = this;
-    return BaseSerializer.getPromiseByPaths.apply(this, arguments).then((templateData) => {
-      const rootDocumentPaths = helpers.getRequestedSubVariables(requestedPaths, 'rootDocument');
-      if (!document.rootDocumentEntityType || rootDocumentPaths.length === 0) {
-        return templateData;
-      }
-
-      const rootDocumentEntityTypeNibbles = document.rootDocumentEntityType.split('.');
-      const parentPromise = ((rootDocumentEntityTypeNibbles[0] === 'parent') ?
-        Promise.resolve(parents[rootDocumentEntityTypeNibbles.length - 1]) :
-        self.cbc.getById(document.rootDocumentEntityType, document.rootDocumentId));
-      return parentPromise.then((parent) => {
-        const parentType = ((rootDocumentEntityTypeNibbles[0] === 'parent') ?
-          parent.__cb_type__ :
-          document.rootDocumentEntityType
+    return BaseSerializer.getPromiseByPaths
+      .apply(this, arguments)
+      .then(templateData => {
+        const rootDocumentPaths = helpers.getRequestedSubVariables(
+          requestedPaths,
+          "rootDocument"
         );
-        return self.getPromiseByPaths(parentType, parent, rootDocumentPaths, []);
-      }).then((rootDocumentData) => {
-        templateData.rootDocument = rootDocumentData;
-        return templateData;
-      }).catch((/* err */) =>
-        // e.g. parent unavailable?
-        ({}));
-    });
+        if (
+          !document.rootDocumentEntityType ||
+          rootDocumentPaths.length === 0
+        ) {
+          return templateData;
+        }
+
+        const rootDocumentEntityTypeNibbles = document.rootDocumentEntityType.split(
+          "."
+        );
+        const parentPromise =
+          rootDocumentEntityTypeNibbles[0] === "parent"
+            ? Promise.resolve(parents[rootDocumentEntityTypeNibbles.length - 1])
+            : self.cbc.getById(
+                document.rootDocumentEntityType,
+                document.rootDocumentId
+              );
+        return parentPromise
+          .then(parent => {
+            const parentType =
+              rootDocumentEntityTypeNibbles[0] === "parent"
+                ? parent.__cb_type__
+                : document.rootDocumentEntityType;
+            return self.getPromiseByPaths(
+              parentType,
+              parent,
+              rootDocumentPaths,
+              []
+            );
+          })
+          .then(rootDocumentData => {
+            templateData.rootDocument = rootDocumentData;
+            return templateData;
+          })
+          .catch((/* err */) =>
+            // e.g. parent unavailable?
+            ({}));
+      });
   }
 };

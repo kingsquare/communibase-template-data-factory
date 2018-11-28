@@ -1,3 +1,3 @@
 module.exports = {
-  titleFields: ['personId']
+  titleFields: ["personId"]
 };

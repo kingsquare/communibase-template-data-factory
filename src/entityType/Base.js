@@ -1,13 +1,17 @@
-const _ = require('lodash');
-const Promise = require('bluebird');
-const helpers = require('../inc/helpers.js');
+const _ = require("lodash");
+const Promise = require("bluebird");
+const helpers = require("../inc/helpers.js");
 
-const checkIfIsRequested = (fieldName, requestedPaths) => requestedPaths.some(
-  requestedPath => ((requestedPath.indexOf(fieldName) === 0) || (requestedPath.substr(0, 1) === '#'))
-);
+const checkIfIsRequested = (fieldName, requestedPaths) =>
+  requestedPaths.some(
+    requestedPath =>
+      requestedPath.indexOf(fieldName) === 0 ||
+      requestedPath.substr(0, 1) === "#"
+  );
 
 // http://stackoverflow.com/questions/6452021/getting-timestamp-from-mongodb-id
-const convertIdToDate = record => new Date(parseInt(record._id.substring(0, 8), 16) * 1000);
+const convertIdToDate = record =>
+  new Date(parseInt(record._id.substring(0, 8), 16) * 1000);
 
 function getNewParents(parents, document) {
   const result = parents.slice(0);
@@ -16,14 +20,20 @@ function getNewParents(parents, document) {
 }
 
 function log(err) {
-  if (process && process.env && process.env.NODE_ENV && process.env.NODE_ENV === 'development' && console) {
+  if (
+    process &&
+    process.env &&
+    process.env.NODE_ENV &&
+    process.env.NODE_ENV === "development" &&
+    console
+  ) {
     // eslint-disable-next-line no-console
     console.error(err);
   }
 }
 
 module.exports = {
-  titleFields: ['title'],
+  titleFields: ["title"],
   getPromiseByPaths(entityTypeTitle, document, requestedPaths, parents) {
     // jscs:disable requireCamelCaseOrUpperCaseIdentifiers
     document.__cb_type__ = entityTypeTitle;
@@ -35,29 +45,39 @@ module.exports = {
     const result = {};
     const subPromises = [];
 
-    return this.getEntitiesHashPromise().then((entitiesHash) => {
-      if (document._id && checkIfIsRequested('_id', requestedPaths)) {
+    return this.getEntitiesHashPromise().then(entitiesHash => {
+      if (document._id && checkIfIsRequested("_id", requestedPaths)) {
         result._id = document._id;
       }
 
       // add title if requested
-      if (checkIfIsRequested('_title', requestedPaths)) {
-        subPromises.push(self.getTitlePromise.apply(self, [entityTypeTitle, document, parents]).then((title) => {
-          result._title = title;
-        }));
+      if (checkIfIsRequested("_title", requestedPaths)) {
+        subPromises.push(
+          self.getTitlePromise
+            .apply(self, [entityTypeTitle, document, parents])
+            .then(title => {
+              result._title = title;
+            })
+        );
       }
 
       // add updatedAt if requested
-      if (checkIfIsRequested('updatedAt', requestedPaths) && document.updatedAt) {
+      if (
+        checkIfIsRequested("updatedAt", requestedPaths) &&
+        document.updatedAt
+      ) {
         result.updatedAt = new Date(document.updatedAt);
       }
 
-      if (checkIfIsRequested('_createdAt', requestedPaths) && document._id) {
+      if (checkIfIsRequested("_createdAt", requestedPaths) && document._id) {
         result._createdAt = convertIdToDate(document);
       }
 
       // add updatedBy if requested
-      if (checkIfIsRequested('updatedBy', requestedPaths) && document.updatedBy) {
+      if (
+        checkIfIsRequested("updatedBy", requestedPaths) &&
+        document.updatedBy
+      ) {
         result.updatedBy = document.updatedBy;
       }
 
@@ -69,95 +89,122 @@ module.exports = {
       const entity = entitiesHash[entityTypeTitle];
       if (!entity) {
         // eslint-disable-next-line no-console
-        console.log('Could not find entity', entityTypeTitle);
+        console.log("Could not find entity", entityTypeTitle);
         return null;
       }
 
-      _.each(entity.attributes, (attribute) => {
-        const fieldNameIsRequested = checkIfIsRequested(attribute.title, requestedPaths);
+      _.each(entity.attributes, attribute => {
+        const fieldNameIsRequested = checkIfIsRequested(
+          attribute.title,
+          requestedPaths
+        );
         let type = attribute.type;
         if (!type) {
-          type = ((attribute.type && attribute.type.type) ? attribute.type.type : attribute.type);
+          type =
+            attribute.type && attribute.type.type
+              ? attribute.type.type
+              : attribute.type;
         }
 
         // Do _NOT_ check attribute.title.substr(-2) === 'Id' --- Attributes may be named improperly
         // (e.g. Event.speaker)
-        const isReference = (
-          (type === 'ObjectId' && attribute.ref && entitiesHash[attribute.ref] &&
-              entitiesHash[attribute.ref].isResource) ||
-          ((attribute.title.substr(-9) === 'Reference'))
-        );
+        const isReference =
+          (type === "ObjectId" &&
+            attribute.ref &&
+            entitiesHash[attribute.ref] &&
+            entitiesHash[attribute.ref].isResource) ||
+          attribute.title.substr(-9) === "Reference";
         if (!fieldNameIsRequested && !isReference) {
           return;
         }
 
         /* rewrite properties: emailAddressReference => emailAddress and documentReference => document */
-        const referredDocumentProperty = attribute.title.substr(0, (attribute.title.length - 9));
+        const referredDocumentProperty = attribute.title.substr(
+          0,
+          attribute.title.length - 9
+        );
         const value = document[attribute.title];
         let requestedSubVariables;
         let requestedReferredSubVariables;
 
         switch (type) {
-          case 'Date':
+          case "Date":
             if (fieldNameIsRequested && value) {
               result[attribute.title] = new Date(value);
             }
             return;
 
-          case 'Mixed':
+          case "Mixed":
             if (fieldNameIsRequested && value) {
               result[attribute.title] = value;
             }
             return;
 
-          case 'int':
-          case 'float':
+          case "int":
+          case "float":
             if (fieldNameIsRequested) {
               result[attribute.title] = value;
             }
             return;
 
-          case 'DocumentReference':
+          case "DocumentReference":
             if (!value) {
               return;
             }
 
-            requestedSubVariables = helpers.getRequestedSubVariables(requestedPaths, attribute.title);
-            requestedReferredSubVariables = helpers.getRequestedSubVariables(requestedPaths, referredDocumentProperty);
+            requestedSubVariables = helpers.getRequestedSubVariables(
+              requestedPaths,
+              attribute.title
+            );
+            requestedReferredSubVariables = helpers.getRequestedSubVariables(
+              requestedPaths,
+              referredDocumentProperty
+            );
 
             if (requestedSubVariables.length) {
-              subPromises.push(self.getPromiseByPaths.apply(
-                self,
-                [
-                  'DocumentReference',
-                  value,
-                  requestedSubVariables,
-                  getNewParents(parents, document)
-                ]
-              ).then((templateData) => {
-                result[attribute.title] = templateData;
-              }));
+              subPromises.push(
+                self.getPromiseByPaths
+                  .apply(self, [
+                    "DocumentReference",
+                    value,
+                    requestedSubVariables,
+                    getNewParents(parents, document)
+                  ])
+                  .then(templateData => {
+                    result[attribute.title] = templateData;
+                  })
+              );
             }
 
             if (requestedReferredSubVariables.length) {
-              subPromises.push(self.cbc.getByRef(value, parents[parents.length - 1]).then(
-                // Break the "parents-chain": the proper parent is resolved and does not have to
-                // processed any further
-                referredDocument => self.getPromiseByPaths.call(
-                  self,
-                  // The referered entity type...??
-                  entitiesHash[value.rootDocumentEntityType].attributes.find(
-                    obj => obj.title === value.path[0].field
-                  ).items,
-                  referredDocument,
-                  requestedReferredSubVariables,
-                  []
-                ).then((templateData) => {
-                  result[referredDocumentProperty] = templateData;
-                })
-              ).catch((e) => {
-                log(e);
-              }));
+              subPromises.push(
+                self.cbc
+                  .getByRef(value, parents[parents.length - 1])
+                  .then(
+                    // Break the "parents-chain": the proper parent is resolved and does not have to
+                    // processed any further
+                    referredDocument =>
+                      self.getPromiseByPaths
+                        .call(
+                          self,
+                          // The referered entity type...??
+                          entitiesHash[
+                            value.rootDocumentEntityType
+                          ].attributes.find(
+                            obj => obj.title === value.path[0].field
+                          ).items,
+                          referredDocument,
+                          requestedReferredSubVariables,
+                          []
+                        )
+                        .then(templateData => {
+                          result[referredDocumentProperty] = templateData;
+                        })
+                  )
+                  .catch(e => {
+                    log(e);
+                  })
+              );
             }
 
             return;
@@ -172,35 +219,52 @@ module.exports = {
 
         if (Array.isArray(value)) {
           // is request for derived subdocument properties?
-          const doTraverseSubdocuments = attribute.ref && entitiesHash[attribute.ref]
-              && (attribute.title.substr(-3) !== 'Ids');
+          const doTraverseSubdocuments =
+            attribute.ref &&
+            entitiesHash[attribute.ref] &&
+            attribute.title.substr(-3) !== "Ids";
           if (doTraverseSubdocuments) {
             if (fieldNameIsRequested) {
               result[attribute.title] = attribute.ref;
             }
 
             // applicableForGroupIds => applicableForGroups
-            requestedSubVariables = helpers.getRequestedSubVariables(requestedPaths, `${attribute.title.substr(-3)}s`);
+            requestedSubVariables = helpers.getRequestedSubVariables(
+              requestedPaths,
+              `${attribute.title.substr(-3)}s`
+            );
             if (requestedSubVariables.length === 0) {
               return;
             }
 
             result[`${attribute.title.substr(-3)}s`] = [];
 
-            subPromises.push(self.cbc.getByIds(attribute.ref, value).then((referredObjects) => {
-              const subSubPromises = [];
+            subPromises.push(
+              self.cbc.getByIds(attribute.ref, value).then(
+                referredObjects => {
+                  const subSubPromises = [];
 
-              referredObjects.forEach((referredObject) => {
-                subSubPromises.push(
-                  self.getPromiseByPaths.apply(
-                    self,
-                    [attribute.ref, referredObject, requestedSubVariables, getNewParents(parents, document)]
-                  ).then((templateData) => {
-                    result[`${attribute.title.substr(-3)}s`].push(templateData);
-                  }));
-              });
-              return Promise.all(subSubPromises);
-            }, () => { }));
+                  referredObjects.forEach(referredObject => {
+                    subSubPromises.push(
+                      self.getPromiseByPaths
+                        .apply(self, [
+                          attribute.ref,
+                          referredObject,
+                          requestedSubVariables,
+                          getNewParents(parents, document)
+                        ])
+                        .then(templateData => {
+                          result[`${attribute.title.substr(-3)}s`].push(
+                            templateData
+                          );
+                        })
+                    );
+                  });
+                  return Promise.all(subSubPromises);
+                },
+                () => {}
+              )
+            );
             return;
           }
 
@@ -215,23 +279,25 @@ module.exports = {
           result[attribute.title] = [];
           // We need to maintain the array order --> process and add them in order of the original array!
           const arrayItemPromises = [];
-          const requestedSubValuesForAll = helpers.getRequestedSubVariables(requestedPaths, `${attribute.title}.#`);
+          const requestedSubValuesForAll = helpers.getRequestedSubVariables(
+            requestedPaths,
+            `${attribute.title}.#`
+          );
           value.forEach((subDocument, index) => {
             // check for strings, e.g. Vasmo Company.classifications
             if (subDocument && entitiesHash[attribute.items]) {
               arrayItemPromises.push(
-                self.getPromiseByPaths.apply(
-                  self,
-                  [
-                    attribute.items,
-                    subDocument,
-                    helpers.getRequestedSubVariables(
+                self.getPromiseByPaths.apply(self, [
+                  attribute.items,
+                  subDocument,
+                  helpers
+                    .getRequestedSubVariables(
                       requestedPaths,
                       `${attribute.title}.${index}`
-                    ).concat(requestedSubValuesForAll),
-                    getNewParents(parents, document)
-                  ]
-                )
+                    )
+                    .concat(requestedSubValuesForAll),
+                  getNewParents(parents, document)
+                ])
               );
               return;
             }
@@ -240,9 +306,11 @@ module.exports = {
             arrayItemPromises.push(subDocument);
           });
           // We need to maintain the array order --> process and add them in order of the original array!
-          subPromises.push(Promise.all(arrayItemPromises).then((templateDatas) => {
-            result[attribute.title] = templateDatas;
-          }));
+          subPromises.push(
+            Promise.all(arrayItemPromises).then(templateDatas => {
+              result[attribute.title] = templateDatas;
+            })
+          );
           return;
         }
 
@@ -252,84 +320,117 @@ module.exports = {
           }
 
           if (!isReference) {
-            const referencedSubVariables = helpers.getRequestedSubVariables(requestedPaths, attribute.title);
+            const referencedSubVariables = helpers.getRequestedSubVariables(
+              requestedPaths,
+              attribute.title
+            );
             if (referencedSubVariables.length > 0) {
-              subPromises.push(self.getPromiseByPaths.apply(
-                self,
-                [
-                  attribute.type,
-                  value,
-                  referencedSubVariables,
-                  getNewParents(parents, document)
-                ]
-              ).then((templateData) => {
-                result[attribute.title] = templateData;
-              }));
+              subPromises.push(
+                self.getPromiseByPaths
+                  .apply(self, [
+                    attribute.type,
+                    value,
+                    referencedSubVariables,
+                    getNewParents(parents, document)
+                  ])
+                  .then(templateData => {
+                    result[attribute.title] = templateData;
+                  })
+              );
             }
             return;
           }
           // something like membership.emailAddressReference
 
           // find the referenced values for e.g. emailAddressReference
-          requestedSubVariables = helpers.getRequestedSubVariables(requestedPaths, attribute.title);
+          requestedSubVariables = helpers.getRequestedSubVariables(
+            requestedPaths,
+            attribute.title
+          );
           if (requestedSubVariables.length !== 0) {
-            subPromises.push(self.getPromiseByPaths(
-              attribute.type,
-              value,
-              requestedSubVariables,
-              getNewParents(parents, document)
-            ).then((templateData) => {
-              result[attribute.title] = templateData;
-            }));
+            subPromises.push(
+              self
+                .getPromiseByPaths(
+                  attribute.type,
+                  value,
+                  requestedSubVariables,
+                  getNewParents(parents, document)
+                )
+                .then(templateData => {
+                  result[attribute.title] = templateData;
+                })
+            );
           }
 
           // also get the referenced values for e.g. emailAddress
-          const referenceType = attribute.type.substr(0, (attribute.type.length - 9));
-          requestedSubVariables = helpers.getRequestedSubVariables(requestedPaths, referredDocumentProperty);
-          if (!value || (requestedSubVariables.length === 0)) {
+          const referenceType = attribute.type.substr(
+            0,
+            attribute.type.length - 9
+          );
+          requestedSubVariables = helpers.getRequestedSubVariables(
+            requestedPaths,
+            referredDocumentProperty
+          );
+          if (!value || requestedSubVariables.length === 0) {
             return;
           }
 
-          if (value.documentReference && value.documentReference.rootDocumentEntityType) {
+          if (
+            value.documentReference &&
+            value.documentReference.rootDocumentEntityType
+          ) {
             let parentDocument = null;
             const documentReference = value.documentReference;
-            const rootDocumentEntityType = documentReference.rootDocumentEntityType;
-            const rootDocumentEntityTypeNibbles = rootDocumentEntityType.split('.');
-            if (rootDocumentEntityTypeNibbles[0] === 'parent') {
+            const rootDocumentEntityType =
+              documentReference.rootDocumentEntityType;
+            const rootDocumentEntityTypeNibbles = rootDocumentEntityType.split(
+              "."
+            );
+            if (rootDocumentEntityTypeNibbles[0] === "parent") {
               // @todo findout why 3 ??
-              parentDocument = parents[rootDocumentEntityTypeNibbles.length - 3];
+              parentDocument =
+                parents[rootDocumentEntityTypeNibbles.length - 3];
             }
-            subPromises.push(self.cbc.getByRef(documentReference, parentDocument).then(
-              // Break the "parents-chain": the proper parent is resolved and does not have to
-              // processed any further
-              referredDocument => self.getPromiseByPaths.call(
-                self,
-                referenceType,
-                referredDocument,
-                requestedSubVariables,
-                []
-              ).then((templateData) => {
-                result[referredDocumentProperty] = templateData;
-              })
-            ).catch((e) => {
-              log(e);
-            }));
+            subPromises.push(
+              self.cbc
+                .getByRef(documentReference, parentDocument)
+                .then(
+                  // Break the "parents-chain": the proper parent is resolved and does not have to
+                  // processed any further
+                  referredDocument =>
+                    self.getPromiseByPaths
+                      .call(
+                        self,
+                        referenceType,
+                        referredDocument,
+                        requestedSubVariables,
+                        []
+                      )
+                      .then(templateData => {
+                        result[referredDocumentProperty] = templateData;
+                      })
+                )
+                .catch(e => {
+                  log(e);
+                })
+            );
             return;
           }
 
           if (value[referredDocumentProperty]) {
             // a custom defined address / phoneNumber / emailAddress within a reference
-            subPromises.push(self.getPromiseByPaths.apply(
-              self,
-              [
-                referenceType,
-                value[referredDocumentProperty],
-                requestedSubVariables,
-                getNewParents(parents, document)
-              ]
-            ).then((templateData) => {
-              result[referredDocumentProperty] = templateData;
-            }));
+            subPromises.push(
+              self.getPromiseByPaths
+                .apply(self, [
+                  referenceType,
+                  value[referredDocumentProperty],
+                  requestedSubVariables,
+                  getNewParents(parents, document)
+                ])
+                .then(templateData => {
+                  result[referredDocumentProperty] = templateData;
+                })
+            );
           }
           return;
         }
@@ -338,27 +439,34 @@ module.exports = {
           result[attribute.title] = value;
         }
 
-        if (type === 'ObjectId' && isReference) {
-          requestedSubVariables = helpers.getRequestedSubVariables(requestedPaths,
-            attribute.title.substr(0, (attribute.title.length - 2)));
+        if (type === "ObjectId" && isReference) {
+          requestedSubVariables = helpers.getRequestedSubVariables(
+            requestedPaths,
+            attribute.title.substr(0, attribute.title.length - 2)
+          );
 
           if (requestedSubVariables.length === 0) {
             return;
           }
 
-          subPromises.push(self.cbc.getById(attribute.ref, value).then(
-            referredObject => self.getPromiseByPaths.apply(
-              self,
-              [
-                attribute.ref,
-                referredObject,
-                requestedSubVariables, getNewParents(parents, document)
-              ]
-            ).then((templateData) => {
-              result[attribute.title.substr(0, (attribute.title.length - 2))] = templateData;
-            }),
-            () => { }
-          ));
+          subPromises.push(
+            self.cbc.getById(attribute.ref, value).then(
+              referredObject =>
+                self.getPromiseByPaths
+                  .apply(self, [
+                    attribute.ref,
+                    referredObject,
+                    requestedSubVariables,
+                    getNewParents(parents, document)
+                  ])
+                  .then(templateData => {
+                    result[
+                      attribute.title.substr(0, attribute.title.length - 2)
+                    ] = templateData;
+                  }),
+              () => {}
+            )
+          );
         }
       });
 
@@ -377,12 +485,19 @@ module.exports = {
    */
   composeTitle(chunks, entityTitle, document) {
     const id = document._id;
-    const title = chunks.join(' ').replace(/[ \r\n\t]+/g, ' ').replace(/ ,/g, ',')
-      .replace(/^[ \-,]+/g, '') // ltrim
-      .replace(/[ \-,]+$/g, ''); // rtrim
-    return (title.length > 0 ? title : (`<< ${id ?
-      `${this.stxt[entityTitle] || entityTitle} ${id}` :
-      `Nieuw "${this.stxt[entityTitle] || entityTitle}" document `} >>`));
+    const title = chunks
+      .join(" ")
+      .replace(/[ \r\n\t]+/g, " ")
+      .replace(/ ,/g, ",")
+      .replace(/^[ \-,]+/g, "") // ltrim
+      .replace(/[ \-,]+$/g, ""); // rtrim
+    return title.length > 0
+      ? title
+      : `<< ${
+          id
+            ? `${this.stxt[entityTitle] || entityTitle} ${id}`
+            : `Nieuw "${this.stxt[entityTitle] || entityTitle}" document `
+        } >>`;
   },
 
   /**
@@ -399,80 +514,103 @@ module.exports = {
     const self = this;
     const titlePartPromises = [];
 
-    _.each(titleFields, (titlePart) => {
+    _.each(titleFields, titlePart => {
       // addresses will be added later on for companies
-      if (entityTypeTitle === 'Company' && titlePart === 'addresses') {
+      if (entityTypeTitle === "Company" && titlePart === "addresses") {
         return;
       }
 
-      if (titlePart.substr(0, 2) === '{{') {
+      if (titlePart.substr(0, 2) === "{{") {
         titlePartPromises.push(titlePart.substr(2, titlePart.length - 4));
         return;
       }
 
-      if ((titlePart.substr(0, 1) === '{')) {
+      if (titlePart.substr(0, 1) === "{") {
         titlePart = titlePart.substr(0, titlePart.length - 1).substr(1);
       }
 
       const titlePartValue = document[titlePart];
 
       if (!titlePartValue && titlePartValue !== 0) {
-        titlePartPromises.push('');
+        titlePartPromises.push("");
         return;
       }
 
-      if (titlePart.substr(-2) === 'Id') {
-        const modelName = titlePart[0].toUpperCase() + titlePart.substring(1, titlePart.length - 2);
-        titlePartPromises.push(self.cbc.getById(modelName, titlePartValue).then((record) => {
-          if (!record) {
-            return '';
-          }
-          return self.getTitlePromise.apply(self, [modelName, record]);
-        }));
+      if (titlePart.substr(-2) === "Id") {
+        const modelName =
+          titlePart[0].toUpperCase() +
+          titlePart.substring(1, titlePart.length - 2);
+        titlePartPromises.push(
+          self.cbc.getById(modelName, titlePartValue).then(record => {
+            if (!record) {
+              return "";
+            }
+            return self.getTitlePromise.apply(self, [modelName, record]);
+          })
+        );
         return;
       }
 
-      if (titlePart.substr(-9) === 'Reference') {
+      if (titlePart.substr(-9) === "Reference") {
         if (!titlePartValue) {
           return;
         }
 
-        const entityName = titlePart[0].toUpperCase() + titlePart.substring(1, titlePart.length - 9);
+        const entityName =
+          titlePart[0].toUpperCase() +
+          titlePart.substring(1, titlePart.length - 9);
 
-        if (titlePartValue.documentReference && titlePartValue.documentReference.rootDocumentEntityType) {
+        if (
+          titlePartValue.documentReference &&
+          titlePartValue.documentReference.rootDocumentEntityType
+        ) {
           // get the document reference title!
           let parentDocument = null;
-          const rootDocumentEntityTypeNibbles = titlePartValue.documentReference.rootDocumentEntityType.split('.');
-          if (rootDocumentEntityTypeNibbles[0] === 'parent') {
+          const rootDocumentEntityTypeNibbles = titlePartValue.documentReference.rootDocumentEntityType.split(
+            "."
+          );
+          if (rootDocumentEntityTypeNibbles[0] === "parent") {
             parentDocument = parents[rootDocumentEntityTypeNibbles.length - 1];
           }
-          titlePartPromises.push(self.cbc.getByRef(titlePartValue.documentReference, parentDocument).then(
-            ref => self.getTitlePromise.call(self, entityName, ref)
-          ).catch((e) => {
-            log(e);
-            return Promise.resolve(['<< Verwijderd >>']);
-          }));
+          titlePartPromises.push(
+            self.cbc
+              .getByRef(titlePartValue.documentReference, parentDocument)
+              .then(ref => self.getTitlePromise.call(self, entityName, ref))
+              .catch(e => {
+                log(e);
+                return Promise.resolve(["<< Verwijderd >>"]);
+              })
+          );
           return;
         }
 
         // get the subdocument title!
-        const subDocument = titlePartValue[titlePart.substring(0, titlePart.length - 9)];
+        const subDocument =
+          titlePartValue[titlePart.substring(0, titlePart.length - 9)];
         if (!subDocument) {
           return;
         }
 
-        titlePartPromises.push(self.getTitlePromise.apply(self, [titlePart[0].toUpperCase() +
-          titlePart.substring(1, titlePart.length - 9), subDocument]));
+        titlePartPromises.push(
+          self.getTitlePromise.apply(self, [
+            titlePart[0].toUpperCase() +
+              titlePart.substring(1, titlePart.length - 9),
+            subDocument
+          ])
+        );
         return;
       }
 
       // E.g. type from Address should be translated from Private to Privé in the title{
-      titlePartPromises.push(self.stxt[`${entityTypeTitle}.${titlePart}.${titlePartValue}`] || titlePartValue);
+      titlePartPromises.push(
+        self.stxt[`${entityTypeTitle}.${titlePart}.${titlePartValue}`] ||
+          titlePartValue
+      );
     });
 
-    return Promise.all(titlePartPromises).catch((e) => {
+    return Promise.all(titlePartPromises).catch(e => {
       log(e);
-      return ['<< Onbekend, informatie ontbreekt >>'];
+      return ["<< Onbekend, informatie ontbreekt >>"];
     });
   }
 };

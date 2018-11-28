@@ -1,32 +1,32 @@
-const _ = require('lodash');
+const _ = require("lodash");
 
 // Simplified version of https://raw.githubusercontent.com/kvz/phpjs/master/functions/strings/number_format.js
 // eslint-disable-next-line camelcase
-const number_format = (number) => {
-  const n = (`${number}`).replace(/[^0-9+\-Ee.]/g, '');
-  const s = (`${(Math.round(n * 100) / 100).toFixed(2)}`).split('.');
+const number_format = number => {
+  const n = `${number}`.replace(/[^0-9+\-Ee.]/g, "");
+  const s = `${(Math.round(n * 100) / 100).toFixed(2)}`.split(".");
   if (s[0].length > 3) {
-    s[0] = s[0].replace(/\B(?=(?:\d{3})+(?!\d))/g, '.');
+    s[0] = s[0].replace(/\B(?=(?:\d{3})+(?!\d))/g, ".");
   }
-  if ((s[1] || '').length < 2) {
-    s[1] = s[1] || '';
-    s[1] += new Array(2 - (s[1].length + 1)).join('0');
+  if ((s[1] || "").length < 2) {
+    s[1] = s[1] || "";
+    s[1] += new Array(2 - (s[1].length + 1)).join("0");
   }
-  return s.join(',');
+  return s.join(",");
 };
 
 // eslint-disable-next-line camelcase
-const euro_format = (number) => {
+const euro_format = number => {
   const formattedNumber = number_format(number);
-  if (formattedNumber[0] === '-') {
+  if (formattedNumber[0] === "-") {
     return `-€ ${formattedNumber.substr(1)}`;
   }
 
   return `€ ${formattedNumber}`;
 };
 
-const ucfirst = (str) => {
-  str += '';
+const ucfirst = str => {
+  str += "";
   const f = str.charAt(0).toUpperCase();
   return f + str.substr(1);
 };
@@ -34,20 +34,23 @@ const ucfirst = (str) => {
 const getRequestedSubVariables = (requestedPaths, subPropertyName) => {
   const subResults = [];
 
-  requestedPaths.forEach((requestedPath) => {
-    const pathNibbles = requestedPath.split('.');
+  requestedPaths.forEach(requestedPath => {
+    const pathNibbles = requestedPath.split(".");
 
     // if the first nibble is a # (e.g. #.emailAddress or #.#),
     // change this # into the subPropertyName: emailAddress.emailAddress or emailAddress.#
-    if (pathNibbles[0] === '#' && pathNibbles.length > subPropertyName.split('.').length) {
+    if (
+      pathNibbles[0] === "#" &&
+      pathNibbles.length > subPropertyName.split(".").length
+    ) {
       pathNibbles[0] = subPropertyName;
     }
 
     const result = [];
     while (pathNibbles.length > 0) {
       result.push(pathNibbles.shift());
-      if (subPropertyName === result.join('.') && pathNibbles.length > 0) {
-        subResults.push(pathNibbles.join('.'));
+      if (subPropertyName === result.join(".") && pathNibbles.length > 0) {
+        subResults.push(pathNibbles.join("."));
       }
     }
   });
@@ -55,7 +58,7 @@ const getRequestedSubVariables = (requestedPaths, subPropertyName) => {
   return subResults;
 };
 
-const sortDictionaryByKey = (myObj) => {
+const sortDictionaryByKey = myObj => {
   const keys = Object.keys(myObj);
   const len = keys.length;
   const newObject = {};

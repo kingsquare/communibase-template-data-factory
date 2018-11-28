@@ -1,9 +1,9 @@
 module.exports = {
-  titleFields: ['merchantId'],
+  titleFields: ["merchantId"],
   _getTitlePromise(titleFields, entityTypeTitle, merchant) {
     const titles = [];
 
-    titleFields.forEach((titleField) => {
+    titleFields.forEach(titleField => {
       titles.push(merchant[titleField]);
     });
 
@@ -11,9 +11,11 @@ module.exports = {
       return Promise.resolve(titles);
     }
 
-    return this.getTitlePromise('MerchantData', merchant.data).then((dataTitle) => {
-      titles.push(dataTitle);
-      return titles;
-    });
+    return this.getTitlePromise("MerchantData", merchant.data).then(
+      dataTitle => {
+        titles.push(dataTitle);
+        return titles;
+      }
+    );
   }
 };

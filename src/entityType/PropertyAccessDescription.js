@@ -1,3 +1,3 @@
 module.exports = {
-  titleFields: ['entityTypeTitle', 'propertyTitle']
+  titleFields: ["entityTypeTitle", "propertyTitle"]
 };

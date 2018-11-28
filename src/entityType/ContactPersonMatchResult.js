@@ -1,3 +1,3 @@
 module.exports = {
-  titleFields: ['identifier', '{{ - }}', 'personId']
+  titleFields: ["identifier", "{{ - }}", "personId"]
 };
