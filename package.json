@@ -1,6 +1,6 @@
 {
   "name": "communibase-template-data-factory",
-  "version": "2.0.9",
+  "version": "2.0.10",
   "description": "Helper methods for working with Templates and the Communibase service.",
   "scripts": {
     "test": "node $NODE_DEBUG_OPTION test/runTests.js",

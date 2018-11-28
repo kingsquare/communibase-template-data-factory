@@ -7,11 +7,10 @@ const factory = new Factory({
   cbc
 });
 
-const template = Handlebars.parse("{{firstName}} - {{membershipNumber}}");
-
 describe("#Entity Magic()", () => {
   it("should expose membershipNumber for Person", done => {
     cbc.getById("Person", process.env.TEST_PERSON_ID).then(person => {
+      const template = Handlebars.parse("{{firstName}} - {{membershipNumber}}");
       factory.getPromise("Person", person, template).then(result => {
         assert.deepEqual(result, {
           firstName: "Janny",
@@ -19,6 +18,21 @@ describe("#Entity Magic()", () => {
         });
         done();
       });
+    });
+  });
+
+  it("should expose sessions for Event-participants", done => {
+    cbc.getAll("Event").then(events => {
+      const template = Handlebars.parse(
+        "{{#each participants}}{{personId}}:{{#each sessions}}{{title}}{{/each}}{{/each}}"
+      );
+      factory
+        .getPromise("Event", events[0], template)
+        .then(result => {
+          assert.equal(result.participants[0].sessions.length, 1);
+          done();
+        })
+        .catch(done);
     });
   });
 });
