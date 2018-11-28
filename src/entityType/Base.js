@@ -377,7 +377,9 @@ module.exports = {
    */
   composeTitle(chunks, entityTitle, document) {
     const id = document._id;
-    const title = chunks.join(' ').trim().replace(/[ \r\n\t]+/g, ' ').replace(/ ,/g, ',');
+    const title = chunks.join(' ').replace(/[ \r\n\t]+/g, ' ').replace(/ ,/g, ',')
+      .replace(/^[ \-,]+/g, '') // ltrim
+      .replace(/[ \-,]+$/g, ''); // rtrim
     return (title.length > 0 ? title : (`<< ${id ?
       `${this.stxt[entityTitle] || entityTitle} ${id}` :
       `Nieuw "${this.stxt[entityTitle] || entityTitle}" document `} >>`));
