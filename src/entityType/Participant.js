@@ -3,7 +3,6 @@ const BaseSerializer = require("./Base.js");
 module.exports = {
   titleFields: ["personId"],
   getPromiseByPaths(entityTypeTitle, document, requestedPaths, parents) {
-    const self = this;
     const allVariablesAreRequested =
       requestedPaths.length === 1 && requestedPaths[0].substring(0, 1) === "#";
     const sessionDataRequested =
@@ -12,8 +11,8 @@ module.exports = {
     return BaseSerializer.getPromiseByPaths
       .apply(this, arguments)
       .then(templateData => {
-        if (sessionDataRequested) {
-          const event = parents[0];
+        const event = parents && parents.length ? parents[0] : undefined;
+        if (event && event.sessions && sessionDataRequested) {
           templateData.sessions = event.sessions.filter(
             session =>
               !!session.participants.find(
