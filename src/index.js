@@ -158,13 +158,20 @@ module.exports = function exports(config) {
    * @param {String} entityTypeTitle - The entity type (i.e. Person, Shift, etc)
    * @param {Object} document - The actual document (entity) instance which should be templatified
    * @param {Handlebars} template - The template this is based on
+   * @param {Array} [parents] - An array of objects, introduce option to traverse back to parent objects
    * @returns {Promise}
    */
-  this.getPromise = function getPromise(entityTypeTitle, document, template) {
+  this.getPromise = function getPromise(
+    entityTypeTitle,
+    document,
+    template,
+    parents
+  ) {
     return this.getPromiseByPaths(
       entityTypeTitle,
       document,
-      this.getPaths(template)
+      this.getPaths(template),
+      parents
     );
   };
 
