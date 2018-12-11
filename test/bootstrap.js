@@ -1,6 +1,5 @@
 const setupDatabase = require("./runTests/setupDatabase.js");
 const bootServer = require("./runTests/bootServer.js");
-const ChildProcess = require("child_process");
 
 // setup proper environment vars and run casper
 let dbHost = "localhost";
@@ -42,31 +41,23 @@ process.env.AWS_SES_US_EAST_1_SECRET = "AWS_SES_US_EAST_1_SECRET123";
 process.env.TEST_ADMINISTRATION_DB_URI = `mongodb://${dbHost}:${dbPort}/test_administration`;
 process.env.COMMUNIBASE_KEY = "test123456789012345678901234567890";
 
-setupDatabase()
-  .then(bootServer)
-  .then(serverProcess =>
-    require("./runTests/loadFixtures.js")().then(() => serverProcess)
-  )
-  .then(
-    serverProcess => {
-      // var command = "mocha --debug-brk test/tests/documentReference.js";
-      const isDebugged =
-        typeof v8debug === "object" ||
-        /--debug|--inspect/.test(process.execArgv.join(" "));
-      const mochaProcess = ChildProcess.exec(
-        `mocha${isDebugged ? " --inspect" : ""} test/tests/`,
-        { env: process.env }
-      );
-      mochaProcess.stdout.pipe(process.stdout);
-      mochaProcess.stderr.pipe(process.stderr);
-      mochaProcess.on("close", code => {
+let apiServerProcess = null;
+before(function() {
+  return setupDatabase()
+    .then(bootServer)
+    .then(serverProcess => {
+      apiServerProcess = serverProcess;
+      return require("./runTests/loadFixtures.js")().catch(err => {
         serverProcess.kill();
-        process.exit(code);
+        console.error(err);
+        console.log(err.stack);
+        process.exit(1);
       });
-    },
-    err => {
-      console.error(err);
-      console.log(err.stack);
-      process.exit(1);
-    }
-  );
+    });
+});
+
+after(function() {
+  if (apiServerProcess) {
+    apiServerProcess.kill();
+  }
+});
