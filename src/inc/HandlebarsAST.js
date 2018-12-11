@@ -10,12 +10,14 @@ const isHelper = function(node) {
   // in v4 this information is not available in the AST so we need to
   // check this our self... To do this we use the following code taken from
   // https://github.com/wycats/handlebars.js/blob/95d84badcae89aa72a6f1433b851304700320920/lib/handlebars/compiler/ast.js
-  return (node.type === 'SubExpression')
-    || ((node.type === 'MustacheStatement' || node.type === 'BlockStatement')
-      && !!((node.params && node.params.length) || node.hash));
+  return (
+    node.type === "SubExpression" ||
+    ((node.type === "MustacheStatement" || node.type === "BlockStatement") &&
+      !!((node.params && node.params.length) || node.hash))
+  );
 };
 
-module.exports.getV2Paths = (node) => {
+module.exports.getV2Paths = node => {
   let result = [];
 
   if (!node || !node.type) {
@@ -111,7 +113,7 @@ module.exports.getV2Paths = (node) => {
   return result;
 };
 
-module.exports.getV4Paths = (node) => {
+module.exports.getV4Paths = node => {
   let result = [];
   if (!node || !node.type) {
     return result;
@@ -125,7 +127,7 @@ module.exports.getV4Paths = (node) => {
         });
       });
       break;
-    case 'BlockStatement':
+    case "BlockStatement":
       // const blockKeys = node.params.map(param => this.getV4Paths(param));
       blockKeys = [];
       node.params.forEach(param => {
@@ -134,34 +136,38 @@ module.exports.getV4Paths = (node) => {
         });
       });
 
-      if ((!isHelper(node) || (node.path && node.path.original === 'each')) && node.program) {
+      if (
+        (!isHelper(node) || (node.path && node.path.original === "each")) &&
+        node.program
+      ) {
         this.getV4Paths(node.program).forEach(subValue => {
           result.push(`${blockKeys[0]}.#.${subValue}`);
         });
         break;
       }
 
-      if (node.path && node.path.original === 'filter') {
+      if (node.path && node.path.original === "filter") {
         var d = true;
         // look for used properties in equation
-        [
-          node.params[1],
-          node.params[node.params.length === 4 ? 3 : 2]
-        ].forEach(possiblePropertyNode => {
-          switch (possiblePropertyNode.type) {
-            case "StringLiteral":
-              // e.g. ../session.personId
-              result.push(`${blockKeys[0]}.#.${possiblePropertyNode.original}`);
-              break;
+        [node.params[1], node.params[node.params.length === 4 ? 3 : 2]].forEach(
+          possiblePropertyNode => {
+            switch (possiblePropertyNode.type) {
+              case "StringLiteral":
+                // e.g. ../session.personId
+                result.push(
+                  `${blockKeys[0]}.#.${possiblePropertyNode.original}`
+                );
+                break;
 
-            // @ TODO BooleanLiteral ?
-            // @ TODO the following
-            case "ID":
-              // e.g. personId
-              result.push(possiblePropertyNode.original);
-              break;
+              // @ TODO BooleanLiteral ?
+              // @ TODO the following
+              case "ID":
+                // e.g. personId
+                result.push(possiblePropertyNode.original);
+                break;
+            }
           }
-        });
+        );
 
         if (node.program) {
           this.getV4Paths(node.program).forEach(subValue => {
@@ -192,7 +198,7 @@ module.exports.getV4Paths = (node) => {
       }
       break;
 
-    case 'MustacheStatement':
+    case "MustacheStatement":
       if (!isHelper(node)) {
         result.push(node.path.original);
       }
@@ -224,7 +230,7 @@ module.exports.getV4Paths = (node) => {
  *
  * @returns {Array} result - The requested paths
  */
-module.exports.getTemplatePaths = (node) => {
+module.exports.getTemplatePaths = node => {
   if (debug) {
     // eslint-disable-next-line no-console
     console.log(`${JSON.stringify(node)}\n\n`);
