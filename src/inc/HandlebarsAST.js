@@ -9,7 +9,7 @@ const isHelper = function(node) {
   }
   // in v4 this information is not available in the AST so we need to
   // check this our self... To do this we use the following code taken from
-  // https://github.com/wycats/handlebars.js/blob/95d84badcae89aa72a6f1433b851304700320920/lib/handlebars/compiler/ast.js
+  // https://github.com/wycats/handlebars.js/blob/95d84badcae89aa72a6f1433b851304700320920/lib/handlebars/compiler/ast.js#L8
   return (
     node.type === "SubExpression" ||
     ((node.type === "MustacheStatement" || node.type === "BlockStatement") &&
