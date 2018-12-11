@@ -1,117 +1,6 @@
 /* eslint-disable global-require */
 const Promise = require("bluebird");
-const _ = require("lodash");
-
-let debug = false;
-
-/**
- * Gets all requested paths based on the given template. When inserting:
- * {{invoiceNumber}} - {{#invoiceItems}} {{totalEx}} {{/invoiceItems}}
- * It should return:
- * ["invoiceNumber", "invoiceItems.#.totalEx"]
- *
- * @param {object} node
- * @returns {Array} result - The requested paths
- */
-function _getPaths(node) {
-  let result = [];
-  if (debug) {
-    // eslint-disable-next-line no-console
-    console.log(`${JSON.stringify(node)}\n\n`);
-  }
-
-  if (!node || !node.type) {
-    return result;
-  }
-
-  let blockKeys;
-  switch (node.type.toLowerCase()) {
-    // E.g. 'date' / 'debtor.debtorNumber'
-    case "id":
-      result.push(node.idName);
-      break;
-
-    case "program":
-      node.statements.forEach(statement => {
-        _getPaths(statement).forEach(variable => {
-          result.push(variable);
-        });
-      });
-      break;
-
-    // E.g. #each / #if / #compare / '#invoiceItems' / '#ifIsCredit'
-    case "block":
-      blockKeys = _getPaths(node.mustache);
-
-      if (
-        (!node.mustache.isHelper || node.mustache.id.string === "each") &&
-        node.program
-      ) {
-        _getPaths(node.program).forEach(subValue => {
-          result.push(`${blockKeys[0]}.#.${subValue}`);
-        });
-        break;
-      }
-
-      if (node.mustache.id.string === "filter") {
-        // look for used properties in equation
-        [
-          node.mustache.params[1],
-          node.mustache.params[node.mustache.params.length === 4 ? 3 : 2]
-        ].forEach(possiblePropertyNode => {
-          switch (possiblePropertyNode.type) {
-            case "STRING":
-              // e.g. ../session.personId
-              result.push(`${blockKeys[0]}.#.${possiblePropertyNode.string}`);
-              break;
-
-            case "ID":
-              // e.g. personId
-              result.push(possiblePropertyNode.string);
-              break;
-          }
-        });
-
-        _getPaths(node.program).forEach(subValue => {
-          // indexes may change due to filtering: always request __all__ subValues
-          result.push(
-            subValue.replace(/^results\.(\d+|#)\./, `${blockKeys[0]}.#.`)
-          );
-        });
-        break;
-      }
-
-      result = blockKeys;
-
-      if (node.program) {
-        _getPaths(node.program).forEach(variable => {
-          result.push(variable);
-        });
-      }
-      if (node.inverse) {
-        _getPaths(node.inverse).forEach(variable => {
-          result.push(variable);
-        });
-      }
-      break;
-
-    // E.g. '{{#compare person.gender 'M'}}'
-    case "mustache":
-      if (!node.isHelper) {
-        result.push(node.id.idName);
-        break;
-      }
-
-      node.params.forEach(param => {
-        _getPaths(param).forEach(variable => {
-          result.push(variable);
-        });
-      });
-      break;
-  }
-
-  return result;
-}
+const { getTemplatePaths } = require("./inc/HandlebarsAST");
 
 const entitySerializers = {
   Base: require("./entityType/Base.js"),
@@ -310,46 +199,44 @@ module.exports = function exports(config) {
 
   this.getPaths = function getPaths(node) {
     // sanitize paths
-    return _.uniq(
-      _getPaths(node).map(path => {
-        // find and process parent references
-        const newPath = [];
-        // trim and split
-        // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/Trim + dots
-        const nibbles = path
-          .replace(/^[\s\uFEFF\xA0.]+|[\s\uFEFF\xA0.]+$/g, "")
-          .split(".");
-        for (let i = 0; i < nibbles.length; i += 1) {
-          let currentNibble = nibbles[i];
+    return getTemplatePaths(node).map(path => {
+      // find and process parent references
+      const newPath = [];
+      // trim and split
+      // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/Trim + dots
+      const nibbles = path
+        .replace(/^[\s\uFEFF\xA0.]+|[\s\uFEFF\xA0.]+$/g, "")
+        .split(".");
+      for (let i = 0; i < nibbles.length; i += 1) {
+        let currentNibble = nibbles[i];
 
-          // detect '..'
-          let parentRequested =
-            currentNibble === "" &&
-            nibbles.length >= i + 2 &&
-            nibbles[i + 1] === "" &&
-            nibbles[i + 2].indexOf("/") === 0;
-          while (parentRequested) {
-            // traverse to parent...
-            const poppedNibble = newPath.pop();
-            // parent is array iterator?
-            if (poppedNibble.match(/^(#|\d+)$/) !== null) {
-              newPath.pop();
-            }
-
-            i += 2;
-            // more parent refs coming...
-            if (nibbles[i] === "/") {
-              nibbles[i] = "";
-            } else {
-              currentNibble = nibbles[i].substr(1);
-              parentRequested = false;
-            }
+        // detect '..'
+        let parentRequested =
+          currentNibble === "" &&
+          nibbles.length >= i + 2 &&
+          nibbles[i + 1] === "" &&
+          nibbles[i + 2].indexOf("/") === 0;
+        while (parentRequested) {
+          // traverse to parent...
+          const poppedNibble = newPath.pop();
+          // parent is array iterator?
+          if (poppedNibble.match(/^(#|\d+)$/) !== null) {
+            newPath.pop();
           }
-          newPath.push(currentNibble);
+
+          i += 2;
+          // more parent refs coming...
+          if (nibbles[i] === "/") {
+            nibbles[i] = "";
+          } else {
+            currentNibble = nibbles[i].substr(1);
+            parentRequested = false;
+          }
         }
-        return newPath.join(".");
-      })
-    );
+        newPath.push(currentNibble);
+      }
+      return newPath.join(".");
+    });
   };
 
   this.setStxt = function setStxt(stxt) {

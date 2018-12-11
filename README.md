@@ -1,3 +1,5 @@
+[![wercker status](https://app.wercker.com/status/0d5d25d4c12cbdfc395f363a2684a6a4/s/master "wercker status")](https://app.wercker.com/project/byKey/0d5d25d4c12cbdfc395f363a2684a6a4)
+
 # communibase-template-data-factory
 
 Enrich Communibase-data in any way possible for easy use in dynamic templates.
@@ -28,13 +30,3 @@ __stxt__: a Javascript-object containing optional translations, e.g.:
  
 Extra (custom) serializers can be added to the factory using the `addSerializers`-method. See serializers in the
 `entityType`-folder for examples and implementations
-
-## Debugging?
-
-See runTest.js line 44, attach a debugger from the IDE to mocha
-
- ### PLEASE NOTE ###
-
- This library is compatible with Handlebars 2.0.0
-
- Later versions of Handlebars have a different AST and do not function properly!
