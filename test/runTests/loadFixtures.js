@@ -33,11 +33,16 @@ module.exports = () => {
     fs.readFileSync(`${__dirname}/../fixtures/event.json`)
   );
 
-  return Promise.all([
-    cbc.update("Person", personData),
-    cbc.update("Company", companyData),
-    cbc.update("Group", groupData)
-  ])
+  return cbc
+    .update("Company", companyData)
+    .then(company => {
+      personData.positions[0].companyId = company._id;
+      return Promise.all([
+        cbc.update("Person", personData),
+        company,
+        cbc.update("Group", groupData)
+      ]);
+    })
     .spread((person, company, group) => {
       debtorData.personId = person._id;
       debtorData.companyId = company._id;
