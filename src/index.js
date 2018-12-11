@@ -246,8 +246,4 @@ module.exports = function exports(config) {
   this.setSerializers = serializers => {
     Object.assign(entitySerializers, serializers);
   };
-
-  this.setDebug = function setDebug(enable) {
-    debug = enable;
-  };
 };

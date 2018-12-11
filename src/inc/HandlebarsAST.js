@@ -147,7 +147,6 @@ module.exports.getV4Paths = node => {
       }
 
       if (node.path && node.path.original === "filter") {
-        var d = true;
         // look for used properties in equation
         [node.params[1], node.params[node.params.length === 4 ? 3 : 2]].forEach(
           possiblePropertyNode => {
@@ -249,6 +248,7 @@ module.exports.getTemplatePaths = node => {
   }
 
   if (debug) {
+    // eslint-disable-next-line no-console
     console.log(uniq(paths));
   }
   return uniq(paths);
